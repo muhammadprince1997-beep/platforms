@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>منصة الأستاذ محمد عبدالرحمن</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--surface:#13131e;--surface2:#1c1c2e;--border:#2a2a40;
+  --accent:#7c6fff;--accent2:#ff6584;--accent3:#3fd6c4;
+  --text:#eaeaf5;--muted:#7070a0;--success:#40d9a0;--warn:#ffb347;--r:14px;--rs:8px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.orbs{position:fixed;inset:0;pointer-events:none;z-index:0}
+.orb{position:absolute;border-radius:50%;filter:blur(110px);opacity:.1}
+.o1{width:700px;height:700px;background:var(--accent);top:-250px;right:-200px}
+.o2{width:450px;height:450px;background:var(--accent2);bottom:-150px;left:-150px}
+.o3{width:350px;height:350px;background:var(--accent3);top:40%;left:35%}
+.screen{display:none;min-height:100vh;position:relative;z-index:1;flex-direction:column}
+.screen.active{display:flex}
+nav{background:rgba(13,13,22,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);
+  padding:0 28px;height:66px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:200;flex-shrink:0}
+.logo{display:flex;flex-direction:column;cursor:pointer;line-height:1.15}
+.logo-name{font-size:17px;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-sub{font-size:11px;color:var(--muted)}
+.nav-btns{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{padding:9px 18px;border-radius:var(--rs);border:none;font-family:'Cairo',sans-serif;
+  font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:7px}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#9d98ff);color:#fff;box-shadow:0 4px 18px rgba(124,111,255,.4)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(124,111,255,.5)}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);background:rgba(124,111,255,.08)}
+.btn-danger{background:rgba(255,101,132,.12);color:var(--accent2);border:1px solid rgba(255,101,132,.3)}
+.btn-danger:hover{background:rgba(255,101,132,.22)}
+.btn-success{background:linear-gradient(135deg,#40d9a0,#3fd6c4);color:#0a0a0f}
+.btn-sm{padding:7px 14px;font-size:13px}.btn-xs{padding:5px 10px;font-size:12px}.btn-icon{padding:7px}
+#s-login{align-items:center;justify-content:center}
+.login-wrap{width:100%;max-width:420px;padding:20px}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:44px 40px;position:relative;overflow:hidden}
+.login-card::before{content:'';position:absolute;top:-80px;left:-80px;width:260px;height:260px;background:var(--accent);opacity:.06;border-radius:50%}
+.login-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent3));display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 14px}
+.login-title{text-align:center;margin-bottom:28px}
+.login-name{font-size:20px;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.login-sub{font-size:13px;color:var(--muted);margin-top:4px}
+.lfield{margin-bottom:16px}
+.lfield label{display:block;font-size:12px;color:var(--muted);font-weight:700;margin-bottom:7px}
+.linp{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px 16px;color:var(--text);font-family:'Cairo',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+.linp:focus{border-color:var(--accent)}
+.linp.err{animation:shake .35s ease;border-color:var(--accent2)}
+.pass-wrap{position:relative}
+.linp.has-eye{padding-left:42px}
+.eye-btn{position:absolute;left:12px;top:50%;transform:translateY(-50%);background:transparent;border:none;cursor:pointer;color:var(--muted);font-size:16px}
+.eye-btn:hover{color:var(--accent)}
+.login-btn{width:100%;background:linear-gradient(135deg,var(--accent),#9d98ff);color:#fff;border:none;padding:13px;border-radius:var(--rs);font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 4px 18px rgba(124,111,255,.4);margin-top:6px}
+.login-btn:hover:not(:disabled){transform:translateY(-2px)}
+.login-btn:disabled{opacity:.6;cursor:not-allowed}
+.lerr{color:var(--accent2);font-size:13px;text-align:center;margin-top:10px;font-weight:600;min-height:22px}
+.login-foot{text-align:center;margin-top:16px;font-size:12px;color:var(--muted);border-top:1px solid var(--border);padding-top:14px}
+.dash-body{padding:36px;flex:1}
+.dash-top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px}
+.dash-top h1{font-size:28px;font-weight:900}
+.dash-top p{color:var(--muted);margin-top:5px;font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:22px;position:relative;overflow:hidden}
+.stat::after{content:'';position:absolute;top:0;right:0;width:70px;height:70px;border-radius:0 var(--r) 0 70px;opacity:.15}
+.stat:nth-child(1)::after{background:var(--accent)}.stat:nth-child(2)::after{background:var(--accent3)}.stat:nth-child(3)::after{background:var(--accent2)}
+.stat-lbl{font-size:13px;color:var(--muted);font-weight:500}.stat-val{font-size:34px;font-weight:900;margin-top:4px}
+.forms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:18px}
+.form-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:22px;transition:all .25s;position:relative;overflow:hidden}
+.form-card::before{content:'';position:absolute;top:0;right:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent3));transform:scaleX(0);transform-origin:right;transition:transform .3s}
+.form-card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 12px 36px rgba(124,111,255,.18)}
+.form-card:hover::before{transform:scaleX(1)}
+.fc-title{font-size:16px;font-weight:700;margin-bottom:7px}.fc-meta{font-size:12px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap}
+.fc-actions{display:flex;gap:7px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700}
+.badge-on{background:rgba(64,217,160,.12);color:var(--success)}.badge-off{background:rgba(112,112,160,.12);color:var(--muted)}
+.empty{grid-column:1/-1;text-align:center;padding:70px 40px;border:2px dashed var(--border);border-radius:var(--r)}
+.empty-ico{font-size:52px;margin-bottom:14px}
+.builder-wrap{display:grid;grid-template-columns:260px 1fr 300px;flex:1;min-height:calc(100vh - 66px)}
+.panel{background:var(--surface);padding:22px;overflow-y:auto}
+.panel-l{border-left:1px solid var(--border)}.panel-r{border-right:1px solid var(--border)}
+.ptitle{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:14px}
+.qtypes{display:flex;flex-direction:column;gap:6px}
+.qtype{display:flex;align-items:center;gap:10px;padding:10px 13px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);cursor:pointer;transition:all .2s;color:var(--text);font-family:'Cairo',sans-serif;font-size:13px;font-weight:500;width:100%;text-align:right}
+.qtype:hover{border-color:var(--accent);color:var(--accent);background:rgba(124,111,255,.08)}
+.qtype-ico{font-size:17px;width:24px;text-align:center;flex-shrink:0}
+.canvas{padding:28px;overflow-y:auto;background:var(--bg);display:flex;flex-direction:column;gap:12px}
+.title-inp{background:transparent;border:none;outline:none;font-family:'Cairo',sans-serif;font-size:26px;font-weight:900;color:var(--text);width:100%;padding:7px 0;border-bottom:2px solid var(--border);transition:border-color .2s}
+.title-inp:focus{border-bottom-color:var(--accent)}.title-inp::placeholder{color:var(--muted)}
+.desc-inp{background:transparent;border:none;outline:none;font-family:'Cairo',sans-serif;font-size:14px;color:var(--muted);width:100%;padding:4px 0;resize:none;min-height:38px}
+.qblock{background:var(--surface);border:2px solid transparent;border-radius:var(--r);padding:20px;transition:border-color .2s;position:relative}
+.qblock:hover{border-color:var(--border)}.qblock.sel{border-color:var(--accent);box-shadow:0 0 0 4px rgba(124,111,255,.1)}
+.cblock{background:var(--surface);border:2px dashed var(--border);border-radius:var(--r);padding:20px;position:relative}
+.cblock:hover{border-color:var(--accent3)}
+.cb-label{font-size:11px;color:var(--accent3);font-weight:700;letter-spacing:.8px;margin-bottom:8px}
+.cb-inp{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 14px;color:var(--text);font-family:'Cairo',sans-serif;font-size:14px;outline:none;transition:border-color .2s;width:100%}
+.cb-inp:focus{border-color:var(--accent3)}.cb-ta{resize:vertical;min-height:80px}
+.img-upload-area{border:2px dashed var(--border);border-radius:var(--rs);padding:24px;text-align:center;cursor:pointer;transition:all .2s;margin-top:8px}
+.img-upload-area:hover{border-color:var(--accent3);background:rgba(63,214,196,.05)}
+.img-preview{width:100%;max-height:200px;object-fit:cover;border-radius:var(--rs);margin-top:8px;display:block}
+.qb-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px}
+.qnum{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent3));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;margin-top:3px}
+.qlabel-inp{background:transparent;border:none;outline:none;font-family:'Cairo',sans-serif;font-size:15px;font-weight:600;color:var(--text);width:100%}
+.qlabel-inp::placeholder{color:var(--muted)}
+.qactions{position:absolute;top:10px;left:10px;display:flex;gap:5px;opacity:0;transition:opacity .2s}
+.qblock:hover .qactions,.qblock.sel .qactions,.cblock:hover .qactions{opacity:1}
+.opts-list{display:flex;flex-direction:column;gap:7px;padding-right:36px}
+.opt-row{display:flex;align-items:center;gap:9px}
+.opt-dot{width:17px;height:17px;border:2px solid var(--border);flex-shrink:0}
+.opt-dot.r{border-radius:50%}.opt-dot.c{border-radius:4px}
+.opt-inp{background:transparent;border:none;border-bottom:1px solid var(--border);outline:none;font-family:'Cairo',sans-serif;font-size:13px;color:var(--text);flex:1;padding:3px 0}
+.opt-inp:focus{border-bottom-color:var(--accent)}
+.add-opt{background:transparent;border:none;color:var(--accent);font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;cursor:pointer;padding:7px 0 0 36px;display:flex;align-items:center;gap:5px}
+.preview-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:11px 14px;color:var(--muted);font-size:13px;margin-right:36px}
+.qfooter{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap;gap:8px}
+.req-toggle{display:flex;align-items:center;gap:7px;cursor:pointer;font-size:12px;color:var(--muted);user-select:none}
+.tog{width:34px;height:19px;background:var(--border);border-radius:100px;position:relative;transition:background .2s;flex-shrink:0}
+.tog.on{background:var(--accent)}.tog::after{content:'';position:absolute;top:2px;right:2px;width:15px;height:15px;background:#fff;border-radius:50%;transition:transform .2s}
+.tog.on::after{transform:translateX(-15px)}.type-badge{font-size:11px;color:var(--muted);background:var(--surface2);padding:3px 8px;border-radius:100px}
+.add-hint{border:2px dashed var(--border);border-radius:var(--r);padding:22px;text-align:center;color:var(--muted);font-size:14px;cursor:pointer;transition:all .2s}
+.add-hint:hover{border-color:var(--accent);color:var(--accent);background:rgba(124,111,255,.05)}
+.logic-section{margin-top:12px;border-top:1px dashed var(--border);padding-top:12px}
+.logic-header{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--muted);user-select:none}
+.logic-header:hover{color:var(--accent3)}
+.logic-badge{background:rgba(63,214,196,.15);border:1px solid var(--accent3);border-radius:100px;padding:2px 8px;font-size:11px;color:var(--accent3);font-weight:700}
+.logic-body{margin-top:10px;background:rgba(63,214,196,.04);border:1px solid rgba(63,214,196,.18);border-radius:var(--rs);padding:14px;display:flex;flex-direction:column;gap:10px}
+.logic-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.logic-sel{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-family:'Cairo',sans-serif;font-size:12px;outline:none;cursor:pointer}
+.logic-hint{font-size:11px;color:var(--muted);line-height:1.6;background:rgba(63,214,196,.04);border-radius:6px;padding:8px 10px}
+.logic-active-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(63,214,196,.12);border:1px solid var(--accent3);border-radius:6px;padding:4px 9px;font-size:11px;color:var(--accent3);font-weight:700}
+.set-group{margin-bottom:22px}
+.set-group label{display:block;font-size:12px;color:var(--muted);margin-bottom:7px;font-weight:600}
+.set-inp{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:9px 13px;color:var(--text);font-family:'Cairo',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
+.set-inp:focus{border-color:var(--accent)}
+.set-sel{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:9px 13px;color:var(--text);font-family:'Cairo',sans-serif;font-size:13px;outline:none;cursor:pointer;appearance:none}
+.link-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:11px 13px;display:flex;align-items:center;gap:7px}
+.link-txt{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent3);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cpbtn{background:transparent;border:none;cursor:pointer;color:var(--muted);font-size:15px;transition:color .2s;padding:3px}
+.cpbtn:hover{color:var(--accent3)}.hr{height:1px;background:var(--border);margin:18px 0}
+#s-form{background:linear-gradient(135deg,#0a0a0f,#12121a 60%);align-items:center;padding:36px 16px}
+.fv-wrap{width:100%;max-width:660px;margin:0 auto}
+.fv-back{background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 16px;border-radius:var(--rs);font-family:'Cairo',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;margin-bottom:20px;display:inline-flex;align-items:center;gap:6px}
+.fv-back:hover{border-color:var(--accent);color:var(--accent)}
+.fv-header{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:32px;margin-bottom:14px;border-top:4px solid var(--accent);position:relative;overflow:hidden}
+.fv-header::after{content:'';position:absolute;top:-60px;left:-60px;width:220px;height:220px;background:var(--accent);opacity:.04;border-radius:50%}
+.fv-title{font-size:24px;font-weight:900;margin-bottom:8px}.fv-desc{color:var(--muted);font-size:14px;line-height:1.7}
+.fv-owner{font-size:12px;color:var(--accent3);margin-top:10px;font-weight:600}
+.fv-content-img{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:14px}
+.fv-content-img img{width:100%;max-height:260px;object-fit:cover;border-radius:var(--rs);display:block}
+.fv-content-img .cap{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.6}
+.fv-content-text{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px;margin-bottom:14px;border-right:4px solid var(--accent3)}
+.fv-content-text p{font-size:15px;line-height:1.8;color:var(--text);white-space:pre-wrap}
+.qcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:26px;margin-bottom:14px;transition:border-color .2s,opacity .3s,max-height .35s;overflow:hidden;max-height:800px}
+.qcard.hidden-q{opacity:0;max-height:0;padding:0;margin:0;border:none;pointer-events:none}
+.qcard:focus-within{border-color:var(--accent)}
+.qcard.error{border-color:var(--accent2)!important;box-shadow:0 0 0 4px rgba(255,101,132,.12)!important;animation:shake .35s ease}
+.qcard-lbl{font-size:15px;font-weight:600;margin-bottom:14px;line-height:1.5}
+.req-star{color:var(--accent2);margin-right:4px}
+.fv-inp{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:11px 14px;color:var(--text);font-family:'Cairo',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+.fv-inp:focus{border-color:var(--accent)}.fv-ta{resize:vertical;min-height:90px}
+.fv-opts{display:flex;flex-direction:column;gap:9px}
+.fv-opt{display:flex;align-items:center;gap:11px;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);cursor:pointer;transition:all .2s;user-select:none}
+.fv-opt:hover{border-color:var(--accent);background:rgba(124,111,255,.08)}.fv-opt.sel{border-color:var(--accent);background:rgba(124,111,255,.12)}
+.c-radio{width:17px;height:17px;border:2px solid var(--border);border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.fv-opt.sel .c-radio{border-color:var(--accent)}.c-radio::after{content:'';width:7px;height:7px;background:var(--accent);border-radius:50%;opacity:0;transition:opacity .2s}
+.fv-opt.sel .c-radio::after{opacity:1}
+.c-check{width:17px;height:17px;border:2px solid var(--border);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.fv-opt.sel .c-check{border-color:var(--accent);background:var(--accent)}.c-check::after{content:'✓';font-size:11px;color:#fff;opacity:0;transition:opacity .2s}
+.fv-opt.sel .c-check::after{opacity:1}
+.fv-sel{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:11px 14px;color:var(--text);font-family:'Cairo',sans-serif;font-size:14px;outline:none;cursor:pointer;appearance:none;transition:border-color .2s}
+.fv-sel:focus{border-color:var(--accent)}
+.fv-img-upload{border:2px dashed var(--border);border-radius:var(--rs);padding:28px;text-align:center;cursor:pointer;transition:all .2s}
+.fv-img-upload:hover{border-color:var(--accent);background:rgba(124,111,255,.05)}
+.fv-img-preview{width:100%;max-height:220px;object-fit:cover;border-radius:var(--rs);margin-top:10px;display:block}
+.submit-area{padding:28px 0 40px;display:flex;justify-content:flex-end}
+.submit-btn{background:linear-gradient(135deg,var(--accent),var(--accent3));color:#fff;border:none;padding:13px 34px;border-radius:var(--rs);font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 4px 18px rgba(124,111,255,.4)}
+.submit-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 28px rgba(124,111,255,.5)}
+.submit-btn:disabled{opacity:.6;cursor:not-allowed}
+.success-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:56px 36px;text-align:center;max-width:460px;margin:60px auto}
+.sico{font-size:60px;margin-bottom:18px;animation:bonce .6s ease}
+@keyframes bonce{0%{transform:scale(0)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+.success-card h2{font-size:22px;font-weight:900;margin-bottom:9px}
+.success-card p{color:var(--muted);font-size:14px;line-height:1.7}
+.resp-body{padding:36px;flex:1;overflow-x:auto}
+.resp-table{width:100%;border-collapse:collapse;margin-top:22px;background:var(--surface);border-radius:var(--r);overflow:hidden;min-width:600px}
+.resp-table th{background:var(--surface2);padding:13px 18px;text-align:right;font-size:12px;font-weight:800;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap}
+.resp-table td{padding:13px 18px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:top}
+.resp-table tr:last-child td{border-bottom:none}.resp-table tr:hover td{background:rgba(124,111,255,.04)}
+.resp-img-thumb{width:60px;height:45px;object-fit:cover;border-radius:6px;cursor:pointer;border:1px solid var(--border)}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:32px;max-width:500px;width:100%;transform:scale(.95);transition:transform .2s;max-height:90vh;overflow-y:auto}
+.overlay.open .modal{transform:scale(1)}
+.modal h2{font-size:20px;font-weight:900;margin-bottom:5px}.modal p{color:var(--muted);font-size:13px;margin-bottom:20px}
+.modal-acts{display:flex;gap:10px;justify-content:flex-end;margin-top:22px}
+.share-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:14px;display:flex;align-items:center;gap:10px;margin:16px 0}
+.share-txt{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--accent3);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acc-panel{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:4px 0;overflow:hidden}
+.acc-row{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;padding:10px 16px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.acc-row:last-child{border-bottom:none}
+.acc-role{font-size:11px;padding:2px 8px;border-radius:100px;font-weight:700}
+.acc-admin{background:rgba(124,111,255,.15);color:var(--accent)}.acc-viewer{background:rgba(63,214,196,.12);color:var(--accent3)}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:11px 22px;font-size:13px;font-weight:700;z-index:500;transition:transform .3s;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}.toast.success{border-color:var(--success);color:var(--success)}
+.toast.info{border-color:var(--accent);color:var(--accent)}.toast.error{border-color:var(--accent2);color:var(--accent2)}
+.loading-overlay{position:fixed;inset:0;background:rgba(10,10,15,.85);backdrop-filter:blur(6px);z-index:400;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.spinner{width:44px;height:44px;border:4px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}.loading-overlay p{color:var(--muted);font-size:14px}
+.order-item{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:6px;cursor:pointer;background:var(--surface2);font-size:12px;color:var(--muted);transition:background .15s}
+.order-item:hover{background:rgba(124,111,255,.12);color:var(--accent)}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+@media(max-width:900px){.builder-wrap{grid-template-columns:1fr}.panel-l,.panel-r{display:none}}
+</style>
+</head>
+<body>
+<div class="orbs"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>
+<div class="toast" id="toast"></div>
+<div class="loading-overlay" id="loading" style="display:none"><div class="spinner"></div><p id="loading-msg">جاري التحميل...</p></div>
+
+<!-- LOGIN -->
+<div class="screen active" id="s-login">
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-avatar">👨‍💼</div>
+      <div class="login-title">
+        <div class="login-name">الأستاذ: محمد عبدالرحمن</div>
+        <div class="login-sub">منصة الفورمات الإلكترونية</div>
+      </div>
+      <div class="lfield"><label>اسم المستخدم</label>
+        <input class="linp" id="li-user" placeholder="أدخل اسم المستخدم" autocomplete="username">
+      </div>
+      <div class="lfield"><label>كلمة المرور</label>
+        <div class="pass-wrap">
+          <input class="linp has-eye" id="li-pass" type="password" placeholder="••••••••">
+          <button class="eye-btn" id="eye-btn">👁</button>
+        </div>
+      </div>
+      <div class="lerr" id="lerr"></div>
+      <button class="login-btn" id="lbtn">دخول ←</button>
+      <div class="login-foot">منصة الأستاذ محمد عبدالرحمن — للفورمات الإلكترونية</div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="screen" id="s-dash">
+  <nav>
+    <div class="logo" id="logo-dash"><div class="logo-name">الأستاذ: محمد عبدالرحمن</div><div class="logo-sub">منصة الفورمات الإلكترونية</div></div>
+    <div class="nav-btns">
+      <span id="nav-user" style="font-size:13px;color:var(--muted)"></span>
+      <button class="btn btn-ghost btn-sm" id="btn-acc">👥 المستخدمون</button>
+      <button class="btn btn-primary btn-sm" id="btn-new-form">＋ فورمة جديدة</button>
+      <button class="btn btn-ghost btn-sm" id="btn-logout">⇥ خروج</button>
+    </div>
+  </nav>
+  <div class="dash-body">
+    <div class="dash-top"><div><h1>لوحة التحكم</h1><p>إدارة الفورمات — Firebase 🔥</p></div></div>
+    <div class="stats">
+      <div class="stat"><div class="stat-lbl">إجمالي الفورمات</div><div class="stat-val" id="st-total">—</div></div>
+      <div class="stat"><div class="stat-lbl">إجمالي الردود</div><div class="stat-val" id="st-resp">—</div></div>
+      <div class="stat"><div class="stat-lbl">الفورمات النشطة</div><div class="stat-val" id="st-active">—</div></div>
+    </div>
+    <div class="forms-grid" id="forms-grid"><div class="empty"><div class="empty-ico">⏳</div><p style="color:var(--muted)">جاري التحميل...</p></div></div>
+  </div>
+</div>
+
+<!-- BUILDER -->
+<div class="screen" id="s-build">
+  <nav>
+    <div class="logo" id="logo-build"><div class="logo-name">الأستاذ: محمد عبدالرحمن</div><div class="logo-sub">منشئ الفورمات</div></div>
+    <div class="nav-btns">
+      <button class="btn btn-ghost btn-sm" id="btn-preview">👁 معاينة</button>
+      <button class="btn btn-ghost btn-sm" id="btn-resp">📊 الردود</button>
+      <button class="btn btn-ghost btn-sm" id="btn-share">🔗 مشاركة</button>
+      <button class="btn btn-primary btn-sm" id="btn-save">💾 حفظ</button>
+    </div>
+  </nav>
+  <div class="builder-wrap">
+    <div class="panel panel-l">
+      <div class="ptitle">أسئلة</div>
+      <div class="qtypes" id="qtypes-list">
+        <button class="qtype" data-add="text"><span class="qtype-ico">✏️</span>نص قصير</button>
+        <button class="qtype" data-add="textarea"><span class="qtype-ico">📝</span>نص طويل</button>
+        <button class="qtype" data-add="radio"><span class="qtype-ico">🔘</span>اختيار واحد</button>
+        <button class="qtype" data-add="checkbox"><span class="qtype-ico">☑️</span>اختيار متعدد</button>
+        <button class="qtype" data-add="dropdown"><span class="qtype-ico">📋</span>قائمة منسدلة</button>
+        <button class="qtype" data-add="number"><span class="qtype-ico">🔢</span>رقم</button>
+        <button class="qtype" data-add="date"><span class="qtype-ico">📅</span>تاريخ</button>
+        <button class="qtype" data-add="email"><span class="qtype-ico">📧</span>بريد إلكتروني</button>
+        <button class="qtype" data-add="rating"><span class="qtype-ico">⭐</span>تقييم</button>
+        <button class="qtype" data-add="image_upload"><span class="qtype-ico">📷</span>رفع صورة</button>
+      </div>
+      <div class="hr"></div>
+      <div class="ptitle">محتوى</div>
+      <div class="qtypes">
+        <button class="qtype" data-content="text_block"><span class="qtype-ico">📄</span>نص / وصف</button>
+        <button class="qtype" data-content="image_block"><span class="qtype-ico">🖼</span>صورة توضيحية</button>
+      </div>
+      <div class="hr"></div>
+      <div class="ptitle">ترتيب</div>
+      <div id="order-list" style="display:flex;flex-direction:column;gap:5px"></div>
+    </div>
+    <div class="canvas" id="canvas">
+      <input class="title-inp" id="b-title" placeholder="عنوان الفورمة...">
+      <textarea class="desc-inp" id="b-desc" placeholder="وصف اختياري..."></textarea>
+      <div id="qs-container"></div>
+      <div class="add-hint" id="add-hint-btn">＋ اضغط لإضافة سؤال</div>
+    </div>
+    <div class="panel panel-r">
+      <div class="ptitle">الإعدادات</div>
+      <div class="set-group"><label>رسالة الشكر</label><input class="set-inp" id="b-thanks" value="شكراً! تم استلام ردك."></div>
+      <div class="set-group"><label>حالة الفورمة</label>
+        <select class="set-sel" id="b-status"><option value="active">✅ نشطة</option><option value="draft">🔒 مغلقة</option></select>
+      </div>
+      <div class="hr"></div>
+      <div class="ptitle">رابط المشاركة</div>
+      <div class="link-box"><span class="link-txt" id="b-link">—</span><button class="cpbtn" id="btn-copy-link">📋</button></div>
+      <div style="margin-top:10px"><button class="btn btn-success btn-sm" style="width:100%" id="btn-share2">📤 مشاركة الرابط</button></div>
+      <div class="hr"></div>
+      <div class="ptitle">إجراءات</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <button class="btn btn-ghost btn-sm" id="btn-dup">📋 تكرار</button>
+        <button class="btn btn-danger btn-sm" id="btn-del">🗑 حذف الفورمة</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FORM VIEW -->
+<div class="screen" id="s-form"><div class="fv-wrap" id="fv-wrap"></div></div>
+
+<!-- RESPONSES -->
+<div class="screen" id="s-resp">
+  <nav>
+    <div class="logo" id="logo-resp"><div class="logo-name">الأستاذ: محمد عبدالرحمن</div><div class="logo-sub">الردود</div></div>
+    <div class="nav-btns">
+      <button class="btn btn-ghost btn-sm" id="btn-back-build">← رجوع للمنشئ</button>
+      <button class="btn btn-primary btn-sm" id="btn-export">⬇️ تصدير CSV</button>
+    </div>
+  </nav>
+  <div class="resp-body" id="resp-body"></div>
+</div>
+
+<!-- ACCOUNTS MODAL -->
+<div class="overlay" id="acc-overlay">
+  <div class="modal">
+    <h2>👥 إدارة المستخدمين</h2><p>الأدمن فقط يتحكم في الحسابات</p>
+    <div id="acc-list"></div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:16px;margin-top:14px">
+      <div style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:12px">➕ إضافة حساب</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <input class="set-inp" id="nu-name" placeholder="اسم المستخدم" style="font-size:13px">
+        <input class="set-inp" id="nu-pass" type="password" placeholder="كلمة المرور" style="font-size:13px">
+      </div>
+      <div style="display:flex;gap:10px">
+        <select class="set-sel" id="nu-role" style="font-size:13px;flex:1">
+          <option value="admin">مدير — كامل الصلاحيات</option>
+          <option value="viewer">مشاهد — يرى الردود فقط</option>
+        </select>
+        <button class="btn btn-primary btn-sm" id="btn-add-acc">إضافة</button>
+      </div>
+    </div>
+    <div class="modal-acts"><button class="btn btn-ghost" id="btn-close-acc">إغلاق</button></div>
+  </div>
+</div>
+
+<!-- SHARE MODAL -->
+<div class="overlay" id="share-overlay">
+  <div class="modal">
+    <h2>🔗 مشاركة الفورمة</h2><p>شارك الرابط — يفتح من أي جهاز بدون تسجيل دخول</p>
+    <div class="share-box"><span class="share-txt" id="m-link">—</span><button class="cpbtn" id="btn-copy-modal" style="font-size:17px">📋</button></div>
+    <div class="modal-acts">
+      <button class="btn btn-ghost" id="btn-close-share">إغلاق</button>
+      <button class="btn btn-primary" id="btn-copy-modal2">نسخ الرابط</button>
+    </div>
+  </div>
+</div>
+
+<!-- IMAGE MODAL -->
+<div class="overlay" id="img-overlay"><div style="max-width:90vw;max-height:90vh"><img id="img-modal-src" style="max-width:90vw;max-height:90vh;border-radius:var(--r);display:block"></div></div>
+
+<!-- Firebase SDK (compat version — no import needed) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+// ═══════════════════════════════════════
+//  FIREBASE INIT (compat mode — no import)
+// ═══════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyC4AnFr-41S5QU1GUirhNWO-pIQmV4lODY",
+  authDomain: "muhammed-forms.firebaseapp.com",
+  projectId: "muhammed-forms",
+  storageBucket: "muhammed-forms.firebasestorage.app",
+  messagingSenderId: "1061327268881",
+  appId: "1:1061327268881:web:d4553fdabef4babdaf55b0"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ═══════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════
+const S = { forms:[], fid:null, qs:[], fromBuilder:false, user:null };
+const uid = () => Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const esc = s => s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):'';
+const HAS_OPTS = t => ['radio','checkbox','dropdown'].includes(t);
+const LABELS = {text:'نص قصير',textarea:'نص طويل',radio:'اختيار واحد',checkbox:'اختيار متعدد',
+  dropdown:'قائمة منسدلة',number:'رقم',date:'تاريخ',email:'بريد إلكتروني',rating:'تقييم',image_upload:'رفع صورة'};
+
+// ═══════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function showLoading(msg){ document.getElementById('loading').style.display='flex'; document.getElementById('loading-msg').textContent=msg||'جاري التحميل...'; }
+function hideLoading(){ document.getElementById('loading').style.display='none'; }
+function toast(msg,type){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast '+(type||'info')+' show';
+  setTimeout(()=>t.className='toast '+(type||'info'),2800);
+}
+function fileToBase64(file){
+  return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);});
+}
+function requireAuth(){ if(!S.user){showScreen('s-login');return false;} return true; }
+
+// ═══════════════════════════════════════
+//  AUTH — ACCOUNTS
+// ═══════════════════════════════════════
+const DEFAULT_ADMIN = [{username:'admin',password:'admin123',role:'admin',name:'الأستاذ محمد عبدالرحمن'}];
+
+async function getAccounts(){
+  try {
+    const snap = await db.collection('config').doc('accounts').get();
+    if(snap.exists){ const list=snap.data().list||[]; if(list.length>0) return list; }
+  } catch(e){ console.warn('FB getAccounts:',e.message); }
+  try { await db.collection('config').doc('accounts').set({list:DEFAULT_ADMIN}); } catch(e){}
+  return DEFAULT_ADMIN;
+}
+async function saveAccounts(list){ await db.collection('config').doc('accounts').set({list}); }
+
+async function doLogin(){
+  const u=document.getElementById('li-user').value.trim();
+  const p=document.getElementById('li-pass').value;
+  const errEl=document.getElementById('lerr');
+  const btn=document.getElementById('lbtn');
+  if(!u||!p){errEl.textContent='أدخل اسم المستخدم وكلمة المرور';return;}
+  btn.disabled=true; btn.textContent='جاري التحقق...';
+  errEl.textContent='';
+  try {
+    const accs = await getAccounts();
+    // Always include hardcoded admin as safety fallback
+    if(!accs.find(a=>a.username==='admin')) accs.push(...DEFAULT_ADMIN);
+    const match = accs.find(a=>a.username===u && a.password===p);
+    if(match){
+      S.user=match;
+      document.getElementById('li-user').value='';
+      document.getElementById('li-pass').value='';
+      document.getElementById('nav-user').textContent='👤 '+(match.name||match.username);
+      await loadForms();
+      showScreen('s-dash');
+      toast('أهلاً '+(match.name||match.username)+' 👋','success');
+    } else {
+      errEl.textContent='اسم المستخدم أو كلمة المرور غير صحيحة';
+      ['li-user','li-pass'].forEach(id=>{
+        const el=document.getElementById(id);
+        el.classList.add('err');
+        setTimeout(()=>el.classList.remove('err'),500);
+      });
+    }
+  } catch(e){
+    errEl.textContent='خطأ في الاتصال بـ Firebase: '+e.message;
+  }
+  btn.disabled=false; btn.textContent='دخول ←';
+}
+
+async function openAccModal(){
+  if(!requireAuth()) return;
+  if(S.user.role!=='admin'){toast('الأدمن فقط يستطيع إدارة الحسابات','error');return;}
+  await renderAccList();
+  document.getElementById('acc-overlay').classList.add('open');
+}
+async function renderAccList(){
+  const accs=await getAccounts();
+  document.getElementById('acc-list').innerHTML=`<div class="acc-panel">
+    ${accs.map((a,i)=>`<div class="acc-row">
+      <span style="font-weight:700">${esc(a.username)}</span>
+      <span style="color:var(--muted);font-size:12px">${esc(a.name||'')}</span>
+      <span class="acc-role ${a.role==='admin'?'acc-admin':'acc-viewer'}">${a.role==='admin'?'مدير':'مشاهد'}</span>
+      ${i===0?'<span style="font-size:11px;color:var(--muted)">رئيسي</span>':
+        a.username===S.user?.username?'<span style="font-size:11px;color:var(--muted)">أنت</span>':
+        `<button class="btn btn-danger btn-xs" onclick="delAccount(${i})">حذف</button>`}
+    </div>`).join('')}
+  </div>`;
+}
+async function addAccount(){
+  const u=document.getElementById('nu-name').value.trim();
+  const p=document.getElementById('nu-pass').value.trim();
+  const r=document.getElementById('nu-role').value;
+  if(!u||!p){toast('أدخل الاسم وكلمة المرور','error');return;}
+  const accs=await getAccounts();
+  if(accs.find(a=>a.username===u)){toast('اسم المستخدم موجود','error');return;}
+  accs.push({username:u,password:p,role:r,name:u});
+  await saveAccounts(accs);
+  document.getElementById('nu-name').value='';
+  document.getElementById('nu-pass').value='';
+  await renderAccList();
+  toast('تم إضافة الحساب ✓','success');
+}
+async function delAccount(i){
+  if(!confirm('حذف هذا الحساب؟')) return;
+  const accs=await getAccounts();
+  accs.splice(i,1);
+  await saveAccounts(accs);
+  await renderAccList();
+  toast('تم الحذف','success');
+}
+
+// ═══════════════════════════════════════
+//  FIREBASE FORMS CRUD
+// ═══════════════════════════════════════
+async function loadForms(){
+  showLoading('جاري تحميل الفورمات...');
+  try {
+    const snap=await db.collection('forms').orderBy('at','desc').get();
+    S.forms=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderDash();
+  } catch(e){toast('خطأ في التحميل: '+e.message,'error');}
+  hideLoading();
+}
+async function saveFormFB(form){
+  showLoading('جاري الحفظ...');
+  try {
+    const {id,...data}=form;
+    await db.collection('forms').doc(id).set(data);
+    const idx=S.forms.findIndex(f=>f.id===id);
+    if(idx>=0) S.forms[idx]=form; else S.forms.unshift(form);
+    hideLoading(); return true;
+  } catch(e){toast('خطأ: '+e.message,'error');hideLoading();return false;}
+}
+async function deleteFormFB(fid){
+  showLoading('جاري الحذف...');
+  try{await db.collection('forms').doc(fid).delete();S.forms=S.forms.filter(f=>f.id!==fid);hideLoading();return true;}
+  catch(e){toast('خطأ: '+e.message,'error');hideLoading();return false;}
+}
+async function saveResponse(fid,answers){
+  showLoading('جاري الإرسال...');
+  try{await db.collection('forms').doc(fid).collection('responses').add({answers,at:Date.now()});hideLoading();return true;}
+  catch(e){toast('خطأ: '+e.message,'error');hideLoading();return false;}
+}
+async function loadResponses(fid){
+  showLoading('جاري تحميل الردود...');
+  try{
+    const snap=await db.collection('forms').doc(fid).collection('responses').orderBy('at','desc').get();
+    hideLoading();return snap.docs.map(d=>({id:d.id,...d.data()}));
+  }catch(e){toast('خطأ: '+e.message,'error');hideLoading();return[];}
+}
+async function loadFormPublic(fid){
+  try{const snap=await db.collection('forms').doc(fid).get();return snap.exists?{id:snap.id,...snap.data()}:null;}
+  catch(e){return null;}
+}
+
+// ═══════════════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════════════
+function renderDash(){
+  document.getElementById('st-total').textContent=S.forms.length;
+  document.getElementById('st-active').textContent=S.forms.filter(f=>f.status==='active').length;
+  document.getElementById('st-resp').textContent=S.forms.reduce((a,f)=>a+(f.respCount||0),0);
+  const g=document.getElementById('forms-grid');
+  if(!S.forms.length){
+    g.innerHTML=`<div class="empty"><div class="empty-ico">📋</div><h3 style="margin-bottom:8px">لا توجد فورمات</h3>
+      <p style="color:var(--muted);margin-bottom:18px">ابدأ بإنشاء أول فورمة</p>
+      <button class="btn btn-primary" onclick="newForm()">إنشاء فورمة</button></div>`;
+    return;
+  }
+  g.innerHTML=S.forms.map(f=>`<div class="form-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px">
+      <span class="badge ${f.status==='active'?'badge-on':'badge-off'}">${f.status==='active'?'● نشطة':'○ مغلقة'}</span>
+      <span style="font-size:11px;color:var(--muted)">${f.at?new Date(f.at).toLocaleDateString('ar'):''}</span>
+    </div>
+    <div class="fc-title">${esc(f.title)||'فورمة بدون عنوان'}</div>
+    <div class="fc-meta"><span>📝 ${(f.questions||[]).filter(q=>q.kind==='question').length} سؤال</span><span>💬 ${f.respCount||0} رد</span></div>
+    <div class="fc-actions">
+      <button class="btn btn-ghost btn-xs" onclick="openBuilder('${f.id}')">✏️ تعديل</button>
+      <button class="btn btn-ghost btn-xs" onclick="previewFor('${f.id}')">👁 معاينة</button>
+      <button class="btn btn-ghost btn-xs" onclick="shareFor('${f.id}')">🔗</button>
+      <button class="btn btn-ghost btn-xs" onclick="respFor('${f.id}')">📊</button>
+    </div>
+  </div>`).join('');
+}
+
+function goHome(){ if(!requireAuth()) return; if(document.getElementById('s-build').classList.contains('active')) flushSave(); loadForms().then(()=>showScreen('s-dash')); }
+
+// ═══════════════════════════════════════
+//  BUILDER
+// ═══════════════════════════════════════
+async function newForm(){
+  if(!requireAuth()) return;
+  const f={id:uid(),title:'',description:'',questions:[],status:'active',thanks:'شكراً! تم استلام ردك.',at:Date.now(),respCount:0};
+  S.forms.unshift(f); await saveFormFB(f); openBuilder(f.id);
+}
+function openBuilder(fid){
+  if(!requireAuth()) return;
+  const f=S.forms.find(x=>x.id===fid); if(!f) return;
+  S.fid=fid; S.qs=JSON.parse(JSON.stringify(f.questions||[]));
+  document.getElementById('b-title').value=f.title||'';
+  document.getElementById('b-desc').value=f.description||'';
+  document.getElementById('b-thanks').value=f.thanks||'شكراً! تم استلام ردك.';
+  document.getElementById('b-status').value=f.status||'active';
+  document.getElementById('b-link').textContent='#form/'+fid;
+  renderBuilder(); showScreen('s-build');
+}
+async function flushSave(){
+  if(!S.fid) return;
+  const f=S.forms.find(x=>x.id===S.fid); if(!f) return;
+  f.title=document.getElementById('b-title').value;
+  f.description=document.getElementById('b-desc').value;
+  f.thanks=document.getElementById('b-thanks').value;
+  f.status=document.getElementById('b-status').value;
+  f.questions=JSON.parse(JSON.stringify(S.qs));
+  await saveFormFB(f);
+}
+async function saveForm(){ await flushSave(); toast('تم الحفظ على Firebase ✓','success'); }
+
+// ── Questions ──
+function addQ(type){
+  const q={id:uid(),kind:'question',type,label:'',required:false,options:HAS_OPTS(type)?['الخيار الأول','الخيار الثاني']:[],logic:null};
+  S.qs.push(q); renderBuilder();
+  setTimeout(()=>document.querySelector(`[data-qid="${q.id}"] .qlabel-inp`)?.focus(),60);
+}
+function addContent(type){ S.qs.push({id:uid(),kind:'content',type,title:'',body:'',imageData:null}); renderBuilder(); }
+function delItem(qid){ S.qs.forEach(q=>{if(q.logic&&q.logic.triggerQid===qid)q.logic=null;}); S.qs=S.qs.filter(q=>q.id!==qid); renderBuilder(); }
+function addOpt(qid){ const q=S.qs.find(q=>q.id===qid); if(q){q.options.push('خيار جديد');renderBuilder();} }
+function delOpt(qid,i){ const q=S.qs.find(q=>q.id===qid); if(q&&q.options.length>1){q.options.splice(i,1);renderBuilder();} }
+function moveItem(qid,dir){
+  const i=S.qs.findIndex(q=>q.id===qid);
+  if(dir==='up'&&i>0)[S.qs[i-1],S.qs[i]]=[S.qs[i],S.qs[i-1]];
+  if(dir==='dn'&&i<S.qs.length-1)[S.qs[i],S.qs[i+1]]=[S.qs[i+1],S.qs[i]];
+  renderBuilder();
+}
+function togReq(qid){ const q=S.qs.find(q=>q.id===qid); if(q){q.required=!q.required;renderBuilder();} }
+function setLogicTrigger(qid,trigQid){
+  const q=S.qs.find(x=>x.id===qid); if(!q) return;
+  if(!trigQid){q.logic=null;renderBuilder();return;}
+  const tq=S.qs.find(x=>x.id===trigQid);
+  q.logic={triggerQid:trigQid,triggerValue:tq?.options?.[0]||''};
+  renderBuilder();
+}
+function setLogicValue(qid,val){ const q=S.qs.find(x=>x.id===qid); if(q&&q.logic) q.logic.triggerValue=val; }
+function toggleLogicPanel(qid){ const p=document.getElementById('lp-'+qid); if(p) p.style.display=p.style.display==='none'?'block':'none'; }
+function triggerImgUpload(bid){
+  const inp=document.createElement('input'); inp.type='file'; inp.accept='image/*';
+  inp.onchange=async e=>{
+    const file=e.target.files[0]; if(!file) return;
+    if(file.size>900000){toast('الصورة أكبر من 900KB','error');return;}
+    const b64=await fileToBase64(file);
+    const b=S.qs.find(x=>x.id===bid); if(b) b.imageData=b64;
+    renderBuilder();
+  }; inp.click();
+}
+
+function renderBuilder(){
+  const c=document.getElementById('qs-container');
+  const qs=S.qs.filter(q=>q.kind==='question');
+  c.innerHTML=S.qs.map((item,i)=>{
+    if(item.kind==='content') return renderContentBlock(item);
+    return renderQBlock(item,qs);
+  }).join(''); updOrder();
+}
+function renderContentBlock(b){
+  return `<div class="cblock" data-qid="${b.id}">
+    <div class="qactions">
+      <button class="btn btn-ghost btn-icon btn-xs" onclick="moveItem('${b.id}','up')">↑</button>
+      <button class="btn btn-ghost btn-icon btn-xs" onclick="moveItem('${b.id}','dn')">↓</button>
+      <button class="btn btn-danger btn-icon btn-xs" onclick="delItem('${b.id}')">✕</button>
+    </div>
+    ${b.type==='text_block'?`
+      <div class="cb-label">📄 نص / وصف</div>
+      <input class="cb-inp" placeholder="عنوان اختياري..." value="${esc(b.title)}" oninput="S.qs.find(x=>x.id==='${b.id}').title=this.value" style="margin-bottom:8px">
+      <textarea class="cb-inp cb-ta" placeholder="أكتب النص هنا..." oninput="S.qs.find(x=>x.id==='${b.id}').body=this.value">${esc(b.body)}</textarea>
+    `:`
+      <div class="cb-label">🖼 صورة توضيحية</div>
+      <input class="cb-inp" placeholder="وصف للصورة (اختياري)..." value="${esc(b.title)}" oninput="S.qs.find(x=>x.id==='${b.id}').title=this.value" style="margin-bottom:10px">
+      ${b.imageData?`<img src="${b.imageData}" class="img-preview"><button class="btn btn-ghost btn-xs" style="margin-top:8px" onclick="triggerImgUpload('${b.id}')">🔄 تغيير</button>`
+        :`<div class="img-upload-area" onclick="triggerImgUpload('${b.id}')"><div style="font-size:32px;margin-bottom:8px">🖼</div><div style="font-size:13px;color:var(--muted)">اضغط لرفع صورة (أقصى 900KB)</div></div>`}
+    `}
+  </div>`;
+}
+function renderQBlock(q,allQs){
+  const idx=allQs.findIndex(x=>x.id===q.id);
+  const cands=allQs.filter(x=>x.id!==q.id&&HAS_OPTS(x.type));
+  const hasLogic=q.logic&&q.logic.triggerQid;
+  const trigQ=hasLogic?allQs.find(x=>x.id===q.logic.triggerQid):null;
+  const logicSec=idx>0?`<div class="logic-section">
+    <div class="logic-header" onclick="toggleLogicPanel('${q.id}')">
+      <span>⚡</span><span>المنطق الشرطي</span>
+      ${hasLogic?`<span class="logic-badge">مُفعَّل</span>`:`<span style="font-size:11px;color:var(--muted)">اضغط للإعداد</span>`}
+    </div>
+    <div id="lp-${q.id}" style="display:${hasLogic?'block':'none'}">
+      <div class="logic-body">
+        <div class="logic-hint">💡 أظهر هذا السؤال فقط إذا اختار الموظف إجابة محددة في سؤال سابق</div>
+        <div class="logic-row"><span>أظهر إذا كانت إجابة</span>
+          <select class="logic-sel" onchange="setLogicTrigger('${q.id}',this.value)">
+            <option value="">— بدون شرط</option>
+            ${cands.map(c=>`<option value="${c.id}" ${hasLogic&&q.logic.triggerQid===c.id?'selected':''}>${esc(c.label||'سؤال')}</option>`).join('')}
+          </select>
+        </div>
+        ${hasLogic&&trigQ?`<div class="logic-row"><span>تساوي</span>
+          <select class="logic-sel" onchange="setLogicValue('${q.id}',this.value)">
+            ${trigQ.options.map(o=>`<option value="${esc(o)}" ${q.logic.triggerValue===o?'selected':''}>${esc(o)}</option>`).join('')}
+          </select></div>
+          <div><span class="logic-active-tag">✅ يظهر فقط عند: "${esc(q.logic.triggerValue)}"</span></div>`:''}
+      </div>
+    </div>
+  </div>`:'';
+  let preview='';
+  if(['text','email','number'].includes(q.type)) preview=`<div class="preview-box">سيكتب الموظف هنا...</div>`;
+  else if(q.type==='textarea') preview=`<div class="preview-box" style="min-height:55px">سيكتب الموظف هنا...</div>`;
+  else if(q.type==='date') preview=`<div class="preview-box">📅 يختار التاريخ</div>`;
+  else if(q.type==='image_upload') preview=`<div class="preview-box">📷 سيرفع الموظف صورة</div>`;
+  else if(q.type==='rating') preview=`<div style="padding-right:36px;display:flex;gap:5px">${[1,2,3,4,5].map(()=>'<span style="font-size:22px;opacity:.4">★</span>').join('')}</div>`;
+  else preview=`<div class="opts-list">${q.options.map((o,i)=>`<div class="opt-row">
+    <div class="opt-dot ${q.type==='radio'?'r':'c'}"></div>
+    <input class="opt-inp" value="${esc(o)}" oninput="S.qs.find(x=>x.id==='${q.id}').options[${i}]=this.value" onclick="event.stopPropagation()" placeholder="خيار...">
+    <button class="btn btn-ghost btn-icon btn-xs" onclick="event.stopPropagation();delOpt('${q.id}',${i})" style="opacity:.5">✕</button>
+  </div>`).join('')}</div><button class="add-opt" onclick="event.stopPropagation();addOpt('${q.id}')">＋ إضافة خيار</button>`;
+  return `<div class="qblock" data-qid="${q.id}" onclick="selQ('${q.id}')">
+    <div class="qactions">
+      <button class="btn btn-ghost btn-icon btn-xs" onclick="event.stopPropagation();moveItem('${q.id}','up')">↑</button>
+      <button class="btn btn-ghost btn-icon btn-xs" onclick="event.stopPropagation();moveItem('${q.id}','dn')">↓</button>
+      <button class="btn btn-danger btn-icon btn-xs" onclick="event.stopPropagation();delItem('${q.id}')">✕</button>
+    </div>
+    <div class="qb-head">
+      <div class="qnum">${idx+1}</div>
+      <input class="qlabel-inp" placeholder="نص السؤال..." value="${esc(q.label)}" oninput="S.qs.find(x=>x.id==='${q.id}').label=this.value;updOrder()">
+    </div>
+    ${preview}${logicSec}
+    <div class="qfooter">
+      <label class="req-toggle" onclick="event.stopPropagation();togReq('${q.id}')">
+        <div class="tog${q.required?' on':''}"></div><span>${q.required?'إجباري':'اختياري'}</span>
+      </label>
+      <span class="type-badge">${LABELS[q.type]||q.type}</span>
+    </div>
+  </div>`;
+}
+function selQ(qid){ document.querySelectorAll('.qblock').forEach(b=>b.classList.remove('sel')); document.querySelector(`[data-qid="${qid}"]`)?.classList.add('sel'); }
+function updOrder(){
+  document.getElementById('order-list').innerHTML=S.qs.map((q,i)=>`
+    <div class="order-item" onclick="document.querySelector('[data-qid=\\'${q.id}\\']')?.scrollIntoView({behavior:'smooth',block:'center'})">
+      <span style="font-size:10px;min-width:14px">${i+1}.</span>
+      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+        ${q.kind==='content'?(q.type==='image_block'?'🖼 ':'📄 ')+(q.title||'محتوى'):(q.label||'سؤال بدون عنوان')}
+      </span>
+      ${q.kind==='question'&&q.logic?.triggerQid?'<span style="color:var(--accent3);font-size:10px">⚡</span>':''}
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════
+//  FORM VIEW
+// ═══════════════════════════════════════
+async function previewForm(){ await flushSave(); previewFor(S.fid); }
+function previewFor(fid){ S.fid=fid; S.fromBuilder=true; const f=S.forms.find(x=>x.id===fid); if(f){renderFV(f);showScreen('s-form');} }
+function renderFV(f){
+  const w=document.getElementById('fv-wrap');
+  const back=S.fromBuilder?`<button class="fv-back" onclick="showScreen('s-build')">← رجوع للتعديل</button>`:`<button class="fv-back" onclick="goHome()">← الرئيسية</button>`;
+  if(f.status!=='active'){w.innerHTML=back+`<div class="success-card"><div class="sico">🔒</div><h2>الفورمة مغلقة</h2></div>`;return;}
+  const qs=(f.questions||[]).filter(q=>q.kind==='question');
+  w.innerHTML=`${back}
+    <div class="fv-header">
+      <div class="fv-title">${esc(f.title)||'فورمة بدون عنوان'}</div>
+      ${f.description?`<div class="fv-desc">${esc(f.description)}</div>`:''}
+      <div class="fv-owner">✦ الأستاذ: محمد عبدالرحمن</div>
+    </div>
+    ${(f.questions||[]).map(item=>item.kind==='content'?renderContentView(item):renderQCard(item,qs)).join('')}
+    <div class="submit-area"><button class="submit-btn" id="submit-btn" onclick="submitFV('${f.id}')">إرسال الإجابات ←</button></div>`;
+  qs.forEach(q=>{ if(q.logic?.triggerQid) document.getElementById('qc-'+q.id)?.classList.add('hidden-q'); });
+}
+function renderContentView(b){
+  if(b.type==='text_block') return `<div class="fv-content-text">${b.title?`<div style="font-size:14px;font-weight:700;color:var(--accent3);margin-bottom:8px">${esc(b.title)}</div>`:''}<p>${esc(b.body||'')}</p></div>`;
+  return `<div class="fv-content-img">${b.imageData?`<img src="${b.imageData}" style="width:100%;max-height:260px;object-fit:cover;border-radius:var(--rs);display:block">`:''} ${b.title?`<div class="cap">${esc(b.title)}</div>`:''}</div>`;
+}
+function renderQCard(q,allQs){
+  const req=q.required?`<span class="req-star">*</span>`:'';
+  const hidden=q.logic&&q.logic.triggerQid;
+  const idx=allQs.findIndex(x=>x.id===q.id);
+  let inp='';
+  if(q.type==='text') inp=`<input class="fv-inp" id="inp-${q.id}" placeholder="أكتب إجابتك...">`;
+  else if(q.type==='textarea') inp=`<textarea class="fv-inp fv-ta" id="inp-${q.id}" placeholder="أكتب إجابتك..."></textarea>`;
+  else if(q.type==='email') inp=`<input class="fv-inp" type="email" id="inp-${q.id}" placeholder="example@email.com">`;
+  else if(q.type==='number') inp=`<input class="fv-inp" type="number" id="inp-${q.id}" placeholder="0">`;
+  else if(q.type==='date') inp=`<input class="fv-inp" type="date" id="inp-${q.id}">`;
+  else if(q.type==='image_upload') inp=`<div class="fv-img-upload" id="ua-${q.id}" onclick="fvUpload('${q.id}')"><div style="font-size:32px;margin-bottom:8px">📷</div><div style="font-size:13px;color:var(--muted)">اضغط لرفع صورة (أقصى 900KB)</div></div><input type="hidden" id="inp-${q.id}" value="">`;
+  else if(q.type==='radio') inp=`<div class="fv-opts">${q.options.map(o=>`<div class="fv-opt" onclick="pickRadio(this,'${q.id}','${esc(o)}')"><div class="c-radio"></div><span>${esc(o)}</span></div>`).join('')}</div><input type="hidden" id="inp-${q.id}" value="">`;
+  else if(q.type==='checkbox') inp=`<div class="fv-opts">${q.options.map(o=>`<div class="fv-opt" onclick="this.classList.toggle('sel');chkLogic('${q.id}')"><div class="c-check"></div><span>${esc(o)}</span></div>`).join('')}</div>`;
+  else if(q.type==='dropdown') inp=`<select class="fv-sel" id="inp-${q.id}" onchange="applyLogicFor('${q.id}')"><option value="">اختر...</option>${q.options.map(o=>`<option value="${esc(o)}">${esc(o)}</option>`).join('')}</select>`;
+  else if(q.type==='rating') inp=`<div id="stars-${q.id}" style="display:flex;gap:8px">${[1,2,3,4,5].map(n=>`<span style="font-size:30px;cursor:pointer" onclick="setStars('${q.id}',${n})" onmouseover="hoverStars('${q.id}',${n})" onmouseout="resetStars('${q.id}')">☆</span>`).join('')}</div><input type="hidden" id="inp-${q.id}" value="">`;
+  return `<div class="qcard${hidden?' hidden-q':''}" id="qc-${q.id}" data-logic="${esc(JSON.stringify(q.logic||null))}">
+    <div class="qcard-lbl">${req}${esc(q.label)||`السؤال ${idx+1}`}</div>${inp}</div>`;
+}
+
+// ── Form view interactions ──
+function fvUpload(qid){
+  const inp=document.createElement('input');inp.type='file';inp.accept='image/*';
+  inp.onchange=async e=>{
+    const file=e.target.files[0];if(!file)return;
+    if(file.size>900000){toast('الصورة أكبر من 900KB','error');return;}
+    const b64=await fileToBase64(file);
+    document.getElementById('inp-'+qid).value=b64;
+    const area=document.getElementById('ua-'+qid);
+    if(area) area.innerHTML=`<img src="${b64}" class="fv-img-preview"><div style="font-size:12px;color:var(--success);margin-top:8px">✓ تم رفع الصورة</div>`;
+  };inp.click();
+}
+function pickRadio(el,qid,val){
+  document.querySelectorAll('#qc-'+qid+' .fv-opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('inp-'+qid).value=val;
+  applyLogicFor(qid);
+}
+function chkLogic(qid){ applyLogicFor(qid); }
+function setStars(qid,n){
+  const c=document.getElementById('stars-'+qid);
+  c.querySelectorAll('span').forEach((s,i)=>{s.textContent=i<n?'★':'☆';s.style.color=i<n?'#ffb347':'';});
+  document.getElementById('inp-'+qid).value=n;
+}
+function hoverStars(qid,n){ const c=document.getElementById('stars-'+qid);c.querySelectorAll('span').forEach((s,i)=>{s.textContent=i<n?'★':'☆';s.style.color=i<n?'var(--warn)':''}); }
+function resetStars(qid){ const c=document.getElementById('stars-'+qid),v=parseInt(document.getElementById('inp-'+qid).value)||0;c.querySelectorAll('span').forEach((s,i)=>{s.textContent=i<v?'★':'☆';s.style.color=i<v?'#ffb347':''}); }
+function applyLogicFor(changedQid){
+  document.querySelectorAll('.qcard[data-logic]').forEach(card=>{
+    let logic; try{logic=JSON.parse(card.getAttribute('data-logic'));}catch(e){return;}
+    if(!logic||logic.triggerQid!==changedQid) return;
+    const inp=document.getElementById('inp-'+changedQid);
+    const sel=document.querySelector('#qc-'+changedQid+' .fv-opt.sel span');
+    const ans=inp?inp.value.trim():(sel?sel.textContent.trim():'');
+    if(ans===logic.triggerValue){card.classList.remove('hidden-q');}
+    else{card.classList.add('hidden-q');const i=card.querySelector('.fv-inp,.fv-sel,[type=hidden]');if(i)i.value='';card.querySelectorAll('.fv-opt.sel').forEach(o=>o.classList.remove('sel'));}
+  });
+}
+
+async function submitFV(fid){
+  const f=S.forms.find(x=>x.id===fid);if(!f)return;
+  const qs=(f.questions||[]).filter(q=>q.kind==='question');
+  const ans={};let ok=true,firstErr=null;
+  qs.forEach(q=>{
+    const card=document.getElementById('qc-'+q.id);
+    if(!card||card.classList.contains('hidden-q')){ans[q.id]='';return;}
+    let v='';
+    if(q.type==='checkbox') v=Array.from(card.querySelectorAll('.fv-opt.sel span')).map(s=>s.textContent.trim()).join(', ');
+    else{const i=document.getElementById('inp-'+q.id);v=i?i.value.trim():'';}
+    ans[q.id]=v;
+    if(q.required&&!v){ok=false;card.classList.add('error');setTimeout(()=>card.classList.remove('error'),2500);if(!firstErr)firstErr=card;}
+  });
+  if(!ok){toast('يرجى ملء الحقول الإجبارية ⚠️','error');firstErr?.scrollIntoView({behavior:'smooth',block:'center'});return;}
+  const btn=document.getElementById('submit-btn');
+  if(btn){btn.disabled=true;btn.textContent='جاري الإرسال...';}
+  const saved=await saveResponse(fid,ans);
+  if(!saved){if(btn){btn.disabled=false;btn.textContent='إرسال الإجابات ←';}return;}
+  const form=S.forms.find(x=>x.id===fid);
+  if(form){form.respCount=(form.respCount||0)+1;await saveFormFB(form);}
+  const w=document.getElementById('fv-wrap');
+  const back=S.fromBuilder?`<button class="fv-back" onclick="showScreen('s-build')">← رجوع للتعديل</button>`:'';
+  w.innerHTML=back+`<div class="success-card"><div class="sico">✅</div><h2>تم الإرسال!</h2>
+    <p>${esc(f.thanks||'شكراً!')}</p>
+    <div style="margin-top:22px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" onclick="previewFor('${fid}')">إرسال إجابة أخرى</button>
+    </div></div>`;
+}
+
+// ═══════════════════════════════════════
+//  RESPONSES
+// ═══════════════════════════════════════
+async function openResp(){ await flushSave(); respFor(S.fid); }
+async function respFor(fid){
+  if(!requireAuth()) return;
+  S.fid=fid;
+  const f=S.forms.find(x=>x.id===fid);if(!f)return;
+  const responses=await loadResponses(fid);
+  const qs=(f.questions||[]).filter(q=>q.kind==='question');
+  const b=document.getElementById('resp-body');
+  if(!responses.length){
+    b.innerHTML=`<h2 style="margin-bottom:10px">${esc(f.title)||'فورمة'}</h2>
+      <p style="color:var(--muted)">لا توجد ردود حتى الآن</p>
+      <button class="btn btn-primary btn-sm" style="margin-top:18px" onclick="shareFor('${fid}');showScreen('s-resp')">🔗 مشاركة الرابط</button>`;
+  } else {
+    b.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:22px;flex-wrap:wrap;gap:10px">
+      <div><h2>${esc(f.title)||'فورمة'}</h2><p style="color:var(--muted);margin-top:5px">${responses.length} رد مستلَم 🔥</p></div>
+    </div><div style="overflow-x:auto"><table class="resp-table">
+      <thead><tr><th>#</th><th>التاريخ</th>${qs.map(q=>`<th>${esc(q.label||'سؤال')}</th>`).join('')}</tr></thead>
+      <tbody>${responses.map((r,i)=>`<tr>
+        <td style="color:var(--muted)">${i+1}</td>
+        <td style="color:var(--muted);white-space:nowrap">${r.at?new Date(r.at).toLocaleString('ar'):''}</td>
+        ${qs.map(q=>{const v=r.answers?.[q.id]||'—';return q.type==='image_upload'&&v&&v.startsWith('data:')?`<td><img src="${v}" class="resp-img-thumb" onclick="viewImg('${v}')"></td>`:`<td>${esc(v)}</td>`;}).join('')}
+      </tr>`).join('')}</tbody>
+    </table></div>`;
+  }
+  showScreen('s-resp');
+}
+function viewImg(src){ document.getElementById('img-modal-src').src=src; document.getElementById('img-overlay').classList.add('open'); }
+async function exportCSV(){
+  const f=S.forms.find(x=>x.id===S.fid);if(!f)return;
+  const responses=await loadResponses(S.fid);
+  if(!responses.length){toast('لا توجد ردود','info');return;}
+  const qs=(f.questions||[]).filter(q=>q.kind==='question');
+  const hd=['التاريخ',...qs.map(q=>q.label||'سؤال')];
+  const rows=responses.map(r=>[r.at?new Date(r.at).toLocaleString('ar'):'',...qs.map(q=>q.type==='image_upload'?'[صورة]':(r.answers?.[q.id]||''))]);
+  const csv=[hd,...rows].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}));a.download=`${f.title||'form'}.csv`;a.click();
+}
+
+// ═══════════════════════════════════════
+//  SHARE / MISC
+// ═══════════════════════════════════════
+function getShareLink(fid){ return location.href.split('#')[0]+'#form/'+fid; }
+async function openShareModal(){ await flushSave(); document.getElementById('m-link').textContent=getShareLink(S.fid); document.getElementById('share-overlay').classList.add('open'); }
+function shareFor(fid){ S.fid=fid; document.getElementById('m-link').textContent=getShareLink(fid); document.getElementById('share-overlay').classList.add('open'); }
+function copyLink(){ navigator.clipboard.writeText(getShareLink(S.fid)); toast('تم نسخ الرابط 🔗','success'); }
+function copyModalLink(){ navigator.clipboard.writeText(document.getElementById('m-link').textContent); document.getElementById('share-overlay').classList.remove('open'); toast('تم نسخ الرابط 🔗','success'); }
+async function dupForm(){ await flushSave(); const f=S.forms.find(x=>x.id===S.fid);if(!f)return; const c=JSON.parse(JSON.stringify(f));c.id=uid();c.title=(c.title||'فورمة')+' (نسخة)';c.at=Date.now();c.respCount=0;S.forms.unshift(c);await saveFormFB(c);toast('تم التكرار ✓','success');renderDash(); }
+async function delForm(){ if(!confirm('حذف هذه الفورمة نهائياً؟'))return; await deleteFormFB(S.fid); renderDash(); showScreen('s-dash'); }
+
+// ═══════════════════════════════════════
+//  WIRE ALL EVENTS (no inline onclick for static buttons)
+// ═══════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function(){
+  // Login
+  document.getElementById('lbtn').addEventListener('click', doLogin);
+  document.getElementById('li-user').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('li-pass').focus(); });
+  document.getElementById('li-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+  document.getElementById('eye-btn').addEventListener('click', function(){
+    const p=document.getElementById('li-pass');
+    p.type=p.type==='password'?'text':'password';
+    this.textContent=p.type==='password'?'👁':'🔒';
+  });
+  // Dashboard
+  document.getElementById('logo-dash').addEventListener('click', goHome);
+  document.getElementById('btn-acc').addEventListener('click', openAccModal);
+  document.getElementById('btn-new-form').addEventListener('click', newForm);
+  document.getElementById('btn-logout').addEventListener('click', ()=>{ S.user=null; showScreen('s-login'); });
+  // Builder
+  document.getElementById('logo-build').addEventListener('click', goHome);
+  document.getElementById('btn-preview').addEventListener('click', previewForm);
+  document.getElementById('btn-resp').addEventListener('click', openResp);
+  document.getElementById('btn-share').addEventListener('click', openShareModal);
+  document.getElementById('btn-share2').addEventListener('click', openShareModal);
+  document.getElementById('btn-save').addEventListener('click', saveForm);
+  document.getElementById('btn-copy-link').addEventListener('click', copyLink);
+  document.getElementById('btn-dup').addEventListener('click', dupForm);
+  document.getElementById('btn-del').addEventListener('click', delForm);
+  document.getElementById('add-hint-btn').addEventListener('click', ()=>addQ('text'));
+  // Question type buttons
+  document.querySelectorAll('[data-add]').forEach(btn=>btn.addEventListener('click', ()=>addQ(btn.dataset.add)));
+  document.querySelectorAll('[data-content]').forEach(btn=>btn.addEventListener('click', ()=>addContent(btn.dataset.content)));
+  // Responses
+  document.getElementById('logo-resp').addEventListener('click', goHome);
+  document.getElementById('btn-back-build').addEventListener('click', ()=>showScreen('s-build'));
+  document.getElementById('btn-export').addEventListener('click', exportCSV);
+  // Modals
+  document.getElementById('btn-close-acc').addEventListener('click', ()=>document.getElementById('acc-overlay').classList.remove('open'));
+  document.getElementById('btn-add-acc').addEventListener('click', addAccount);
+  document.getElementById('btn-close-share').addEventListener('click', ()=>document.getElementById('share-overlay').classList.remove('open'));
+  document.getElementById('btn-copy-modal').addEventListener('click', copyModalLink);
+  document.getElementById('btn-copy-modal2').addEventListener('click', copyModalLink);
+  document.getElementById('img-overlay').addEventListener('click', ()=>document.getElementById('img-overlay').classList.remove('open'));
+  // Close modals on outside click
+  document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click', e=>{ if(e.target===o) o.classList.remove('open'); }));
+
+  // Hash routing
+  function handleHash(){
+    const h=location.hash;
+    if(h.startsWith('#form/')){
+      const fid=h.slice(6);
+      showLoading('جاري تحميل الفورمة...');
+      loadFormPublic(fid).then(f=>{
+        hideLoading();
+        if(f){
+          const idx=S.forms.findIndex(x=>x.id===fid);
+          if(idx>=0) S.forms[idx]=f; else S.forms.push(f);
+          S.fid=fid; S.fromBuilder=false;
+          renderFV(f); showScreen('s-form');
+        } else { showScreen('s-login'); }
+      });
+    } else {
+      if(S.user){ loadForms().then(()=>showScreen('s-dash')); }
+      else showScreen('s-login');
+    }
+  }
+  window.addEventListener('hashchange', handleHash);
+  handleHash();
+});
+</script>
+</body>
+</html>
