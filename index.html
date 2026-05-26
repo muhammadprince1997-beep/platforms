@@ -206,6 +206,7 @@ nav{background:rgba(13,13,22,.92);backdrop-filter:blur(20px);border-bottom:1px s
 .toast.show{transform:translateX(-50%) translateY(0)}.toast.success{border-color:var(--success);color:var(--success)}
 .toast.info{border-color:var(--accent);color:var(--accent)}.toast.error{border-color:var(--accent2);color:var(--accent2)}
 .loading-overlay{position:fixed;inset:0;background:rgba(10,10,15,.85);backdrop-filter:blur(6px);z-index:400;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .spinner{width:44px;height:44px;border:4px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}.loading-overlay p{color:var(--muted);font-size:14px}
 .order-item{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:6px;cursor:pointer;background:var(--surface2);font-size:12px;color:var(--muted);transition:background .15s}
@@ -405,7 +406,16 @@ const db = firebase.firestore();
 // ═══════════════════════════════════════
 //  STATE
 // ═══════════════════════════════════════
-const S = { forms:[], fid:null, qs:[], fromBuilder:false, user:null };
+// Restore session from sessionStorage (fix #3 — persists across tabs/refresh)
+let _restoredUser = null;
+try {
+  const _raw = sessionStorage.getItem('maa_user');
+  if(_raw) _restoredUser = JSON.parse(_raw);
+} catch(e){}
+const S = {
+  forms:[], fid:null, qs:[], fromBuilder:false,
+  user: _restoredUser
+};
 const uid = () => Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const esc = s => s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):'';
 const HAS_OPTS = t => ['radio','checkbox','dropdown'].includes(t);
@@ -435,7 +445,7 @@ function requireAuth(){ if(!S.user){showScreen('s-login');return false;} return 
 // ═══════════════════════════════════════
 //  AUTH — ACCOUNTS
 // ═══════════════════════════════════════
-const DEFAULT_ADMIN = [{username:'admin',password:'1997',role:'admin',name:'الأستاذ محمد عبدالرحمن'}];
+const DEFAULT_ADMIN = [{username:'admin',password:'Admin@2024#Mhd',role:'admin',name:'الأستاذ محمد عبدالرحمن'}];
 
 async function getAccounts(){
   try {
@@ -457,14 +467,16 @@ async function doLogin(){
   errEl.textContent='';
   try {
     const accs = await getAccounts();
-    // Always include hardcoded admin as safety fallback
-    if(!accs.find(a=>a.username==='admin')) accs.push(...DEFAULT_ADMIN);
     const match = accs.find(a=>a.username===u && a.password===p);
     if(match){
       S.user=match;
+      try { sessionStorage.setItem('maa_user', JSON.stringify(match)); } catch(e){}
       document.getElementById('li-user').value='';
       document.getElementById('li-pass').value='';
       document.getElementById('nav-user').textContent='👤 '+(match.name||match.username);
+      // Show/hide admin-only UI
+      const adminBtns = document.getElementById('admin-only-btns');
+      if(adminBtns) adminBtns.style.display = match.role==='admin'?'flex':'none';
       await loadForms();
       showScreen('s-dash');
       toast('أهلاً '+(match.name||match.username)+' 👋','success');
@@ -502,10 +514,12 @@ async function renderAccList(){
   </div>`;
 }
 async function addAccount(){
+  if(!S.user||S.user.role!=='admin'){toast('الأدمن فقط يستطيع إضافة الحسابات','error');return;}
   const u=document.getElementById('nu-name').value.trim();
   const p=document.getElementById('nu-pass').value.trim();
   const r=document.getElementById('nu-role').value;
   if(!u||!p){toast('أدخل الاسم وكلمة المرور','error');return;}
+  if(p.length<6){toast('كلمة المرور يجب أن تكون 6 أحرف على الأقل','error');return;}
   const accs=await getAccounts();
   if(accs.find(a=>a.username===u)){toast('اسم المستخدم موجود','error');return;}
   accs.push({username:u,password:p,role:r,name:u});
@@ -516,8 +530,11 @@ async function addAccount(){
   toast('تم إضافة الحساب ✓','success');
 }
 async function delAccount(i){
+  if(!S.user||S.user.role!=='admin'){toast('الأدمن فقط يستطيع حذف الحسابات','error');return;}
   if(!confirm('حذف هذا الحساب؟')) return;
   const accs=await getAccounts();
+  if(i===0){toast('لا يمكن حذف الحساب الرئيسي','error');return;}
+  if(accs[i]&&accs[i].username===S.user.username){toast('لا تستطيع حذف حسابك أثناء تسجيل الدخول','error');return;}
   accs.splice(i,1);
   await saveAccounts(accs);
   await renderAccList();
@@ -527,14 +544,24 @@ async function delAccount(i){
 // ═══════════════════════════════════════
 //  FIREBASE FORMS CRUD
 // ═══════════════════════════════════════
+let _formsListener = null;
 async function loadForms(){
   showLoading('جاري تحميل الفورمات...');
-  try {
-    const snap=await db.collection('forms').orderBy('at','desc').get();
-    S.forms=snap.docs.map(d=>({id:d.id,...d.data()}));
-    renderDash();
-  } catch(e){toast('خطأ في التحميل: '+e.message,'error');}
-  hideLoading();
+  // Unsubscribe from previous listener
+  if(_formsListener) { _formsListener(); _formsListener=null; }
+  return new Promise((resolve)=>{
+    _formsListener = db.collection('forms').orderBy('at','desc')
+      .onSnapshot(snap=>{
+        S.forms=snap.docs.map(d=>({id:d.id,...d.data()}));
+        renderDash();
+        hideLoading();
+        resolve();
+      }, e=>{
+        toast('خطأ في التحميل: '+e.message,'error');
+        hideLoading();
+        resolve();
+      });
+  });
 }
 async function saveFormFB(form){
   showLoading('جاري الحفظ...');
@@ -552,9 +579,24 @@ async function deleteFormFB(fid){
   catch(e){toast('خطأ: '+e.message,'error');hideLoading();return false;}
 }
 async function saveResponse(fid,answers){
+  // Sanitize: trim strings, reject if any text field exceeds 10,000 chars (prevent abuse)
+  const clean={};
+  for(const [k,v] of Object.entries(answers)){
+    if(typeof v==='string' && v.length>10000){
+      toast('إجابة طويلة جداً في أحد الحقول','error'); return false;
+    }
+    clean[k]=typeof v==='string'?v.trim():v;
+  }
   showLoading('جاري الإرسال...');
-  try{await db.collection('forms').doc(fid).collection('responses').add({answers,at:Date.now()});hideLoading();return true;}
-  catch(e){toast('خطأ: '+e.message,'error');hideLoading();return false;}
+  try{
+    await db.collection('forms').doc(fid).collection('responses').add({
+      answers:clean,
+      at:Date.now(),
+      ua:navigator.userAgent.slice(0,80) // store basic device info
+    });
+    hideLoading();return true;
+  }
+  catch(e){toast('خطأ في الإرسال: '+e.message,'error');hideLoading();return false;}
 }
 async function loadResponses(fid){
   showLoading('جاري تحميل الردود...');
@@ -590,7 +632,7 @@ function renderDash(){
     <div class="fc-title">${esc(f.title)||'فورمة بدون عنوان'}</div>
     <div class="fc-meta"><span>📝 ${(f.questions||[]).filter(q=>q.kind==='question').length} سؤال</span><span>💬 ${f.respCount||0} رد</span></div>
     <div class="fc-actions">
-      <button class="btn btn-ghost btn-xs" onclick="openBuilder('${f.id}')">✏️ تعديل</button>
+      ${S.user&&S.user.role==='admin'?`<button class="btn btn-ghost btn-xs" onclick="openBuilder('${f.id}')">✏️ تعديل</button>`:''}
       <button class="btn btn-ghost btn-xs" onclick="previewFor('${f.id}')">👁 معاينة</button>
       <button class="btn btn-ghost btn-xs" onclick="shareFor('${f.id}')">🔗</button>
       <button class="btn btn-ghost btn-xs" onclick="respFor('${f.id}')">📊</button>
@@ -605,6 +647,7 @@ function goHome(){ if(!requireAuth()) return; if(document.getElementById('s-buil
 // ═══════════════════════════════════════
 async function newForm(){
   if(!requireAuth()) return;
+  if(S.user.role!=='admin'){toast('صلاحية الأدمن فقط لإنشاء الفورمات','error');return;}
   const f={id:uid(),title:'',description:'',questions:[],status:'active',thanks:'شكراً! تم استلام ردك.',at:Date.now(),respCount:0};
   S.forms.unshift(f); await saveFormFB(f); openBuilder(f.id);
 }
@@ -616,6 +659,7 @@ function openBuilder(fid){
   document.getElementById('b-desc').value=f.description||'';
   document.getElementById('b-thanks').value=f.thanks||'شكراً! تم استلام ردك.';
   document.getElementById('b-status').value=f.status||'active';
+  document.getElementById('b-one-resp').value=f.oneResp||'multiple';
   document.getElementById('b-link').textContent='#form/'+fid;
   renderBuilder(); showScreen('s-build');
 }
@@ -626,10 +670,16 @@ async function flushSave(){
   f.description=document.getElementById('b-desc').value;
   f.thanks=document.getElementById('b-thanks').value;
   f.status=document.getElementById('b-status').value;
+  f.oneResp=document.getElementById('b-one-resp').value;
   f.questions=JSON.parse(JSON.stringify(S.qs));
   await saveFormFB(f);
 }
-async function saveForm(){ await flushSave(); toast('تم الحفظ على Firebase ✓','success'); }
+async function saveForm(){
+  if(!requireAuth()) return;
+  if(S.user.role!=='admin'){toast('الأدمن فقط يستطيع تعديل الفورمات','error');return;}
+  await flushSave();
+  toast('تم الحفظ على Firebase ✓','success');
+}
 
 // ── Questions ──
 function addQ(type){
@@ -847,6 +897,21 @@ function applyLogicFor(changedQid){
 
 async function submitFV(fid){
   const f=S.forms.find(x=>x.id===fid);if(!f)return;
+
+  // FIX 1: Check one-response-per-person restriction
+  if(f.oneResp==='once'){
+    const fingerprint = fid + '_submitted';
+    if(localStorage.getItem(fingerprint)){
+      const w=document.getElementById('fv-wrap');
+      w.innerHTML=`<div class="success-card" style="margin-top:60px">
+        <div class="sico">🔒</div>
+        <h2>لقد أرسلت إجابتك مسبقاً</h2>
+        <p style="color:var(--muted)">هذه الفورمة تسمح برد واحد فقط لكل شخص.</p>
+      </div>`;
+      return;
+    }
+  }
+
   const qs=(f.questions||[]).filter(q=>q.kind==='question');
   const ans={};let ok=true,firstErr=null;
   qs.forEach(q=>{
@@ -864,7 +929,12 @@ async function submitFV(fid){
   const saved=await saveResponse(fid,ans);
   if(!saved){if(btn){btn.disabled=false;btn.textContent='إرسال الإجابات ←';}return;}
   const form=S.forms.find(x=>x.id===fid);
-  if(form){form.respCount=(form.respCount||0)+1;await saveFormFB(form);}
+  if(form){
+    form.respCount=(form.respCount||0)+1;
+    await saveFormFB(form);
+    // Store one-response fingerprint
+    if(form.oneResp==='once') localStorage.setItem(fid+'_submitted','1');
+  }
   const w=document.getElementById('fv-wrap');
   const back=S.fromBuilder?`<button class="fv-back" onclick="showScreen('s-build')">← رجوع للتعديل</button>`:'';
   w.innerHTML=back+`<div class="success-card"><div class="sico">✅</div><h2>تم الإرسال!</h2>
@@ -923,27 +993,42 @@ async function openShareModal(){ await flushSave(); document.getElementById('m-l
 function shareFor(fid){ S.fid=fid; document.getElementById('m-link').textContent=getShareLink(fid); document.getElementById('share-overlay').classList.add('open'); }
 function copyLink(){ navigator.clipboard.writeText(getShareLink(S.fid)); toast('تم نسخ الرابط 🔗','success'); }
 function copyModalLink(){ navigator.clipboard.writeText(document.getElementById('m-link').textContent); document.getElementById('share-overlay').classList.remove('open'); toast('تم نسخ الرابط 🔗','success'); }
-async function dupForm(){ await flushSave(); const f=S.forms.find(x=>x.id===S.fid);if(!f)return; const c=JSON.parse(JSON.stringify(f));c.id=uid();c.title=(c.title||'فورمة')+' (نسخة)';c.at=Date.now();c.respCount=0;S.forms.unshift(c);await saveFormFB(c);toast('تم التكرار ✓','success');renderDash(); }
-async function delForm(){ if(!confirm('حذف هذه الفورمة نهائياً؟'))return; await deleteFormFB(S.fid); renderDash(); showScreen('s-dash'); }
+async function dupForm(){ if(!requireAuth())return; if(S.user.role!=='admin'){toast('الأدمن فقط يستطيع تكرار الفورمات','error');return;} await flushSave(); const f=S.forms.find(x=>x.id===S.fid);if(!f)return; const c=JSON.parse(JSON.stringify(f));c.id=uid();c.title=(c.title||'فورمة')+' (نسخة)';c.at=Date.now();c.respCount=0;S.forms.unshift(c);await saveFormFB(c);toast('تم التكرار ✓','success');renderDash(); }
+async function delForm(){
+  if(!requireAuth()) return;
+  if(S.user.role!=='admin'){toast('الأدمن فقط يستطيع حذف الفورمات','error');return;}
+  if(!confirm('حذف هذه الفورمة نهائياً؟')) return;
+  await deleteFormFB(S.fid);
+  renderDash();
+  showScreen('s-dash');
+}
+
 
 // ═══════════════════════════════════════
-//  WIRE ALL EVENTS (no inline onclick for static buttons)
+//  WIRE ALL EVENTS
 // ═══════════════════════════════════════
 document.addEventListener('DOMContentLoaded', function(){
+
   // Login
   document.getElementById('lbtn').addEventListener('click', doLogin);
-  document.getElementById('li-user').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('li-pass').focus(); });
   document.getElementById('li-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
-  document.getElementById('eye-btn').addEventListener('click', function(){
-    const p=document.getElementById('li-pass');
-    p.type=p.type==='password'?'text':'password';
-    this.textContent=p.type==='password'?'👁':'🔒';
+  document.getElementById('li-user').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('li-pass').focus(); });
+  document.getElementById('eye-btn').addEventListener('click', ()=>{
+    const i=document.getElementById('li-pass');
+    i.type=i.type==='password'?'text':'password';
+    document.getElementById('eye-btn').textContent=i.type==='password'?'👁':'🔒';
   });
-  // Dashboard
-  document.getElementById('logo-dash').addEventListener('click', goHome);
-  document.getElementById('btn-acc').addEventListener('click', openAccModal);
+
+  // Dashboard nav
+  document.getElementById('btn-logout').addEventListener('click', ()=>{
+    S.user=null;
+    sessionStorage.removeItem('maa_user');
+    showScreen('s-login');
+  });
+  document.getElementById('btn-openAcc').addEventListener('click', openAccModal);
   document.getElementById('btn-new-form').addEventListener('click', newForm);
-  document.getElementById('btn-logout').addEventListener('click', ()=>{ S.user=null; showScreen('s-login'); });
+  document.getElementById('logo-dash').addEventListener('click', goHome);
+
   // Builder
   document.getElementById('logo-build').addEventListener('click', goHome);
   document.getElementById('btn-preview').addEventListener('click', previewForm);
@@ -977,24 +1062,43 @@ document.addEventListener('DOMContentLoaded', function(){
     const h=location.hash;
     if(h.startsWith('#form/')){
       const fid=h.slice(6);
-      showLoading('جاري تحميل الفورمة...');
+      // Show form screen immediately with skeleton, no login flash
+      showScreen('s-form');
+      document.getElementById('fv-wrap').innerHTML=`
+        <div style="max-width:660px;margin:40px auto;padding:0 16px">
+          <div style="background:var(--surface);border-radius:var(--r);padding:32px;border-top:4px solid var(--accent);margin-bottom:14px">
+            <div style="height:28px;background:var(--surface2);border-radius:6px;width:60%;margin-bottom:14px;animation:pulse 1.2s infinite"></div>
+            <div style="height:14px;background:var(--surface2);border-radius:6px;width:80%;animation:pulse 1.2s infinite"></div>
+          </div>
+          <div style="background:var(--surface);border-radius:var(--r);padding:26px;margin-bottom:14px">
+            <div style="height:16px;background:var(--surface2);border-radius:6px;width:40%;margin-bottom:14px;animation:pulse 1.2s infinite"></div>
+            <div style="height:44px;background:var(--surface2);border-radius:var(--rs);animation:pulse 1.2s infinite"></div>
+          </div>
+        </div>`;
       loadFormPublic(fid).then(f=>{
-        hideLoading();
         if(f){
           const idx=S.forms.findIndex(x=>x.id===fid);
           if(idx>=0) S.forms[idx]=f; else S.forms.push(f);
           S.fid=fid; S.fromBuilder=false;
-          renderFV(f); showScreen('s-form');
-        } else { showScreen('s-login'); }
+          renderFV(f);
+        } else {
+          document.getElementById('fv-wrap').innerHTML=`<div class="success-card" style="margin-top:60px"><div class="sico">❌</div><h2>الفورمة غير موجودة</h2><p style="color:var(--muted)">تأكد من صحة الرابط</p></div>`;
+        }
       });
     } else {
-      if(S.user){ loadForms().then(()=>showScreen('s-dash')); }
+      if(S.user){
+        document.getElementById('nav-user').textContent='👤 '+(S.user.name||S.user.username);
+        const _ab=document.getElementById('admin-only-btns');
+        if(_ab) _ab.style.display=S.user.role==='admin'?'flex':'none';
+        loadForms().then(()=>showScreen('s-dash'));
+      }
       else showScreen('s-login');
     }
   }
   window.addEventListener('hashchange', handleHash);
   handleHash();
-});
+
+}); // end DOMContentLoaded
 </script>
 </body>
 </html>
