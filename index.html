@@ -204,7 +204,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, query, orderBy, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, query, orderBy, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         let firebaseConfig = {
             apiKey: "AIzaSyC4AnFr-41S5QU1GUirhNWO-pIQmV4lODY",
@@ -325,6 +325,20 @@
                 window.showToast('تم حفظ النموذج بنجاح!');
                 navigate('#dashboard');
             } catch (e) { window.showToast('حدث خطأ أثناء الحفظ', true); }
+        };
+
+        window.deleteForm = async (formId) => {
+            if (!confirm('هل أنت متأكد من حذف هذا النموذج نهائياً؟\nسيؤدي هذا إلى حذفه من المنصة ولن تتمكن من التراجع عن هذا الإجراء.')) return;
+            try {
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'forms', formId));
+                window.State.forms = window.State.forms.filter(f => f.id !== formId);
+                window.showToast('تم حذف النموذج بنجاح!');
+                renderView();
+            } catch (e) {
+                console.error(e);
+                if (e.code === 'permission-denied') document.getElementById('app-content').innerHTML = getRulesErrorHTML();
+                else window.showToast('حدث خطأ أثناء الحذف', true);
+            }
         };
 
         window.submitPublicForm = async (e, formId) => {
@@ -545,6 +559,7 @@
                                 <button class="primary" onclick="navigate('#responses/${f.id}')" title="الردود"><i class="fas fa-chart-pie"></i> الإحصائيات</button>
                                 <button class="outline" onclick="navigate('#builder/${f.id}')" title="تعديل"><i class="fas fa-edit"></i></button>
                                 <button class="outline" onclick="window.copyLink('${f.id}')" title="نسخ الرابط"><i class="fas fa-link"></i></button>
+                                <button class="danger outline" onclick="window.deleteForm('${f.id}')" title="حذف النموذج"><i class="fas fa-trash"></i></button>
                             </div>
                         </div>
                     `;
