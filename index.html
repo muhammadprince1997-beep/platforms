@@ -158,13 +158,9 @@
         .layout-modern .custom-radio { background: var(--surface2); padding: 1rem; border-radius: var(--r); margin-bottom: 0.5rem; transition: 0.2s; border: 1px solid transparent; }
         .layout-modern .custom-radio:hover { border-color: var(--accent); }
 
-        .layout-step .question-container { display: none !important; }
-        .layout-step .question-container.step-active { display: flex !important; flex-direction: column; justify-content: center; min-height: 45vh; border: none; background: transparent; box-shadow: none; padding: 0; }
-        .layout-step .question-container p { font-size: 1.6rem !important; margin-bottom: 1.5rem !important; }
-        .layout-step input[type="text"], .layout-step input[type="number"], .layout-step input[type="email"], .layout-step input[type="tel"], .layout-step textarea { background: rgba(255,255,255,0.03); border: 2px solid var(--border); font-size: 1.3rem; padding: 1.2rem; border-radius: var(--r); }
-        .layout-step input:focus, .layout-step textarea:focus { background: rgba(255,255,255,0.06); }
-        .layout-step .custom-radio { background: var(--surface); border: 2px solid var(--border); padding: 1rem 1.5rem; border-radius: var(--r); margin-bottom: 0.8rem; transition: 0.3s; font-size: 1.2rem; }
-        .layout-step .custom-radio:hover { border-color: var(--accent); transform: translateX(-5px); }
+        /* نمط عرض القسم النشط */
+        .form-section-group { display: none; }
+        .form-section-group.active { display: block !important; }
 
         /* نافذة نسخ الروابط المنبثقة (Share Modal) */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
@@ -195,7 +191,6 @@
             .q-header { grid-template-columns: 1fr; }
             .nav-links { display: none; }
             .chart-container { height: 250px; }
-            .layout-step .question-container p { font-size: 1.3rem !important; }
         }
     </style>
 </head>
@@ -307,7 +302,7 @@
         parseQueryRoute();
 
         window.State = { user: null, isAdmin: false, forms: [], responses: {}, currentBuilderForm: null };
-        window.currentStep = 0; 
+        window.currentSectionIndex = 0; 
         window.renderChartsFlag = false;
 
         Chart.defaults.font.family = 'Cairo';
@@ -464,7 +459,7 @@
 
                 let identifyingValues = [];
                 form.questions.forEach(q => {
-                    if (q.type === 'divider') return;
+                    if (['divider', 'note'].includes(q.type)) return;
                     if (['phone', 'email', 'text', 'number'].includes(q.type) && answers[`q_${q.id}`]) {
                         identifyingValues.push({
                             qid: `q_${q.id}`,
@@ -504,7 +499,7 @@
 
                 if (isQuiz) {
                     form.questions.forEach(q => {
-                        if (q.type === 'divider') return;
+                        if (['divider', 'note'].includes(q.type)) return;
                         const studentAns = answers[`q_${q.id}`];
                         const points = parseInt(q.points) || 0;
                         totalPoints += points;
@@ -768,7 +763,7 @@
         window.createNewForm = () => navigate(`#builder`);
 
         const getTypeNameArabic = (type) => {
-            const map = { text: 'قصير', number: 'رقم', email: 'بريد', textarea: 'فقرة', radio: 'خيارات', checkbox: 'مربعات', dropdown: 'قائمة', rating: 'تقييم', date: 'تاريخ', time: 'وقت', file: 'ملف', phone: 'هاتف', divider: 'فاصل قسم' };
+            const map = { text: 'قصير', number: 'رقم', email: 'بريد', textarea: 'فقرة', radio: 'خيارات', checkbox: 'مربعات', dropdown: 'قائمة', rating: 'تقييم', date: 'تاريخ', time: 'وقت', file: 'ملف', phone: 'هاتف', divider: 'فاصل قسم', note: 'نص إرشادي' };
             return map[type] || type;
         };
 
@@ -863,7 +858,7 @@
                     <div class="card question-block animate-fade" style="padding: 0.8rem 1.2rem; cursor: pointer; border-color: transparent;" onclick="window.toggleQuestionCollapse(${index})">
                         <div class="flex justify-between align-center">
                             <div style="font-weight: bold; font-size:1.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%;">
-                                ${q.type === 'divider' ? '🔖 فاصل قسم: ' : ''} ${q.title || '<span class="text-muted">بدون عنوان</span>'}
+                                ${q.type === 'divider' ? '🔖 فاصل قسم: ' : ''} ${q.type === 'note' ? '📝 نص وصفي: ' : ''} ${q.title || '<span class="text-muted">بدون عنوان</span>'}
                             </div>
                             <div class="flex align-center" style="gap: 1rem">
                                 <span class="badge" style="background: transparent; color: var(--muted); border-color: var(--border)">${getTypeNameArabic(q.type)}</span>
@@ -890,17 +885,17 @@
             }
 
             let dividerDescHtml = '';
-            if (q.type === 'divider') {
+            if (['divider', 'note'].includes(q.type)) {
                 dividerDescHtml = `
                     <div style="margin-top: 0.8rem;">
-                        <span style="font-size: 0.85rem; color: var(--muted);"><i class="fas fa-align-right"></i> وصف الفاصل (اختياري):</span>
-                        <textarea placeholder="اكتب تعليمات للطلاب تحت هذا العنوان..." rows="2" onchange="window.updateQuestion(${index}, 'description', this.value)" style="margin-top:0.3rem;">${q.description || ''}</textarea>
+                        <span style="font-size: 0.85rem; color: var(--muted);"><i class="fas fa-align-right"></i> النص / الوصف التوضيحي:</span>
+                        <textarea placeholder="اكتب هنا النص أو الإرشادات التي تود عرضها للطالب بوضوح..." rows="3" onchange="window.updateQuestion(${index}, 'description', this.value)" style="margin-top:0.3rem;">${q.description || ''}</textarea>
                     </div>
                 `;
             }
 
             let quizCorrectionHtml = '';
-            if (isQuiz && q.type !== 'divider') {
+            if (isQuiz && !['divider', 'note'].includes(q.type)) {
                 let answerInputHtml = '';
                 if (['radio', 'dropdown'].includes(q.type) && q.options) {
                     answerInputHtml = `<select onchange="window.updateQuestion(${index}, 'correctAnswer', this.value)" style="margin:0; padding:0.5rem; font-size:0.9rem"><option value="">اختر الإجابة الصحيحة...</option>${q.options.map(opt => `<option value="${opt}" ${q.correctAnswer === opt ? 'selected' : ''}>${opt}</option>`).join('')}</select>`;
@@ -955,7 +950,7 @@
             return `
                 <div class="card question-block animate-fade" style="padding: 1.2rem;">
                     <div class="q-header">
-                        <input type="text" value="${q.title}" onchange="window.updateQuestion(${index}, 'title', this.value)" placeholder="${q.type === 'divider' ? 'عنوان القسم الجديد' : 'نص السؤال...'}" style="font-size: 1.1rem; font-weight: bold; margin:0;">
+                        <input type="text" value="${q.title}" onchange="window.updateQuestion(${index}, 'title', this.value)" placeholder="${q.type === 'divider' ? 'عنوان القسم الجديد' : q.type === 'note' ? 'عنوان النص الإرشادي' : 'نص السؤال...'}" style="font-size: 1.1rem; font-weight: bold; margin:0;">
                         <select onchange="window.updateQuestion(${index}, 'type', this.value)" style="margin:0;">
                             <option value="text" ${q.type === 'text' ? 'selected' : ''}>إجابة قصيرة</option>
                             <option value="number" ${q.type === 'number' ? 'selected' : ''}>رقم</option>
@@ -970,6 +965,7 @@
                             <option value="file" ${q.type === 'file' ? 'selected' : ''}>تحميل ملف (500KB)</option>
                             <option value="phone" ${q.type === 'phone' ? 'selected' : ''}>رقم هاتف</option>
                             <option value="divider" ${q.type === 'divider' ? 'selected' : ''}>فاصل / قسم 🔖</option>
+                            <option value="note" ${q.type === 'note' ? 'selected' : ''}>نص وصفي / إرشادي 📝</option>
                         </select>
                     </div>
                     
@@ -980,7 +976,7 @@
 
                     <div class="flex justify-between align-center mt-1 pt-1" style="border-top: 1px solid var(--border)">
                         <div class="flex" style="gap: 1rem">
-                            ${q.type !== 'divider' ? `<label class="custom-radio" style="font-size: 0.9rem"><input type="checkbox" ${q.required ? 'checked' : ''} onchange="window.updateQuestion(${index}, 'required', this.checked)"> مطلوب</label>` : ''}
+                            ${!['divider', 'note'].includes(q.type) ? `<label class="custom-radio" style="font-size: 0.9rem"><input type="checkbox" ${q.required ? 'checked' : ''} onchange="window.updateQuestion(${index}, 'required', this.checked)"> مطلوب</label>` : ''}
                             ${!q.condition && index > 0 ? `<button class="outline" style="padding:0.2rem 0.5rem; font-size:0.8rem;" onclick="window.showConditionModal(${index})"><i class="fas fa-link"></i> ربط بشرط</button>` : ''}
                         </div>
                         <div class="flex" style="gap:0.3rem">
@@ -1104,18 +1100,15 @@
                     if (oldDoc.exists()) previousAnswers = oldDoc.data().answers || {};
                 }
 
-                let stepProgressBarHtml = '';
-                if (layout === 'step') {
-                    stepProgressBarHtml = `
-                        <div style="height: 6px; background: var(--surface2); width: 100%; border-radius: 3px; margin-bottom: 2rem; overflow:hidden;">
-                            <div id="step-progress-fill" style="height: 100%; background: var(--accent); width: 0%; transition: width 0.4s ease;"></div>
-                        </div>
-                    `;
-                }
+                let stepProgressBarHtml = `
+                    <div style="height: 6px; background: var(--surface2); width: 100%; border-radius: 3px; margin-bottom: 2rem; overflow:hidden;">
+                        <div id="step-progress-fill" style="height: 100%; background: var(--accent); width: 0%; transition: width 0.4s ease;"></div>
+                    </div>
+                `;
 
                 let html = `
                     ${stepProgressBarHtml}
-                    <div class="card text-center animate-fade theme-${theme} layout-${layout}" style="border-top: 6px solid var(--accent); padding: 3rem 1.5rem; ${layout==='step'?'display:none':''}" id="form-header-card">
+                    <div class="card text-center animate-fade theme-${theme} layout-${layout}" style="border-top: 6px solid var(--accent); padding: 3rem 1.5rem;" id="form-header-card">
                         ${existingResponseId ? `<span class="badge" style="background: rgba(59,130,246,0.2); color: var(--primary); margin-bottom: 1rem;"><i class="fas fa-edit"></i> أنت الآن في وضع تعديل ردك السابق</span>` : ''}
                         <h1 style="font-size: 2rem; color: var(--accent);">${form.title}</h1>
                         ${form.description ? `<p class="text-muted mt-1" style="font-size: 1.1rem">${form.description}</p>` : ''}
@@ -1123,111 +1116,134 @@
                     <form id="public-form" class="theme-${theme} layout-${layout}" data-edit-response-id="${existingResponseId || ''}" onsubmit="window.submitPublicForm(event, '${id}')">
                 `;
 
-                form.questions.forEach((q, idx) => {
-                    const isConditional = q.condition ? `data-conditional="true" data-parent="q_${q.condition.dependsOnId}" data-reqval="${q.condition.requiredValue}" class="card question-container hidden"` : `class="card question-container animate-fade" style="animation-delay: ${idx*0.05}s"`;
-                    const reqStar = q.required && q.type !== 'divider' ? '<span style="color:var(--danger)">*</span>' : '';
-                    const pointsBadge = (form.settings?.isQuiz && q.points > 0 && q.type !== 'divider') ? `<span class="badge" style="background: rgba(168,85,247,0.15); color: #c084fc; float:left; border:none;"><i class="fas fa-star"></i> ${q.points} نقطة</span>` : '';
-                    const oldVal = previousAnswers[`q_${q.id}`] || '';
+                // تحويل الأسئلة إلى أقسام/صفحات بناءً على الفواصل (Dividers)
+                let sections = [];
+                let currentSection = { header: null, questions: [] };
 
+                form.questions.forEach((q) => {
                     if (q.type === 'divider') {
-                        if (layout === 'step') {
-                            html += `<div id="wrap_${q.id}" ${isConditional} style="text-align: center; padding: 3rem 1.5rem; border: none; background: transparent; box-shadow: none;">
-                                <div style="font-size: 3.5rem; color: var(--accent); margin-bottom: 1.5rem;"><i class="fas fa-bookmark"></i></div>
-                                <h2 style="font-size: 1.8rem; color: var(--text); font-weight: 800; margin-bottom: 1rem;">${q.title}</h2>
-                                ${q.description ? `<p class="text-muted" style="font-size: 1.1rem; line-height: 1.6; max-width: 600px; margin: 0 auto;">${q.description}</p>` : ''}
-                            </div>`;
-                        } else if (layout === 'modern') {
-                            html += `<div id="wrap_${q.id}" ${isConditional} style="background: transparent; border: none; box-shadow: none; padding: 1.5rem 0 0.5rem 0; margin-top: 1rem;">
-                                <h2 style="color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 0.6rem;">
-                                    <i class="fas fa-bookmark"></i> ${q.title}
-                                </h2>
-                                ${q.description ? `<p class="text-muted" style="margin-top: 0.5rem; font-size: 1.05rem; line-height: 1.5;">${q.description}</p>` : ''}
-                            </div>`;
-                        } else { 
-                            html += `<div id="wrap_${q.id}" ${isConditional} style="border-right: 4px solid var(--accent); padding: 1.2rem; background: var(--surface)">
-                                <h2 style="color: var(--accent); padding-bottom: 0.5rem; font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; gap: 0.6rem; border-bottom: 1px solid var(--border);">
-                                    <i class="fas fa-bookmark"></i> ${q.title}
-                                </h2>
-                                ${q.description ? `<p class="text-muted" style="margin-top: 0.8rem; font-size: 1.05rem; line-height: 1.5;">${q.description}</p>` : ''}
-                            </div>`;
+                        if (currentSection.questions.length > 0 || currentSection.header) {
+                            sections.push(currentSection);
                         }
+                        currentSection = { header: q, questions: [] };
                     } else {
-                        html += `<div id="wrap_${q.id}" ${isConditional}>
-                            ${pointsBadge}
-                            <p style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem;">${q.title} ${reqStar}</p>
-                        `;
-                        
-                        if (q.type === 'text') {
-                            html += `<input type="text" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} placeholder="إجابتك هنا..." oninput="window.evaluateConditions()">`;
-                        } else if (q.type === 'number') {
-                            html += `<input type="number" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} placeholder="أدخل رقماً..." oninput="window.evaluateConditions()">`;
-                        } else if (q.type === 'email') {
-                            html += `<input type="email" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} placeholder="example@email.com" oninput="window.evaluateConditions()" style="text-align: left; direction: ltr;">`;
-                        } else if (q.type === 'textarea') {
-                            html += `<textarea name="q_${q.id}" rows="4" ${q.required ? 'required' : ''} placeholder="اكتب إجابتك بالتفصيل هنا..." oninput="window.evaluateConditions()">${oldVal}</textarea>`;
-                        } else if (q.type === 'phone') {
-                            html += `<input type="tel" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} placeholder="07XXXXXXXX" pattern="[0-9]{10,15}" oninput="window.evaluateConditions()">`;
-                        } else if (q.type === 'date') {
-                            html += `<input type="date" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} onchange="window.evaluateConditions()">`;
-                        } else if (q.type === 'time') {
-                            html += `<input type="time" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} onchange="window.evaluateConditions()">`;
-                        } else if (q.type === 'file') {
-                            html += `
-                                <input type="file" onchange="window.handleFileSelect('${q.id}', this)" ${q.required && !oldVal ? 'required' : ''} accept=".jpg,.jpeg,.png,.pdf,.doc,.docx">
-                                <input type="hidden" name="q_${q.id}" id="input_${q.id}" value="${oldVal}">
-                                <span id="file_info_${q.id}" class="text-muted" style="display:block; margin-top:5px; font-size:0.85rem">${oldVal ? '📂 ملف محفوظ مسبقاً' : 'الحد الأقصى: 500KB'}</span>
-                            `;
-                        } else if (q.type === 'rating') {
-                            html += `
-                                <div class="rating-stars" data-qid="${q.id}">
-                                    <span onclick="window.setRating('${q.id}', 1)"><i class="${oldVal >= 1 ? 'fas' : 'far'} fa-star"></i></span>
-                                    <span onclick="window.setRating('${q.id}', 2)"><i class="${oldVal >= 2 ? 'fas' : 'far'} fa-star"></i></span>
-                                    <span onclick="window.setRating('${q.id}', 3)"><i class="${oldVal >= 3 ? 'fas' : 'far'} fa-star"></i></span>
-                                    <span onclick="window.setRating('${q.id}', 4)"><i class="${oldVal >= 4 ? 'fas' : 'far'} fa-star"></i></span>
-                                    <span onclick="window.setRating('${q.id}', 5)"><i class="${oldVal >= 5 ? 'fas' : 'far'} fa-star"></i></span>
-                                </div>
-                                <input type="hidden" name="q_${q.id}" id="input_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''}>
-                            `;
-                        } else if (q.type === 'radio') {
-                            html += `<div class="flex-col" style="gap:0.6rem">`;
-                            q.options.forEach(opt => {
-                                const checked = oldVal === opt ? 'checked' : '';
-                                html += `<label class="custom-radio"><input type="radio" name="q_${q.id}" value="${opt}" ${checked} ${q.required ? 'required' : ''} onchange="window.evaluateConditions()"> <span style="font-size:1.1rem">${opt}</span></label>`;
-                            });
-                            html += `</div>`;
-                        } else if (q.type === 'checkbox') {
-                            html += `<div class="flex-col" style="gap:0.6rem">`;
-                            const oldList = oldVal ? oldVal.split('، ') : [];
-                            q.options.forEach(opt => {
-                                const checked = oldList.includes(opt) ? 'checked' : '';
-                                html += `<label class="custom-radio"><input type="checkbox" name="q_${q.id}[]" value="${opt}" ${checked} onchange="window.evaluateConditions()"> <span style="font-size:1.1rem">${opt}</span></label>`;
-                            });
-                            html += `</div>`;
-                        } else if (q.type === 'dropdown') {
-                            html += `<select name="q_${q.id}" ${q.required ? 'required' : ''} onchange="window.evaluateConditions()" style="font-size:1.1rem; padding: 1rem;">
-                                <option value="" disabled ${!oldVal ? 'selected' : ''}>اختر من القائمة...</option>
-                                ${q.options.map(opt => `<option value="${opt}" ${oldVal === opt ? 'selected' : ''}>${opt}</option>`).join('')}
-                            </select>`;
-                        }
-                        html += `</div>`;
+                        currentSection.questions.push(q);
                     }
                 });
-
-                if (layout === 'step') {
-                    html += `
-                        <div class="step-navigation flex justify-between mt-1 pt-1" style="border-top:1px solid var(--border); padding-top: 1.5rem;">
-                            <button type="button" class="outline" onclick="window.prevStep()" id="btn-prev-step" style="display:none; font-size:1.1rem"><i class="fas fa-arrow-right"></i> السابق</button>
-                            <button type="button" class="primary" onclick="window.nextStep()" id="btn-next-step" style="font-size:1.1rem">التالي <i class="fas fa-arrow-left"></i></button>
-                            <button type="submit" id="btn-submit-step" style="display:none; font-size:1.2rem; padding: 0.8rem 2rem;" class="primary"><i class="fas fa-paper-plane"></i> ${existingResponseId ? 'تعديل وحفظ الرد' : 'إرسال النموذج'}</button>
-                        </div>
-                    `;
-                } else {
-                    html += `
-                        <div class="mt-1 animate-fade" style="animation-delay: 1s">
-                            <button type="submit" style="width: 100%; font-size: 1.2rem; padding: 1rem;"><i class="fas fa-paper-plane"></i> ${existingResponseId ? 'تعديل وحفظ الرد' : 'إرسال النموذج'}</button>
-                        </div>
-                    `;
+                if (currentSection.questions.length > 0 || currentSection.header) {
+                    sections.push(currentSection);
                 }
+
+                // إذا لم تكن هناك فواصل، ننشئ قسماً افتراضياً واحداً
+                if (sections.length === 0) {
+                    sections.push({ header: null, questions: form.questions });
+                }
+
+                sections.forEach((sec, sIdx) => {
+                    html += `<div class="form-section-group" id="section-${sIdx}" data-section-index="${sIdx}">`;
+                    
+                    // إذا كان هناك عنوان قسم ندفعه أولاً
+                    if (sec.header) {
+                        const q = sec.header;
+                        const isConditional = q.condition ? `data-conditional="true" data-parent="q_${q.condition.dependsOnId}" data-reqval="${q.condition.requiredValue}" class="card question-container hidden"` : `class="card question-container animate-fade"`;
+                        
+                        html += `<div id="wrap_${q.id}" ${isConditional} style="border-right: 4px solid var(--accent); padding: 1.2rem; background: var(--surface); margin-bottom: 1.5rem;">
+                            <h2 style="color: var(--accent); padding-bottom: 0.5rem; font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; gap: 0.6rem; border-bottom: 1px solid var(--border);">
+                                <i class="fas fa-bookmark"></i> ${q.title}
+                            </h2>
+                            ${q.description ? `<p class="text-muted" style="margin-top: 0.8rem; font-size: 1.05rem; line-height: 1.5;">${q.description}</p>` : ''}
+                        </div>`;
+                    }
+
+                    // دفع الأسئلة التابعة للقسم
+                    sec.questions.forEach((q, idx) => {
+                        const isConditional = q.condition ? `data-conditional="true" data-parent="q_${q.condition.dependsOnId}" data-reqval="${q.condition.requiredValue}" class="card question-container hidden"` : `class="card question-container animate-fade" style="animation-delay: ${idx*0.05}s"`;
+                        const reqStar = q.required && !['divider', 'note'].includes(q.type) ? '<span style="color:var(--danger)">*</span>' : '';
+                        const pointsBadge = (form.settings?.isQuiz && q.points > 0 && !['divider', 'note'].includes(q.type)) ? `<span class="badge" style="background: rgba(168,85,247,0.15); color: #c084fc; float:left; border:none;"><i class="fas fa-star"></i> ${q.points} نقطة</span>` : '';
+                        const oldVal = previousAnswers[`q_${q.id}`] || '';
+
+                        if (q.type === 'note') {
+                            // عرض النص الإرشادي/الوصفي
+                            html += `<div id="wrap_${q.id}" ${isConditional} style="border-right: 4px solid var(--primary); padding: 1.2rem; background: var(--surface2); margin-bottom: 1.5rem;">
+                                <h3 style="color: var(--primary); padding-bottom: 0.4rem; font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-info-circle"></i> ${q.title}
+                                </h3>
+                                ${q.description ? `<div class="text-muted" style="margin-top: 0.5rem; font-size: 1rem; line-height: 1.6; white-space: pre-line;">${q.description}</div>` : ''}
+                            </div>`;
+                        } else {
+                            // الأسئلة الطبيعية
+                            html += `<div id="wrap_${q.id}" ${isConditional}>
+                                ${pointsBadge}
+                                <p style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem;">${q.title} ${reqStar}</p>
+                            `;
+                            
+                            if (q.type === 'text') {
+                                html += `<input type="text" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} placeholder="إجابتك هنا..." oninput="window.evaluateConditions()">`;
+                            } else if (q.type === 'number') {
+                                html += `<input type="number" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} placeholder="أدخل رقماً..." oninput="window.evaluateConditions()">`;
+                            } else if (q.type === 'email') {
+                                html += `<input type="email" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} placeholder="example@email.com" oninput="window.evaluateConditions()" style="text-align: left; direction: ltr;">`;
+                            } else if (q.type === 'textarea') {
+                                html += `<textarea name="q_${q.id}" rows="4" ${q.required ? 'required' : ''} placeholder="اكتب إجابتك بالتفصيل هنا..." oninput="window.evaluateConditions()">${oldVal}</textarea>`;
+                            } else if (q.type === 'phone') {
+                                html += `<input type="tel" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} placeholder="07XXXXXXXX" pattern="[0-9]{10,15}" oninput="window.evaluateConditions()">`;
+                            } else if (q.type === 'date') {
+                                html += `<input type="date" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} onchange="window.evaluateConditions()">`;
+                            } else if (q.type === 'time') {
+                                html += `<input type="time" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} onchange="window.evaluateConditions()">`;
+                            } else if (q.type === 'file') {
+                                html += `
+                                    <input type="file" onchange="window.handleFileSelect('${q.id}', this)" ${q.required && !oldVal ? 'required' : ''} accept=".jpg,.jpeg,.png,.pdf,.doc,.docx">
+                                    <input type="hidden" name="q_${q.id}" id="input_${q.id}" value="${oldVal}">
+                                    <span id="file_info_${q.id}" class="text-muted" style="display:block; margin-top:5px; font-size:0.85rem">${oldVal ? '📂 ملف محفوظ مسبقاً' : 'الحد الأقصى: 500KB'}</span>
+                                `;
+                            } else if (q.type === 'rating') {
+                                html += `
+                                    <div class="rating-stars" data-qid="${q.id}">
+                                        <span onclick="window.setRating('${q.id}', 1)"><i class="${oldVal >= 1 ? 'fas' : 'far'} fa-star"></i></span>
+                                        <span onclick="window.setRating('${q.id}', 2)"><i class="${oldVal >= 2 ? 'fas' : 'far'} fa-star"></i></span>
+                                        <span onclick="window.setRating('${q.id}', 3)"><i class="${oldVal >= 3 ? 'fas' : 'far'} fa-star"></i></span>
+                                        <span onclick="window.setRating('${q.id}', 4)"><i class="${oldVal >= 4 ? 'fas' : 'far'} fa-star"></i></span>
+                                        <span onclick="window.setRating('${q.id}', 5)"><i class="${oldVal >= 5 ? 'fas' : 'far'} fa-star"></i></span>
+                                    </div>
+                                    <input type="hidden" name="q_${q.id}" id="input_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''}>
+                                `;
+                            } else if (q.type === 'radio') {
+                                html += `<div class="flex-col" style="gap:0.6rem">`;
+                                q.options.forEach(opt => {
+                                    const checked = oldVal === opt ? 'checked' : '';
+                                    html += `<label class="custom-radio"><input type="radio" name="q_${q.id}" value="${opt}" ${checked} ${q.required ? 'required' : ''} onchange="window.evaluateConditions()"> <span style="font-size:1.1rem">${opt}</span></label>`;
+                                });
+                                html += `</div>`;
+                            } else if (q.type === 'checkbox') {
+                                html += `<div class="flex-col" style="gap:0.6rem">`;
+                                const oldList = oldVal ? oldVal.split('، ') : [];
+                                q.options.forEach(opt => {
+                                    const checked = oldList.includes(opt) ? 'checked' : '';
+                                    html += `<label class="custom-radio"><input type="checkbox" name="q_${q.id}[]" value="${opt}" ${checked} onchange="window.evaluateConditions()"> <span style="font-size:1.1rem">${opt}</span></label>`;
+                                });
+                                html += `</div>`;
+                            } else if (q.type === 'dropdown') {
+                                html += `<select name="q_${q.id}" ${q.required ? 'required' : ''} onchange="window.evaluateConditions()" style="font-size:1.1rem; padding: 1rem;">
+                                    <option value="" disabled ${!oldVal ? 'selected' : ''}>اختر من القائمة...</option>
+                                    ${q.options.map(opt => `<option value="${opt}" ${oldVal === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+                                </select>`;
+                            }
+                            html += `</div>`;
+                        }
+                    });
+
+                    html += `</div>`; // إغلاق ديف قسم الأسئلة
+                });
+
+                // نظام أزرار التنقل الذكية بين الأقسام
+                html += `
+                    <div class="step-navigation flex justify-between mt-1 pt-1" style="border-top:1px solid var(--border); padding-top: 1.5rem;">
+                        <button type="button" class="outline" onclick="window.prevSection()" id="btn-prev-sec" style="display:none; font-size:1.1rem"><i class="fas fa-arrow-right"></i> السابق</button>
+                        <button type="button" class="primary" onclick="window.nextSection()" id="btn-next-sec" style="font-size:1.1rem">التالي <i class="fas fa-arrow-left"></i></button>
+                        <button type="submit" id="btn-submit-sec" style="display:none; font-size:1.2rem; padding: 0.8rem 2rem;" class="primary"><i class="fas fa-paper-plane"></i> ${existingResponseId ? 'تعديل وحفظ الرد' : 'إرسال النموذج'}</button>
+                    </div>
+                `;
                 
                 html += `</form>`;
                 return html;
@@ -1240,9 +1256,9 @@
         window.setupConditionalLogic = () => { 
             window.evaluateConditions(); 
             const form = document.getElementById('public-form');
-            if (form && form.classList.contains('layout-step')) {
-                window.currentStep = 0;
-                window.updateSteps();
+            if (form) {
+                window.currentSectionIndex = 0;
+                window.updateSectionsDisplay();
             }
         };
 
@@ -1274,76 +1290,90 @@
                     }
                 }
             });
-
-            if (form.classList.contains('layout-step')) window.updateSteps();
         };
 
-        window.updateSteps = () => {
+        // --- نظام تقسيم الصفحات الحقيقي (Sections / Google Forms mode) ---
+        window.updateSectionsDisplay = () => {
             const form = document.getElementById('public-form');
-            if (!form || !form.classList.contains('layout-step')) return;
+            if (!form) return;
 
+            const sections = Array.from(form.querySelectorAll('.form-section-group'));
             const headerCard = document.getElementById('form-header-card');
-            const allQuestions = Array.from(form.querySelectorAll('.question-container'));
-            const visibleQuestions = allQuestions.filter(q => !q.classList.contains('hidden'));
+            
+            if (window.currentSectionIndex >= sections.length) window.currentSectionIndex = sections.length - 1;
+            if (window.currentSectionIndex < 0) window.currentSectionIndex = 0;
 
-            const steps = [headerCard, ...visibleQuestions];
+            // إخفاء كافة الأقسام
+            sections.forEach(s => s.classList.remove('active'));
+            
+            // إظهار القسم النشط فقط
+            if(sections[window.currentSectionIndex]) {
+                sections[window.currentSectionIndex].classList.add('active');
+            }
 
-            if (window.currentStep >= steps.length) window.currentStep = steps.length - 1;
-            if (window.currentStep < 0) window.currentStep = 0;
+            // إظهار الهيدر الرئيسي (عنوان الاستمارة) فقط في الصفحة الأولى (القسم الأول)
+            if (window.currentSectionIndex === 0) {
+                headerCard.style.display = 'block';
+            } else {
+                headerCard.style.display = 'none';
+            }
 
-            headerCard.style.display = 'none';
-            allQuestions.forEach(q => q.classList.remove('step-active'));
-
-            if (window.currentStep === 0) headerCard.style.display = 'block';
-            else if(steps[window.currentStep]) steps[window.currentStep].classList.add('step-active');
-
+            // تحديث شريط التقدم العلوي بشكل دقيق
             const progressFill = document.getElementById('step-progress-fill');
             if(progressFill) {
-                const percent = steps.length > 1 ? (window.currentStep / (steps.length - 1)) * 100 : 100;
+                const percent = sections.length > 1 ? (window.currentSectionIndex / (sections.length - 1)) * 100 : 100;
                 progressFill.style.width = percent + '%';
             }
 
-            const btnPrev = document.getElementById('btn-prev-step');
-            const btnNext = document.getElementById('btn-next-step');
-            const btnSubmit = document.getElementById('btn-submit-step');
+            const btnPrev = document.getElementById('btn-prev-sec');
+            const btnNext = document.getElementById('btn-next-sec');
+            const btnSubmit = document.getElementById('btn-submit-sec');
 
-            btnPrev.style.display = window.currentStep === 0 ? 'none' : 'inline-flex';
+            // التحكم في ظهور أزرار التنقل
+            btnPrev.style.display = window.currentSectionIndex === 0 ? 'none' : 'inline-flex';
 
-            if(window.currentStep === steps.length - 1) {
+            if(window.currentSectionIndex === sections.length - 1) {
                 btnNext.style.display = 'none';
                 btnSubmit.style.display = 'inline-flex';
             } else {
                 btnNext.style.display = 'inline-flex';
                 btnSubmit.style.display = 'none';
             }
+
+            // رفع الشاشة لأعلى الصفحة عند الانتقال
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        window.nextStep = () => {
+        window.nextSection = () => {
             const form = document.getElementById('public-form');
-            const allQuestions = Array.from(form.querySelectorAll('.question-container'));
-            const visibleQuestions = allQuestions.filter(q => !q.classList.contains('hidden'));
-            const steps = [document.getElementById('form-header-card'), ...visibleQuestions];
-            
-            const currentEl = steps[window.currentStep];
-            
-            if(window.currentStep > 0 && currentEl) {
-                const requiredInputs = currentEl.querySelectorAll('[required]');
+            const sections = Array.from(form.querySelectorAll('.form-section-group'));
+            const currentSec = sections[window.currentSectionIndex];
+
+            // التحقق من صحة كافة الأسئلة الإجبارية داخل القسم الحالي قبل الانتقال
+            if(currentSec) {
+                const requiredInputs = currentSec.querySelectorAll('[required]');
                 let isValid = true;
                 requiredInputs.forEach(inp => {
-                    if(!inp.checkValidity()) { inp.reportValidity(); isValid = false; }
+                    // نتأكد أولاً أن السؤال ليس مخفياً بسبب منطق شرطي
+                    const parentWrap = inp.closest('.question-container');
+                    if (parentWrap && parentWrap.classList.contains('hidden')) return;
+
+                    if(!inp.checkValidity()) {
+                        inp.reportValidity();
+                        isValid = false;
+                    }
                 });
                 if(!isValid) return;
             }
 
-            window.currentStep++;
-            window.updateSteps();
+            window.currentSectionIndex++;
+            window.updateSectionsDisplay();
         };
 
-        window.prevStep = () => {
-            window.currentStep--;
-            window.updateSteps();
+        window.prevSection = () => {
+            window.currentSectionIndex--;
+            window.updateSectionsDisplay();
         };
-
 
         function viewSuccess(formId) {
             let scoreHtml = '';
@@ -1474,7 +1504,7 @@
                             if(r.answers[qId] === '') continue; 
                             const qRawId = qId.replace('q_', '');
                             const question = form.questions.find(q => q.id === qRawId);
-                            if (question && question.type === 'divider') continue;
+                            if (question && ['divider', 'note'].includes(question.type)) continue;
                             const qText = question ? question.title : 'سؤال محذوف';
                             
                             let answerValue = r.answers[qId];
@@ -1587,7 +1617,7 @@
             let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
             const headers = ['التاريخ', 'العلامة المستحقة'];
             data.questions.forEach(q => {
-                if (q.type === 'divider') return;
+                if (['divider', 'note'].includes(q.type)) return;
                 headers.push(q.title);
             });
             csvContent += headers.join(",") + "\n";
@@ -1597,7 +1627,7 @@
                 const row = [new Date(r.date).toLocaleString('ar-EG').replace(/,/g, ''), scoreStr];
                 
                 data.questions.forEach(q => {
-                    if (q.type === 'divider') return;
+                    if (['divider', 'note'].includes(q.type)) return;
                     let ans = r.answers[`q_${q.id}`] || '';
                     if(typeof ans === 'string' && ans.startsWith('{"name":')) {
                         try { ans = `ملف مرفوع: ${JSON.parse(ans).name}`; } catch(e) { ans = 'ملف مرفوع'; }
