@@ -301,20 +301,34 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // معالجة روابط التقصير المستلمة عبر Query Parameters تحسباً لقضية قص قيود الهاش (#) من قبل خوادم التقصير
-        const urlParams = new URLSearchParams(window.location.search);
-        const fParam = urlParams.get('f');
-        const rParam = urlParams.get('r');
-        if (fParam) {
-            let targetHash = `#form/${fParam}`;
-            if (rParam) targetHash += `/${rParam}`;
-            window.location.hash = targetHash;
-            // تنظيف شريط العنوان ليبقى المظهر احترافي بالهاش فقط لمنع حدوث مشاكل تكرار تحميل
-            window.history.replaceState({}, document.title, window.location.pathname + targetHash);
+        // معالجة روابط التقصير المستلمة عبر معاملات الاستعلام لتجنب قص قيود السيرفرات لرموز (#)
+        function parseQueryRoute() {
+            const urlParams = new URLSearchParams(window.location.search);
+            let fParam = urlParams.get('f');
+            let rParam = urlParams.get('r');
+
+            // فحص كاحتياط داخل الهاش في حال تم دمج الروابط بطرق غريبة
+            if (!fParam && window.location.hash.includes('?')) {
+                const hashQuery = window.location.hash.split('?')[1];
+                const hashParams = new URLSearchParams(hashQuery);
+                fParam = hashParams.get('f');
+                rParam = hashParams.get('r');
+            }
+
+            if (fParam) {
+                let targetHash = `#form/${fParam}`;
+                if (rParam) targetHash += `/${rParam}`;
+                window.location.hash = targetHash;
+                // تنظيف عنوان المتصفح تماماً
+                window.history.replaceState({}, document.title, window.location.pathname + targetHash);
+                // فرض تحميل فوري للاستمارة منعاً لأي تأخير
+                setTimeout(() => { renderView(); }, 50);
+            }
         }
+        parseQueryRoute();
 
         window.State = { user: null, isAdmin: false, forms: [], responses: {}, currentBuilderForm: null };
-        window.currentStep = 0; // for Step-by-Step layout
+        window.currentStep = 0; // للتحكم بخطوة بخطوة
 
         Chart.defaults.font.family = 'Cairo';
         Chart.defaults.color = '#94a3b8';
@@ -335,7 +349,7 @@
         };
 
         onAuthStateChanged(auth, async (user) => {
-            if (user) {
+            if (user && !user.isAnonymous) {
                 try {
                     const userDoc = await getDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'data'));
                     if (userDoc.exists() && userDoc.data().revoked) {
@@ -352,11 +366,17 @@
                     else renderView();
                 } catch(e) { }
             } else {
+                // تصفير بيانات الجلسة للمجهولين أو الطلاب
                 window.State.user = null; window.State.isAdmin = false;
                 document.getElementById('main-nav').classList.add('hidden');
+                
                 try { await signInAnonymously(auth); } catch(e) { }
-                if(window.location.hash.startsWith('#form/') || window.location.hash.startsWith('#success')) renderView();
-                else navigate('#login');
+                
+                if(window.location.hash.startsWith('#form/') || window.location.hash.startsWith('#success')) {
+                    renderView();
+                } else {
+                    navigate('#login');
+                }
             }
         });
 
@@ -469,6 +489,8 @@
 
                 let identifyingValues = [];
                 form.questions.forEach(q => {
+                    // تجنب الفواصل أو العناوين عند الفحص
+                    if (q.type === 'divider') return;
                     if (['phone', 'email', 'text'].includes(q.type) && answers[`q_${q.id}`]) {
                         identifyingValues.push({
                             qid: `q_${q.id}`,
@@ -508,6 +530,7 @@
 
                 if (isQuiz) {
                     form.questions.forEach(q => {
+                        if (q.type === 'divider') return;
                         const studentAns = answers[`q_${q.id}`];
                         const points = parseInt(q.points) || 0;
                         totalPoints += points;
@@ -650,115 +673,6 @@
             return html;
         }
 
-        // إظهار نافذة المشاركة والتقصير
-        window.showShareModal = (formId) => {
-            // نستخدم علامة الاستفهام لإنشاء رابط آمن تماماً لا يمكن تقصيره أو التلاعب به من خوادم التقصير
-            const longLink = `${window.location.origin}${window.location.pathname}?f=${formId}`;
-            
-            // تهيئة الحقول في النافذة المنبثقة
-            document.getElementById('modal-long-url').value = longLink;
-            document.getElementById('modal-short-url').value = '';
-            document.getElementById('short-url-section').classList.add('hidden');
-            
-            // تغيير حالة زر التقصير إلى التفعيل الافتراضي
-            const btnShorten = document.getElementById('btn-shorten-action');
-            btnShorten.disabled = false;
-            btnShorten.innerHTML = '<i class="fas fa-magic"></i> توليد رابط قصير جداً';
-            
-            // تخزين الرابط الطويل الحالي لاستخدامه عند التقصير
-            window.currentLongUrlToShorten = longLink;
-
-            // إظهار النافذة
-            document.getElementById('share-modal').classList.add('active');
-        };
-
-        window.hideShareModal = () => {
-            document.getElementById('share-modal').classList.remove('active');
-        };
-
-        window.closeShareModal = (e) => {
-            if(e.target.id === 'share-modal') {
-                window.hideShareModal();
-            }
-        };
-
-        // تقصير الرابط الحالي المفتوح في النافذة مع تجاوز قيود الحماية (CORS)
-        window.shortenCurrentUrl = async () => {
-            const longLink = window.currentLongUrlToShorten;
-            if(!longLink) return;
-
-            const btnShorten = document.getElementById('btn-shorten-action');
-            btnShorten.disabled = true;
-            btnShorten.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري توليد الرابط القصير...';
-
-            try {
-                // نستخدم خدمة AllOrigins كبروكسي لتجاوز قيود CORS للمتصفح عند الاتصال بخدمات التقصير
-                const tinyUrlApi = `https://tinyurl.com/api-create.php?url=${encodeURIComponent(longLink)}`;
-                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(tinyUrlApi)}`;
-                
-                const response = await fetch(proxyUrl);
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.contents && data.contents.startsWith('http')) {
-                        document.getElementById('modal-short-url').value = data.contents;
-                        document.getElementById('short-url-section').classList.remove('hidden');
-                        window.showToast('تم توليد الرابط القصير!');
-                        btnShorten.innerHTML = '<i class="fas fa-check-circle"></i> تم التوليد بنجاح';
-                        return; // نجاح
-                    }
-                }
-                throw new Error('API Error');
-            } catch (err) {
-                // خادم احتياطي (Fallback) في حال تعطل الأول
-                try {
-                    const isgdApi = `https://is.gd/create.php?format=simple&url=${encodeURIComponent(longLink)}`;
-                    const proxyUrl2 = `https://api.allorigins.win/get?url=${encodeURIComponent(isgdApi)}`;
-                    
-                    const response2 = await fetch(proxyUrl2);
-                    if (response2.ok) {
-                        const data2 = await response2.json();
-                        if (data2.contents && data2.contents.startsWith('http')) {
-                            document.getElementById('modal-short-url').value = data2.contents;
-                            document.getElementById('short-url-section').classList.remove('hidden');
-                            window.showToast('تم توليد الرابط القصير!');
-                            btnShorten.innerHTML = '<i class="fas fa-check-circle"></i> تم التوليد بنجاح';
-                            return; // نجاح
-                        }
-                    }
-                    throw new Error('Fallback Error');
-                } catch (err2) {
-                    window.showToast('فشل الاتصال بخادم التقصير، يرجى استخدام الرابط الطويل.', true);
-                    btnShorten.disabled = false;
-                    btnShorten.innerHTML = '<i class="fas fa-magic"></i> توليد رابط قصير جداً';
-                }
-            }
-        };
-
-        // نسخ الرابط المحدد من الحقل داخل النافذة المنبثقة
-        window.copyLinkDirect = (inputId) => {
-            const inputEl = document.getElementById(inputId);
-            if(!inputEl || !inputEl.value) return;
-
-            const tempTextArea = document.createElement("textarea");
-            tempTextArea.value = inputEl.value; 
-            tempTextArea.style.position = "fixed"; 
-            tempTextArea.style.opacity = "0";
-            document.body.appendChild(tempTextArea); 
-            tempTextArea.focus(); 
-            tempTextArea.select();
-            
-            try { 
-                if (document.execCommand('copy')) {
-                    window.showToast('تم نسخ الرابط المختار بنجاح!');
-                } else {
-                    window.showToast('فشل النسخ تلقائياً.', true);
-                }
-            } catch (err) { 
-                window.showToast('فشل النسخ تلقائياً.', true); 
-            }
-            document.body.removeChild(tempTextArea);
-        };
-
         async function initBuilder(id) {
             if (id) {
                 const f = window.State.forms.find(x => x.id === id);
@@ -774,7 +688,7 @@
         window.createNewForm = () => navigate(`#builder`);
 
         const getTypeNameArabic = (type) => {
-            const map = { text: 'قصير', email: 'بريد', textarea: 'فقرة', radio: 'خيارات', checkbox: 'مربعات', dropdown: 'قائمة', rating: 'تقييم', date: 'تاريخ', time: 'وقت', file: 'ملف', phone: 'هاتف' };
+            const map = { text: 'قصير', email: 'بريد', textarea: 'فقرة', radio: 'خيارات', checkbox: 'مربعات', dropdown: 'قائمة', rating: 'تقييم', date: 'تاريخ', time: 'وقت', file: 'ملف', phone: 'هاتف', divider: 'فاصل قسم' };
             return map[type] || type;
         };
 
@@ -871,7 +785,7 @@
                     <div class="card question-block animate-fade" style="padding: 0.8rem 1.2rem; cursor: pointer; border-color: transparent;" onclick="window.toggleQuestionCollapse(${index})">
                         <div class="flex justify-between align-center">
                             <div style="font-weight: bold; font-size:1.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%;">
-                                ${q.title || '<span class="text-muted">سؤال بدون عنوان</span>'}
+                                ${q.type === 'divider' ? '🔖 فاصل قسم: ' : ''} ${q.title || '<span class="text-muted">بدون عنوان</span>'}
                             </div>
                             <div class="flex align-center" style="gap: 1rem">
                                 <span class="badge" style="background: transparent; color: var(--muted); border-color: var(--border)">${getTypeNameArabic(q.type)}</span>
@@ -897,8 +811,18 @@
                 optionsHtml += `<button class="outline mt-1" style="padding:0.4rem 1rem; font-size:0.85rem" onclick="window.addOption(${index})"><i class="fas fa-plus"></i> إضافة خيار</button></div>`;
             }
 
+            let dividerDescHtml = '';
+            if (q.type === 'divider') {
+                dividerDescHtml = `
+                    <div style="margin-top: 0.8rem;">
+                        <span style="font-size: 0.85rem; color: var(--muted);"><i class="fas fa-align-right"></i> وصف وتفاصيل القسم (اختياري):</span>
+                        <textarea placeholder="اكتب تعليمات أو وصفاً تفصيلياً يظهر للطلاب تحت هذا العنوان..." rows="2" onchange="window.updateQuestion(${index}, 'description', this.value)" style="margin-top:0.3rem;">${q.description || ''}</textarea>
+                    </div>
+                `;
+            }
+
             let quizCorrectionHtml = '';
-            if (isQuiz) {
+            if (isQuiz && q.type !== 'divider') {
                 let answerInputHtml = '';
                 if (['radio', 'dropdown'].includes(q.type) && q.options) {
                     answerInputHtml = `<select onchange="window.updateQuestion(${index}, 'correctAnswer', this.value)" style="margin:0; padding:0.5rem; font-size:0.9rem"><option value="">اختر الإجابة الصحيحة...</option>${q.options.map(opt => `<option value="${opt}" ${q.correctAnswer === opt ? 'selected' : ''}>${opt}</option>`).join('')}</select>`;
@@ -953,7 +877,7 @@
             return `
                 <div class="card question-block animate-fade" style="padding: 1.2rem;">
                     <div class="q-header">
-                        <input type="text" value="${q.title}" onchange="window.updateQuestion(${index}, 'title', this.value)" placeholder="نص السؤال..." style="font-size: 1.1rem; font-weight: bold; margin:0;">
+                        <input type="text" value="${q.title}" onchange="window.updateQuestion(${index}, 'title', this.value)" placeholder="${q.type === 'divider' ? 'عنوان القسم الجديد (مثال: معلومات الاتصال)' : 'نص السؤال...'}" style="font-size: 1.1rem; font-weight: bold; margin:0;">
                         <select onchange="window.updateQuestion(${index}, 'type', this.value)" style="margin:0;">
                             <option value="text" ${q.type === 'text' ? 'selected' : ''}>إجابة قصيرة</option>
                             <option value="email" ${q.type === 'email' ? 'selected' : ''}>بريد إلكتروني</option>
@@ -966,18 +890,22 @@
                             <option value="time" ${q.type === 'time' ? 'selected' : ''}>وقت</option>
                             <option value="file" ${q.type === 'file' ? 'selected' : ''}>تحميل ملف (500KB)</option>
                             <option value="phone" ${q.type === 'phone' ? 'selected' : ''}>رقم هاتف</option>
+                            <option value="divider" ${q.type === 'divider' ? 'selected' : ''}>فاصل / عنوان قسم 🔖</option>
                         </select>
                     </div>
                     
                     ${optionsHtml}
+                    ${dividerDescHtml}
                     ${quizCorrectionHtml}
                     ${conditionHtml}
 
                     <div class="flex justify-between align-center mt-1 pt-1" style="border-top: 1px solid var(--border)">
                         <div class="flex" style="gap: 1rem">
+                            ${q.type !== 'divider' ? `
                             <label class="custom-radio" style="font-size: 0.9rem">
                                 <input type="checkbox" ${q.required ? 'checked' : ''} onchange="window.updateQuestion(${index}, 'required', this.checked)"> مطلوب
                             </label>
+                            ` : ''}
                             ${!q.condition && index > 0 ? `<button class="outline" style="padding:0.2rem 0.5rem; font-size:0.8rem;" onclick="window.showConditionModal(${index})"><i class="fas fa-link"></i> ربط بشرط</button>` : ''}
                         </div>
                         <div class="flex" style="gap:0.3rem">
@@ -1126,65 +1054,91 @@
                 form.questions.forEach((q, idx) => {
                     const isConditional = q.condition ? `data-conditional="true" data-parent="q_${q.condition.dependsOnId}" data-reqval="${q.condition.requiredValue}" class="card question-container hidden"` : `class="card question-container animate-fade" style="animation-delay: ${idx*0.05}s"`;
                     const reqStar = q.required ? '<span style="color:var(--danger)">*</span>' : '';
-                    const pointsBadge = (form.settings?.isQuiz && q.points > 0) ? `<span class="badge" style="background: rgba(168,85,247,0.15); color: #c084fc; float:left; border:none;"><i class="fas fa-star"></i> ${q.points} نقطة</span>` : '';
+                    const pointsBadge = (form.settings?.isQuiz && q.points > 0 && q.type !== 'divider') ? `<span class="badge" style="background: rgba(168,85,247,0.15); color: #c084fc; float:left; border:none;"><i class="fas fa-star"></i> ${q.points} نقطة</span>` : '';
                     const oldVal = previousAnswers[`q_${q.id}`] || '';
 
-                    html += `<div id="wrap_${q.id}" ${isConditional}>
-                        ${pointsBadge}
-                        <p style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem;">${q.title} ${reqStar}</p>
-                    `;
-                    
-                    if (q.type === 'text') {
-                        html += `<input type="text" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} placeholder="إجابتك هنا..." oninput="window.evaluateConditions()">`;
-                    } else if (q.type === 'email') {
-                        html += `<input type="email" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} placeholder="example@email.com" oninput="window.evaluateConditions()" style="text-align: left; direction: ltr;">`;
-                    } else if (q.type === 'textarea') {
-                        html += `<textarea name="q_${q.id}" rows="4" ${q.required ? 'required' : ''} placeholder="اكتب إجابتك بالتفصيل هنا..." oninput="window.evaluateConditions()">${oldVal}</textarea>`;
-                    } else if (q.type === 'phone') {
-                        html += `<input type="tel" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} placeholder="07XXXXXXXX" pattern="[0-9]{10,15}" oninput="window.evaluateConditions()">`;
-                    } else if (q.type === 'date') {
-                        html += `<input type="date" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} onchange="window.evaluateConditions()">`;
-                    } else if (q.type === 'time') {
-                        html += `<input type="time" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} onchange="window.evaluateConditions()">`;
-                    } else if (q.type === 'file') {
-                        html += `
-                            <input type="file" onchange="window.handleFileSelect('${q.id}', this)" ${q.required && !oldVal ? 'required' : ''} accept=".jpg,.jpeg,.png,.pdf,.doc,.docx">
-                            <input type="hidden" name="q_${q.id}" id="input_${q.id}" value="${oldVal}">
-                            <span id="file_info_${q.id}" class="text-muted" style="display:block; margin-top:5px; font-size:0.85rem">${oldVal ? '📂 ملف محفوظ مسبقاً' : 'الحد الأقصى: 500KB'}</span>
+                    // عرض الفاصل أو الأسئلة العادية بشكل مخصص
+                    if (q.type === 'divider') {
+                        if (layout === 'step') {
+                            html += `<div id="wrap_${q.id}" ${isConditional} style="text-align: center; padding: 3rem 1.5rem; border: none; background: transparent; box-shadow: none;">
+                                <div style="font-size: 3.5rem; color: var(--accent); margin-bottom: 1.5rem;"><i class="fas fa-bookmark"></i></div>
+                                <h2 style="font-size: 1.8rem; color: var(--text); font-weight: 800; margin-bottom: 1rem;">${q.title}</h2>
+                                ${q.description ? `<p class="text-muted" style="font-size: 1.1rem; line-height: 1.6; max-width: 600px; margin: 0 auto;">${q.description}</p>` : ''}
+                            </div>`;
+                        } else if (layout === 'modern') {
+                            html += `<div id="wrap_${q.id}" ${isConditional} style="background: transparent; border: none; box-shadow: none; padding: 1.5rem 0 0.5rem 0; margin-top: 1rem;">
+                                <h2 style="color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 0.6rem;">
+                                    <i class="fas fa-bookmark"></i> ${q.title}
+                                </h2>
+                                ${q.description ? `<p class="text-muted" style="margin-top: 0.5rem; font-size: 1.05rem; line-height: 1.5;">${q.description}</p>` : ''}
+                            </div>`;
+                        } else { // الكلاسيكي الافتراضي
+                            html += `<div id="wrap_${q.id}" ${isConditional} style="border-right: 4px solid var(--accent); padding: 1.2rem; background: var(--surface)">
+                                <h2 style="color: var(--accent); padding-bottom: 0.5rem; font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; gap: 0.6rem; border-bottom: 1px solid var(--border);">
+                                    <i class="fas fa-bookmark"></i> ${q.title}
+                                </h2>
+                                ${q.description ? `<p class="text-muted" style="margin-top: 0.8rem; font-size: 1.05rem; line-height: 1.5;">${q.description}</p>` : ''}
+                            </div>`;
+                        }
+                    } else {
+                        // الأسئلة الطبيعية التفاعلية
+                        html += `<div id="wrap_${q.id}" ${isConditional}>
+                            ${pointsBadge}
+                            <p style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem;">${q.title} ${reqStar}</p>
                         `;
-                    } else if (q.type === 'rating') {
-                        html += `
-                            <div class="rating-stars" data-qid="${q.id}">
-                                <span onclick="window.setRating('${q.id}', 1)"><i class="${oldVal >= 1 ? 'fas' : 'far'} fa-star"></i></span>
-                                <span onclick="window.setRating('${q.id}', 2)"><i class="${oldVal >= 2 ? 'fas' : 'far'} fa-star"></i></span>
-                                <span onclick="window.setRating('${q.id}', 3)"><i class="${oldVal >= 3 ? 'fas' : 'far'} fa-star"></i></span>
-                                <span onclick="window.setRating('${q.id}', 4)"><i class="${oldVal >= 4 ? 'fas' : 'far'} fa-star"></i></span>
-                                <span onclick="window.setRating('${q.id}', 5)"><i class="${oldVal >= 5 ? 'fas' : 'far'} fa-star"></i></span>
-                            </div>
-                            <input type="hidden" name="q_${q.id}" id="input_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''}>
+                        
+                        if (q.type === 'text') {
+                            html += `<input type="text" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} placeholder="إجابتك هنا..." oninput="window.evaluateConditions()">`;
+                        } else if (q.type === 'email') {
+                            html += `<input type="email" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} placeholder="example@email.com" oninput="window.evaluateConditions()" style="text-align: left; direction: ltr;">`;
+                        } else if (q.type === 'textarea') {
+                            html += `<textarea name="q_${q.id}" rows="4" ${q.required ? 'required' : ''} placeholder="اكتب إجابتك بالتفصيل هنا..." oninput="window.evaluateConditions()">${oldVal}</textarea>`;
+                        } else if (q.type === 'phone') {
+                            html += `<input type="tel" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} placeholder="07XXXXXXXX" pattern="[0-9]{10,15}" oninput="window.evaluateConditions()">`;
+                        } else if (q.type === 'date') {
+                            html += `<input type="date" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} onchange="window.evaluateConditions()">`;
+                        } else if (q.type === 'time') {
+                            html += `<input type="time" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} onchange="window.evaluateConditions()">`;
+                        } else if (q.type === 'file') {
+                            html += `
+                                <input type="file" onchange="window.handleFileSelect('${q.id}', this)" ${q.required && !oldVal ? 'required' : ''} accept=".jpg,.jpeg,.png,.pdf,.doc,.docx">
+                                <input type="hidden" name="q_${q.id}" id="input_${q.id}" value="${oldVal}">
+                                <span id="file_info_${q.id}" class="text-muted" style="display:block; margin-top:5px; font-size:0.85rem">${oldVal ? '📂 ملف محفوظ مسبقاً' : 'الحد الأقصى: 500KB'}</span>
+                            `;
+                        } else if (q.type === 'rating') {
+                            html += `
+                                <div class="rating-stars" data-qid="${q.id}">
+                                    <span onclick="window.setRating('${q.id}', 1)"><i class="${oldVal >= 1 ? 'fas' : 'far'} fa-star"></i></span>
+                                    <span onclick="window.setRating('${q.id}', 2)"><i class="${oldVal >= 2 ? 'fas' : 'far'} fa-star"></i></span>
+                                    <span onclick="window.setRating('${q.id}', 3)"><i class="${oldVal >= 3 ? 'fas' : 'far'} fa-star"></i></span>
+                                    <span onclick="window.setRating('${q.id}', 4)"><i class="${oldVal >= 4 ? 'fas' : 'far'} fa-star"></i></span>
+                                    <span onclick="window.setRating('${q.id}', 5)"><i class="${oldVal >= 5 ? 'fas' : 'far'} fa-star"></i></span>
+                                </div>
+                                <input type="hidden" name="q_${q.id}" id="input_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''}>
                         `;
-                    } else if (q.type === 'radio') {
-                        html += `<div class="flex-col" style="gap:0.6rem">`;
-                        q.options.forEach(opt => {
-                            const checked = oldVal === opt ? 'checked' : '';
-                            html += `<label class="custom-radio"><input type="radio" name="q_${q.id}" value="${opt}" ${checked} ${q.required ? 'required' : ''} onchange="window.evaluateConditions()"> <span style="font-size:1.1rem">${opt}</span></label>`;
-                        });
+                        } else if (q.type === 'radio') {
+                            html += `<div class="flex-col" style="gap:0.6rem">`;
+                            q.options.forEach(opt => {
+                                const checked = oldVal === opt ? 'checked' : '';
+                                html += `<label class="custom-radio"><input type="radio" name="q_${q.id}" value="${opt}" ${checked} ${q.required ? 'required' : ''} onchange="window.evaluateConditions()"> <span style="font-size:1.1rem">${opt}</span></label>`;
+                            });
+                            html += `</div>`;
+                        } else if (q.type === 'checkbox') {
+                            html += `<div class="flex-col" style="gap:0.6rem">`;
+                            const oldList = oldVal ? oldVal.split('، ') : [];
+                            q.options.forEach(opt => {
+                                const checked = oldList.includes(opt) ? 'checked' : '';
+                                html += `<label class="custom-radio"><input type="checkbox" name="q_${q.id}[]" value="${opt}" ${checked} onchange="window.evaluateConditions()"> <span style="font-size:1.1rem">${opt}</span></label>`;
+                            });
+                            html += `</div>`;
+                        } else if (q.type === 'dropdown') {
+                            html += `<select name="q_${q.id}" ${q.required ? 'required' : ''} onchange="window.evaluateConditions()" style="font-size:1.1rem; padding: 1rem;">
+                                <option value="" disabled ${!oldVal ? 'selected' : ''}>اختر من القائمة...</option>
+                                ${q.options.map(opt => `<option value="${opt}" ${oldVal === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+                            </select>`;
+                        }
                         html += `</div>`;
-                    } else if (q.type === 'checkbox') {
-                        html += `<div class="flex-col" style="gap:0.6rem">`;
-                        const oldList = oldVal ? oldVal.split('، ') : [];
-                        q.options.forEach(opt => {
-                            const checked = oldList.includes(opt) ? 'checked' : '';
-                            html += `<label class="custom-radio"><input type="checkbox" name="q_${q.id}[]" value="${opt}" ${checked} onchange="window.evaluateConditions()"> <span style="font-size:1.1rem">${opt}</span></label>`;
-                        });
-                        html += `</div>`;
-                    } else if (q.type === 'dropdown') {
-                        html += `<select name="q_${q.id}" ${q.required ? 'required' : ''} onchange="window.evaluateConditions()" style="font-size:1.1rem; padding: 1rem;">
-                            <option value="" disabled ${!oldVal ? 'selected' : ''}>اختر من القائمة...</option>
-                            ${q.options.map(opt => `<option value="${opt}" ${oldVal === opt ? 'selected' : ''}>${opt}</option>`).join('')}
-                        </select>`;
                     }
-                    html += `</div>`;
                 });
 
                 if (layout === 'step') {
@@ -1263,24 +1217,21 @@
             const allQuestions = Array.from(form.querySelectorAll('.question-container'));
             const visibleQuestions = allQuestions.filter(q => !q.classList.contains('hidden'));
 
-            // إضافة الهيدر (عنوان الفورمة) كخطوة أولى دائماً
+            // إدراج الهيدر للخطوة الترحيبية الأولى
             const steps = [headerCard, ...visibleQuestions];
 
             if (window.currentStep >= steps.length) window.currentStep = steps.length - 1;
             if (window.currentStep < 0) window.currentStep = 0;
 
-            // إخفاء الكل
             headerCard.style.display = 'none';
             allQuestions.forEach(q => q.classList.remove('step-active'));
 
-            // إظهار الخطوة الحالية
             if (window.currentStep === 0) {
                 headerCard.style.display = 'block';
             } else if(steps[window.currentStep]) {
                 steps[window.currentStep].classList.add('step-active');
             }
 
-            // تحديث شريط التقدم
             const progressFill = document.getElementById('step-progress-fill');
             if(progressFill) {
                 const percent = steps.length > 1 ? (window.currentStep / (steps.length - 1)) * 100 : 100;
@@ -1310,7 +1261,6 @@
             
             const currentEl = steps[window.currentStep];
             
-            // Validate inputs if it's a question step
             if(window.currentStep > 0 && currentEl) {
                 const requiredInputs = currentEl.querySelectorAll('[required]');
                 let isValid = true;
@@ -1462,6 +1412,8 @@
                             if(r.answers[qId] === '') continue; 
                             const qRawId = qId.replace('q_', '');
                             const question = form.questions.find(q => q.id === qRawId);
+                            // تجاهل الفواصل في العرض الفردي للردود
+                            if (question && question.type === 'divider') continue;
                             const qText = question ? question.title : 'سؤال محذوف';
                             
                             let answerValue = r.answers[qId];
@@ -1573,7 +1525,11 @@
 
             let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
             const headers = ['التاريخ', 'العلامة المستحقة'];
-            data.questions.forEach(q => headers.push(q.title));
+            data.questions.forEach(q => {
+                // استثناء الفواصل من العناوين في الإكسل
+                if (q.type === 'divider') return;
+                headers.push(q.title);
+            });
             csvContent += headers.join(",") + "\n";
 
             data.responses.forEach(r => {
@@ -1581,6 +1537,7 @@
                 const row = [new Date(r.date).toLocaleString('ar-EG').replace(/,/g, ''), scoreStr];
                 
                 data.questions.forEach(q => {
+                    if (q.type === 'divider') return;
                     let ans = r.answers[`q_${q.id}`] || '';
                     if(typeof ans === 'string' && ans.startsWith('{"name":')) {
                         try { ans = `ملف مرفوع: ${JSON.parse(ans).name}`; } catch(e) { ans = 'ملف مرفوع'; }
