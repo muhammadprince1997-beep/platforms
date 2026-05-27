@@ -177,6 +177,24 @@
         .layout-step .custom-radio { background: var(--surface); border: 2px solid var(--border); padding: 1rem 1.5rem; border-radius: var(--r); margin-bottom: 0.8rem; transition: 0.3s; font-size: 1.2rem; }
         .layout-step .custom-radio:hover { border-color: var(--accent); transform: translateX(-5px); }
 
+        /* نافذة نسخ الروابط المنبثقة (Share Modal) */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 1000;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        .modal-card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 1.8rem; width: 90%; max-width: 500px;
+            box-shadow: var(--shadow); transform: translateY(-20px); transition: transform 0.3s ease; text-align: right;
+        }
+        .modal-overlay.active .modal-card { transform: translateY(0); }
+        .modal-header { display: flex; justify-content: space-between; align-center; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+        .modal-header h3 { font-size: 1.2rem; color: var(--accent); }
+        .modal-close { background: transparent; border: none; color: var(--text); font-size: 1.2rem; cursor: pointer; }
+        .modal-close:hover { color: var(--danger); }
+        .modal-body p { margin-bottom: 0.8rem; font-size: 0.95rem; }
+        .link-input-group { display: flex; gap: 0.5rem; margin-bottom: 1rem; align-items: center; }
+
         /* Footer */
         footer { text-align: center; padding: 2rem; border-top: 1px solid var(--border); margin-top: auto; background-color: var(--surface); }
         .social-links { display: flex; justify-content: center; gap: 1.5rem; margin-top: 1rem; }
@@ -216,6 +234,39 @@
     <div class="container" id="app-content">
         <div class="text-center" style="margin-top: 5rem;">
             <i class="fas fa-circle-notch fa-spin fa-3x" style="color: var(--accent)"></i>
+        </div>
+    </div>
+
+    <!-- نافذة المشاركة والتقصير المنبثقة -->
+    <div id="share-modal" class="modal-overlay" onclick="window.closeShareModal(event)">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3><i class="fas fa-share-alt"></i> مشاركة رابط النموذج</h3>
+                <button class="modal-close" onclick="window.hideShareModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">يمكنك نسخ الرابط الكامل فوراً أو اختيار تقصيره أولاً لجعله صغيراً وأنيقاً قبل مشاركته.</p>
+                
+                <div class="flex-col mt-1">
+                    <label style="font-weight: bold; font-size: 0.9rem;">الرابط الكامل الأصلي:</p>
+                    <div class="link-input-group">
+                        <input type="text" id="modal-long-url" readonly style="margin-top: 0; padding: 0.6rem; font-size: 0.85rem;">
+                        <button onclick="window.copyLinkDirect('modal-long-url')"><i class="fas fa-copy"></i> نسخ</button>
+                    </div>
+
+                    <div style="text-align: center; margin: 0.5rem 0;">
+                        <button class="outline" id="btn-shorten-action" onclick="window.shortenCurrentUrl()"><i class="fas fa-magic"></i> توليد رابط قصير جداً</button>
+                    </div>
+
+                    <div id="short-url-section" class="hidden animate-fade">
+                        <label style="font-weight: bold; font-size: 0.9rem; color: var(--accent);">الرابط القصير المتولد:</label>
+                        <div class="link-input-group">
+                            <input type="text" id="modal-short-url" readonly style="margin-top: 0; padding: 0.6rem; font-size: 0.95rem; color: var(--accent); font-weight: bold;">
+                            <button class="primary" onclick="window.copyLinkDirect('modal-short-url')"><i class="fas fa-copy"></i> نسخ الرابط القصير</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -577,7 +628,7 @@
                             <div class="flex" style="gap:0.5rem;">
                                 <button class="primary" onclick="navigate('#responses/${f.id}')" title="الردود"><i class="fas fa-chart-pie"></i> الإحصائيات</button>
                                 <button class="outline" onclick="navigate('#builder/${f.id}')" title="تعديل"><i class="fas fa-edit"></i></button>
-                                <button class="outline" onclick="window.copyLink('${f.id}')" title="نسخ الرابط"><i class="fas fa-link"></i> نسخ الرابط</button>
+                                <button class="outline" onclick="window.showShareModal('${f.id}')" title="مشاركة ونسخ الرابط"><i class="fas fa-share-alt"></i> مشاركة</button>
                                 <button class="danger outline" onclick="window.deleteForm('${f.id}')" title="حذف النموذج"><i class="fas fa-trash"></i></button>
                             </div>
                         </div>
@@ -587,25 +638,71 @@
             return html;
         }
 
-        // دالة تقصير ونسخ الرابط
-        window.copyLink = async (id) => {
-            const longLink = `${window.location.origin}${window.location.pathname}#form/${id}`;
-            let finalLink = longLink;
+        // إظهار نافذة المشاركة والتقصير
+        window.showShareModal = (formId) => {
+            const longLink = `${window.location.origin}${window.location.pathname}#form/${formId}`;
             
-            window.showToast('جاري تقصير ونسخ الرابط...', false);
+            // تهيئة الحقول في النافذة المنبثقة
+            document.getElementById('modal-long-url').value = longLink;
+            document.getElementById('modal-short-url').value = '';
+            document.getElementById('short-url-section').classList.add('hidden');
             
+            // تغيير حالة زر التقصير إلى التفعيل الافتراضي
+            const btnShorten = document.getElementById('btn-shorten-action');
+            btnShorten.disabled = false;
+            btnShorten.innerHTML = '<i class="fas fa-magic"></i> توليد رابط قصير جداً';
+            
+            // تخزين الرابط الطويل الحالي لاستخدامه عند التقصير
+            window.currentLongUrlToShorten = longLink;
+
+            // إظهار النافذة
+            document.getElementById('share-modal').classList.add('active');
+        };
+
+        window.hideShareModal = () => {
+            document.getElementById('share-modal').classList.remove('active');
+        };
+
+        window.closeShareModal = (e) => {
+            if(e.target.id === 'share-modal') {
+                window.hideShareModal();
+            }
+        };
+
+        // تقصير الرابط الحالي المفتوح في النافذة
+        window.shortenCurrentUrl = async () => {
+            const longLink = window.currentLongUrlToShorten;
+            if(!longLink) return;
+
+            const btnShorten = document.getElementById('btn-shorten-action');
+            btnShorten.disabled = true;
+            btnShorten.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري توليد الرابط القصير...';
+
             try {
-                // استخدام API تقصير الروابط من TinyURL (مجاني وسريع ولا يحتاج مفاتيح معقدة)
                 const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longLink)}`);
                 if (response.ok) {
-                    finalLink = await response.text();
+                    const shortLink = await response.text();
+                    document.getElementById('modal-short-url').value = shortLink;
+                    document.getElementById('short-url-section').classList.remove('hidden');
+                    window.showToast('تم توليد الرابط القصير!');
+                    btnShorten.innerHTML = '<i class="fas fa-check-circle"></i> تم التوليد بنجاح';
+                } else {
+                    throw new Error();
                 }
             } catch (err) {
-                console.error("Shortener failed, falling back to long URL");
+                window.showToast('فشل الاتصال بخادم التقصير، يرجى استخدام الرابط الطويل.', true);
+                btnShorten.disabled = false;
+                btnShorten.innerHTML = '<i class="fas fa-magic"></i> توليد رابط قصير جداً';
             }
+        };
+
+        // نسخ الرابط المحدد من الحقل داخل النافذة المنبثقة
+        window.copyLinkDirect = (inputId) => {
+            const inputEl = document.getElementById(inputId);
+            if(!inputEl || !inputEl.value) return;
 
             const tempTextArea = document.createElement("textarea");
-            tempTextArea.value = finalLink; 
+            tempTextArea.value = inputEl.value; 
             tempTextArea.style.position = "fixed"; 
             tempTextArea.style.opacity = "0";
             document.body.appendChild(tempTextArea); 
@@ -614,7 +711,7 @@
             
             try { 
                 if (document.execCommand('copy')) {
-                    window.showToast('تم نسخ الرابط بنجاح!\n' + finalLink);
+                    window.showToast('تم نسخ الرابط المختار بنجاح!');
                 } else {
                     window.showToast('فشل النسخ تلقائياً.', true);
                 }
