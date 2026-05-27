@@ -151,42 +151,25 @@
         .theme-dot.selected { border-color: var(--text); }
 
         /* --- أنماط العرض الخاصة بالطالب (Layouts) --- */
-        
-        /* 1. العصري المسطح (Modern Layout) */
-        .layout-modern .question-container {
-            background: transparent; border: none; border-bottom: 1px solid var(--border); border-radius: 0; box-shadow: none; padding: 2.5rem 0;
-        }
+        .layout-modern .question-container { background: transparent; border: none; border-bottom: 1px solid var(--border); border-radius: 0; box-shadow: none; padding: 2.5rem 0; }
         .layout-modern .question-container:last-child { border-bottom: none; }
-        .layout-modern input[type="text"], .layout-modern input[type="email"], .layout-modern input[type="tel"], .layout-modern textarea {
-            background: transparent; border: none; border-bottom: 2px solid var(--border); border-radius: 0; padding: 1rem 0; font-size: 1.1rem;
-        }
+        .layout-modern input[type="text"], .layout-modern input[type="number"], .layout-modern input[type="email"], .layout-modern input[type="tel"], .layout-modern textarea { background: transparent; border: none; border-bottom: 2px solid var(--border); border-radius: 0; padding: 1rem 0; font-size: 1.1rem; }
         .layout-modern input:focus, .layout-modern textarea:focus { border-color: var(--accent); }
         .layout-modern .custom-radio { background: var(--surface2); padding: 1rem; border-radius: var(--r); margin-bottom: 0.5rem; transition: 0.2s; border: 1px solid transparent; }
         .layout-modern .custom-radio:hover { border-color: var(--accent); }
 
-        /* 2. خطوة بخطوة (Step Layout - Typeform style) */
         .layout-step .question-container { display: none !important; }
-        .layout-step .question-container.step-active { 
-            display: flex !important; flex-direction: column; justify-content: center; min-height: 45vh; border: none; background: transparent; box-shadow: none; padding: 0;
-        }
+        .layout-step .question-container.step-active { display: flex !important; flex-direction: column; justify-content: center; min-height: 45vh; border: none; background: transparent; box-shadow: none; padding: 0; }
         .layout-step .question-container p { font-size: 1.6rem !important; margin-bottom: 1.5rem !important; }
-        .layout-step input[type="text"], .layout-step input[type="email"], .layout-step input[type="tel"], .layout-step textarea {
-            background: rgba(255,255,255,0.03); border: 2px solid var(--border); font-size: 1.3rem; padding: 1.2rem; border-radius: var(--r);
-        }
+        .layout-step input[type="text"], .layout-step input[type="number"], .layout-step input[type="email"], .layout-step input[type="tel"], .layout-step textarea { background: rgba(255,255,255,0.03); border: 2px solid var(--border); font-size: 1.3rem; padding: 1.2rem; border-radius: var(--r); }
         .layout-step input:focus, .layout-step textarea:focus { background: rgba(255,255,255,0.06); }
         .layout-step .custom-radio { background: var(--surface); border: 2px solid var(--border); padding: 1rem 1.5rem; border-radius: var(--r); margin-bottom: 0.8rem; transition: 0.3s; font-size: 1.2rem; }
         .layout-step .custom-radio:hover { border-color: var(--accent); transform: translateX(-5px); }
 
         /* نافذة نسخ الروابط المنبثقة (Share Modal) */
-        .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 1000;
-            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-        }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .modal-overlay.active { opacity: 1; pointer-events: all; }
-        .modal-card {
-            background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 1.8rem; width: 90%; max-width: 500px;
-            box-shadow: var(--shadow); transform: translateY(-20px); transition: transform 0.3s ease; text-align: right;
-        }
+        .modal-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 1.8rem; width: 90%; max-width: 500px; box-shadow: var(--shadow); transform: translateY(-20px); transition: transform 0.3s ease; text-align: right; }
         .modal-overlay.active .modal-card { transform: translateY(0); }
         .modal-header { display: flex; justify-content: space-between; align-center; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
         .modal-header h3 { font-size: 1.2rem; color: var(--accent); }
@@ -248,7 +231,7 @@
                 <p class="text-muted">يمكنك نسخ الرابط الكامل فوراً أو اختيار تقصيره أولاً لجعله صغيراً وأنيقاً قبل مشاركته.</p>
                 
                 <div class="flex-col mt-1">
-                    <label style="font-weight: bold; font-size: 0.9rem;">الرابط الكامل الأصلي:</p>
+                    <label style="font-weight: bold; font-size: 0.9rem;">الرابط الكامل الأصلي:</label>
                     <div class="link-input-group">
                         <input type="text" id="modal-long-url" readonly style="margin-top: 0; padding: 0.6rem; font-size: 0.85rem;">
                         <button onclick="window.copyLinkDirect('modal-long-url')"><i class="fas fa-copy"></i> نسخ</button>
@@ -262,7 +245,7 @@
                         <label style="font-weight: bold; font-size: 0.9rem; color: var(--accent);">الرابط القصير المتولد:</label>
                         <div class="link-input-group">
                             <input type="text" id="modal-short-url" readonly style="margin-top: 0; padding: 0.6rem; font-size: 0.95rem; color: var(--accent); font-weight: bold;">
-                            <button class="primary" onclick="window.copyLinkDirect('modal-short-url')"><i class="fas fa-copy"></i> نسخ الرابط القصير</button>
+                            <button class="primary" onclick="window.copyLinkDirect('modal-short-url')"><i class="fas fa-copy"></i> نسخ القصير</button>
                         </div>
                     </div>
                 </div>
@@ -301,13 +284,12 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // معالجة روابط التقصير المستلمة عبر معاملات الاستعلام لتجنب قص قيود السيرفرات لرموز (#)
+        // قراءة مسار URL للطلاب حتى مع روابط التقصير (Routing protection)
         function parseQueryRoute() {
             const urlParams = new URLSearchParams(window.location.search);
             let fParam = urlParams.get('f');
             let rParam = urlParams.get('r');
 
-            // فحص كاحتياط داخل الهاش في حال تم دمج الروابط بطرق غريبة
             if (!fParam && window.location.hash.includes('?')) {
                 const hashQuery = window.location.hash.split('?')[1];
                 const hashParams = new URLSearchParams(hashQuery);
@@ -319,16 +301,14 @@
                 let targetHash = `#form/${fParam}`;
                 if (rParam) targetHash += `/${rParam}`;
                 window.location.hash = targetHash;
-                // تنظيف عنوان المتصفح تماماً
                 window.history.replaceState({}, document.title, window.location.pathname + targetHash);
-                // فرض تحميل فوري للاستمارة منعاً لأي تأخير
-                setTimeout(() => { renderView(); }, 50);
             }
         }
         parseQueryRoute();
 
         window.State = { user: null, isAdmin: false, forms: [], responses: {}, currentBuilderForm: null };
-        window.currentStep = 0; // للتحكم بخطوة بخطوة
+        window.currentStep = 0; 
+        window.renderChartsFlag = false;
 
         Chart.defaults.font.family = 'Cairo';
         Chart.defaults.color = '#94a3b8';
@@ -369,14 +349,9 @@
                 // تصفير بيانات الجلسة للمجهولين أو الطلاب
                 window.State.user = null; window.State.isAdmin = false;
                 document.getElementById('main-nav').classList.add('hidden');
-                
                 try { await signInAnonymously(auth); } catch(e) { }
-                
-                if(window.location.hash.startsWith('#form/') || window.location.hash.startsWith('#success')) {
-                    renderView();
-                } else {
-                    navigate('#login');
-                }
+                if(window.location.hash.startsWith('#form/') || window.location.hash.startsWith('#success')) renderView();
+                else navigate('#login');
             }
         });
 
@@ -489,9 +464,8 @@
 
                 let identifyingValues = [];
                 form.questions.forEach(q => {
-                    // تجنب الفواصل أو العناوين عند الفحص
                     if (q.type === 'divider') return;
-                    if (['phone', 'email', 'text'].includes(q.type) && answers[`q_${q.id}`]) {
+                    if (['phone', 'email', 'text', 'number'].includes(q.type) && answers[`q_${q.id}`]) {
                         identifyingValues.push({
                             qid: `q_${q.id}`,
                             title: q.title,
@@ -629,12 +603,27 @@
                 }
                 return `
                     <div class="card animate-fade" style="max-width: 400px; margin: 4rem auto; text-align: center;">
-                        <h2 style="color: var(--accent); margin-bottom: 1.5rem;"><i class="fas fa-lock"></i> تسجيل الدخول للمشرفين</h2>
+                        <h2 style="color: var(--accent); margin-bottom: 1.5rem;"><i class="fas fa-lock"></i> تسجيل الدخول</h2>
+                        <p class="text-muted mb-1">هذه البوابة مخصصة لإدارة المنصة فقط.</p>
                         <form onsubmit="handleLogin(event)" class="flex-col">
                             <input type="email" id="l-email" placeholder="البريد الإلكتروني" required>
                             <input type="password" id="l-pass" placeholder="كلمة المرور" required>
                             <button type="submit" style="width: 100%"><i class="fas fa-sign-in-alt"></i> دخول</button>
                         </form>
+                        <hr style="border:0; border-top:1px solid var(--border); margin:1.5rem 0;">
+                        <p class="text-muted" style="font-size:0.9rem; margin-bottom:0.8rem;"><i class="fas fa-user-plus"></i> ليس لديك حساب؟ لطلب حساب مشرف، تواصل معنا عبر:</p>
+                        <div class="flex" style="justify-content: center; gap: 0.8rem;">
+                            <a href="https://wa.me/+9647709873200" target="_blank" style="text-decoration:none; flex:1;">
+                                <button type="button" class="outline" style="width:100%; color:#25D366; border-color:rgba(37,211,102,0.3); font-size:0.9rem; padding:0.5rem 1rem;">
+                                    <i class="fab fa-whatsapp"></i> واتساب
+                                </button>
+                            </a>
+                            <a href="https://www.instagram.com/m9h.7d" target="_blank" style="text-decoration:none; flex:1;">
+                                <button type="button" class="outline" style="width:100%; color:#e1306c; border-color:rgba(225,48,108,0.3); font-size:0.9rem; padding:0.5rem 1rem;">
+                                    <i class="fab fa-instagram"></i> إنستغرام
+                                </button>
+                            </a>
+                        </div>
                     </div>
                 `;
             } catch(e) { return `<div class="card text-center"><h2 style="color:var(--danger)">حدث خطأ: ${e.message}</h2></div>`; }
@@ -673,6 +662,97 @@
             return html;
         }
 
+        window.showShareModal = (formId) => {
+            const longLink = `${window.location.origin}${window.location.pathname}?f=${formId}`;
+            
+            document.getElementById('modal-long-url').value = longLink;
+            document.getElementById('modal-short-url').value = '';
+            document.getElementById('short-url-section').classList.add('hidden');
+            
+            const btnShorten = document.getElementById('btn-shorten-action');
+            btnShorten.disabled = false;
+            btnShorten.innerHTML = '<i class="fas fa-magic"></i> توليد رابط قصير جداً';
+            
+            window.currentLongUrlToShorten = longLink;
+            document.getElementById('share-modal').classList.add('active');
+        };
+
+        window.hideShareModal = () => {
+            document.getElementById('share-modal').classList.remove('active');
+        };
+
+        window.closeShareModal = (e) => {
+            if(e.target.id === 'share-modal') window.hideShareModal();
+        };
+
+        window.shortenCurrentUrl = async () => {
+            const longLink = window.currentLongUrlToShorten;
+            if(!longLink) return;
+
+            const btnShorten = document.getElementById('btn-shorten-action');
+            btnShorten.disabled = true;
+            btnShorten.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التوليد...';
+
+            try {
+                const tinyUrlApi = `https://tinyurl.com/api-create.php?url=${encodeURIComponent(longLink)}`;
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(tinyUrlApi)}`;
+                
+                const response = await fetch(proxyUrl);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.contents && data.contents.startsWith('http')) {
+                        document.getElementById('modal-short-url').value = data.contents;
+                        document.getElementById('short-url-section').classList.remove('hidden');
+                        window.showToast('تمت عملية تقصير الرابط بنجاح!');
+                        btnShorten.innerHTML = '<i class="fas fa-check-circle"></i> تم بنجاح';
+                        return;
+                    }
+                }
+                throw new Error('API Error');
+            } catch (err) {
+                try {
+                    const isgdApi = `https://is.gd/create.php?format=simple&url=${encodeURIComponent(longLink)}`;
+                    const proxyUrl2 = `https://api.allorigins.win/get?url=${encodeURIComponent(isgdApi)}`;
+                    
+                    const response2 = await fetch(proxyUrl2);
+                    if (response2.ok) {
+                        const data2 = await response2.json();
+                        if (data2.contents && data2.contents.startsWith('http')) {
+                            document.getElementById('modal-short-url').value = data2.contents;
+                            document.getElementById('short-url-section').classList.remove('hidden');
+                            window.showToast('تمت عملية تقصير الرابط بنجاح!');
+                            btnShorten.innerHTML = '<i class="fas fa-check-circle"></i> تم بنجاح';
+                            return;
+                        }
+                    }
+                    throw new Error('Fallback Error');
+                } catch (err2) {
+                    window.showToast('فشل الاتصال بخادم التقصير، استخدم الرابط الطويل.', true);
+                    btnShorten.disabled = false;
+                    btnShorten.innerHTML = '<i class="fas fa-magic"></i> توليد رابط قصير جداً';
+                }
+            }
+        };
+
+        window.copyLinkDirect = (inputId) => {
+            const inputEl = document.getElementById(inputId);
+            if(!inputEl || !inputEl.value) return;
+
+            const tempTextArea = document.createElement("textarea");
+            tempTextArea.value = inputEl.value; 
+            tempTextArea.style.position = "fixed"; 
+            tempTextArea.style.opacity = "0";
+            document.body.appendChild(tempTextArea); 
+            tempTextArea.focus(); 
+            tempTextArea.select();
+            
+            try { 
+                if (document.execCommand('copy')) window.showToast('تم النسخ بنجاح!');
+                else window.showToast('فشل النسخ تلقائياً.', true);
+            } catch (err) { window.showToast('فشل النسخ تلقائياً.', true); }
+            document.body.removeChild(tempTextArea);
+        };
+
         async function initBuilder(id) {
             if (id) {
                 const f = window.State.forms.find(x => x.id === id);
@@ -688,7 +768,7 @@
         window.createNewForm = () => navigate(`#builder`);
 
         const getTypeNameArabic = (type) => {
-            const map = { text: 'قصير', email: 'بريد', textarea: 'فقرة', radio: 'خيارات', checkbox: 'مربعات', dropdown: 'قائمة', rating: 'تقييم', date: 'تاريخ', time: 'وقت', file: 'ملف', phone: 'هاتف', divider: 'فاصل قسم' };
+            const map = { text: 'قصير', number: 'رقم', email: 'بريد', textarea: 'فقرة', radio: 'خيارات', checkbox: 'مربعات', dropdown: 'قائمة', rating: 'تقييم', date: 'تاريخ', time: 'وقت', file: 'ملف', phone: 'هاتف', divider: 'فاصل قسم' };
             return map[type] || type;
         };
 
@@ -705,7 +785,6 @@
                 </div>
 
                 <div class="builder-layout theme-${theme}">
-                    <!-- الشريط الجانبي (الأدوات والإعدادات) -->
                     <div class="builder-sidebar animate-fade">
                         <div class="card" style="padding: 1rem;">
                             <h3 class="mb-1" style="font-size: 1rem;"><i class="fas fa-plus-circle text-muted"></i> إضافة عناصر</h3>
@@ -716,7 +795,7 @@
                         <div class="card" style="padding: 1rem;">
                             <h3 class="mb-1" style="font-size: 1rem;"><i class="fas fa-cog text-muted"></i> الإعدادات المتقدمة</h3>
                             
-                            <p style="font-size:0.85rem; margin-bottom:0.5rem"><i class="fas fa-layer-group"></i> شكل وتخطيط الاستمارة للطلاب:</p>
+                            <p style="font-size:0.85rem; margin-bottom:0.5rem"><i class="fas fa-layer-group"></i> شكل وتخطيط الاستمارة:</p>
                             <select onchange="window.updateFormMeta('layout', this.value)" style="margin-bottom:1.2rem; font-size: 0.9rem; padding: 0.6rem; background: var(--surface2)">
                                 <option value="classic" ${f.settings?.layout === 'classic' || !f.settings?.layout ? 'selected' : ''}>كلاسيكي (الافتراضي)</option>
                                 <option value="modern" ${f.settings?.layout === 'modern' ? 'selected' : ''}>مسطح عصري (بدون حدود)</option>
@@ -730,7 +809,7 @@
 
                             <label class="custom-radio" style="font-size:0.9rem">
                                 <input type="checkbox" ${f.settings?.allowEditResponse ? 'checked' : ''} onchange="window.updateFormMeta('allowEditResponse', this.checked)">
-                                <span style="color:var(--primary); font-weight:bold;"><i class="fas fa-edit"></i> السماح للطالب بتعديل رده</span>
+                                <span style="color:var(--primary); font-weight:bold;"><i class="fas fa-edit"></i> السماح بتعديل الرد</span>
                             </label>
                             
                             <label class="custom-radio" style="font-size:0.9rem">
@@ -745,8 +824,8 @@
 
                             <hr style="border:0; border-top:1px solid var(--border); margin:1.2rem 0;">
                             
-                            <p style="font-size:0.85rem; margin-bottom:0.5rem"><i class="fas fa-comment-dots"></i> رسالة النجاح (تظهر للطالب):</p>
-                            <textarea rows="3" style="font-size:0.85rem" placeholder="تم استلام ردك بنجاح... (يمكنك تعديلها)" onchange="window.updateFormMeta('successMsg', this.value)">${f.settings?.successMsg || ''}</textarea>
+                            <p style="font-size:0.85rem; margin-bottom:0.5rem"><i class="fas fa-comment-dots"></i> رسالة النجاح للطالب:</p>
+                            <textarea rows="3" style="font-size:0.85rem" placeholder="تم الاستلام بنجاح..." onchange="window.updateFormMeta('successMsg', this.value)">${f.settings?.successMsg || ''}</textarea>
 
                             <hr style="border:0; border-top:1px solid var(--border); margin:1.2rem 0;">
 
@@ -761,7 +840,6 @@
                         </div>
                     </div>
 
-                    <!-- مساحة العمل الرئيسية (اليسار) -->
                     <div class="builder-main">
                         <div class="card animate-fade" style="padding: 2rem 1.5rem; border-top: 4px solid var(--accent)">
                             <input type="text" placeholder="عنوان النموذج المثير للاهتمام..." value="${f.title}" style="font-size: 1.8rem; font-weight: 800; border:none; border-bottom: 2px solid var(--border); border-radius:0; background: transparent; padding: 0.5rem 0; color: var(--accent)" onchange="window.updateFormMeta('title', this.value)">
@@ -815,8 +893,8 @@
             if (q.type === 'divider') {
                 dividerDescHtml = `
                     <div style="margin-top: 0.8rem;">
-                        <span style="font-size: 0.85rem; color: var(--muted);"><i class="fas fa-align-right"></i> وصف وتفاصيل القسم (اختياري):</span>
-                        <textarea placeholder="اكتب تعليمات أو وصفاً تفصيلياً يظهر للطلاب تحت هذا العنوان..." rows="2" onchange="window.updateQuestion(${index}, 'description', this.value)" style="margin-top:0.3rem;">${q.description || ''}</textarea>
+                        <span style="font-size: 0.85rem; color: var(--muted);"><i class="fas fa-align-right"></i> وصف الفاصل (اختياري):</span>
+                        <textarea placeholder="اكتب تعليمات للطلاب تحت هذا العنوان..." rows="2" onchange="window.updateQuestion(${index}, 'description', this.value)" style="margin-top:0.3rem;">${q.description || ''}</textarea>
                     </div>
                 `;
             }
@@ -828,8 +906,8 @@
                     answerInputHtml = `<select onchange="window.updateQuestion(${index}, 'correctAnswer', this.value)" style="margin:0; padding:0.5rem; font-size:0.9rem"><option value="">اختر الإجابة الصحيحة...</option>${q.options.map(opt => `<option value="${opt}" ${q.correctAnswer === opt ? 'selected' : ''}>${opt}</option>`).join('')}</select>`;
                 } else if (q.type === 'checkbox' && q.options) {
                     answerInputHtml = `<input type="text" value="${q.correctAnswer || ''}" onchange="window.updateQuestion(${index}, 'correctAnswer', this.value)" placeholder="الخيار الصحيح..." style="margin:0; padding:0.5rem; font-size:0.9rem">`;
-                } else if (['text', 'phone', 'email'].includes(q.type)) {
-                    answerInputHtml = `<input type="text" value="${q.correctAnswer || ''}" onchange="window.updateQuestion(${index}, 'correctAnswer', this.value)" placeholder="أدخل النص الصحيح المتوقع..." style="margin:0; padding:0.5rem; font-size:0.9rem">`;
+                } else if (['text', 'number', 'phone', 'email'].includes(q.type)) {
+                    answerInputHtml = `<input type="${q.type === 'number' ? 'number' : 'text'}" value="${q.correctAnswer || ''}" onchange="window.updateQuestion(${index}, 'correctAnswer', this.value)" placeholder="أدخل الإجابة الصحيحة المتوقعة..." style="margin:0; padding:0.5rem; font-size:0.9rem">`;
                 } else {
                     answerInputHtml = `<span class="text-muted" style="font-size:0.85rem;">لا يدعم التصحيح.</span>`;
                 }
@@ -877,9 +955,10 @@
             return `
                 <div class="card question-block animate-fade" style="padding: 1.2rem;">
                     <div class="q-header">
-                        <input type="text" value="${q.title}" onchange="window.updateQuestion(${index}, 'title', this.value)" placeholder="${q.type === 'divider' ? 'عنوان القسم الجديد (مثال: معلومات الاتصال)' : 'نص السؤال...'}" style="font-size: 1.1rem; font-weight: bold; margin:0;">
+                        <input type="text" value="${q.title}" onchange="window.updateQuestion(${index}, 'title', this.value)" placeholder="${q.type === 'divider' ? 'عنوان القسم الجديد' : 'نص السؤال...'}" style="font-size: 1.1rem; font-weight: bold; margin:0;">
                         <select onchange="window.updateQuestion(${index}, 'type', this.value)" style="margin:0;">
                             <option value="text" ${q.type === 'text' ? 'selected' : ''}>إجابة قصيرة</option>
+                            <option value="number" ${q.type === 'number' ? 'selected' : ''}>رقم</option>
                             <option value="email" ${q.type === 'email' ? 'selected' : ''}>بريد إلكتروني</option>
                             <option value="textarea" ${q.type === 'textarea' ? 'selected' : ''}>نص طويل</option>
                             <option value="radio" ${q.type === 'radio' ? 'selected' : ''}>خيارات (واحد)</option>
@@ -890,7 +969,7 @@
                             <option value="time" ${q.type === 'time' ? 'selected' : ''}>وقت</option>
                             <option value="file" ${q.type === 'file' ? 'selected' : ''}>تحميل ملف (500KB)</option>
                             <option value="phone" ${q.type === 'phone' ? 'selected' : ''}>رقم هاتف</option>
-                            <option value="divider" ${q.type === 'divider' ? 'selected' : ''}>فاصل / عنوان قسم 🔖</option>
+                            <option value="divider" ${q.type === 'divider' ? 'selected' : ''}>فاصل / قسم 🔖</option>
                         </select>
                     </div>
                     
@@ -901,15 +980,11 @@
 
                     <div class="flex justify-between align-center mt-1 pt-1" style="border-top: 1px solid var(--border)">
                         <div class="flex" style="gap: 1rem">
-                            ${q.type !== 'divider' ? `
-                            <label class="custom-radio" style="font-size: 0.9rem">
-                                <input type="checkbox" ${q.required ? 'checked' : ''} onchange="window.updateQuestion(${index}, 'required', this.checked)"> مطلوب
-                            </label>
-                            ` : ''}
+                            ${q.type !== 'divider' ? `<label class="custom-radio" style="font-size: 0.9rem"><input type="checkbox" ${q.required ? 'checked' : ''} onchange="window.updateQuestion(${index}, 'required', this.checked)"> مطلوب</label>` : ''}
                             ${!q.condition && index > 0 ? `<button class="outline" style="padding:0.2rem 0.5rem; font-size:0.8rem;" onclick="window.showConditionModal(${index})"><i class="fas fa-link"></i> ربط بشرط</button>` : ''}
                         </div>
                         <div class="flex" style="gap:0.3rem">
-                            <button class="outline" style="padding:0.3rem 0.6rem" onclick="window.toggleQuestionCollapse(${index})" title="طي وإخفاء التفاصيل"><i class="fas fa-chevron-up"></i></button>
+                            <button class="outline" style="padding:0.3rem 0.6rem" onclick="window.toggleQuestionCollapse(${index})" title="طي"><i class="fas fa-chevron-up"></i></button>
                             <button class="outline" style="padding:0.3rem 0.6rem" onclick="window.moveQuestion(${index}, -1)" ${index===0?'disabled':''}><i class="fas fa-arrow-up"></i></button>
                             <button class="outline" style="padding:0.3rem 0.6rem" onclick="window.moveQuestion(${index}, 1)" ${index===window.State.currentBuilderForm.questions.length-1?'disabled':''}><i class="fas fa-arrow-down"></i></button>
                             <button class="danger" style="padding:0.3rem 0.6rem" onclick="window.removeQuestion(${index})"><i class="fas fa-trash"></i></button>
@@ -975,10 +1050,7 @@
                 { id: window.generateId(), type: 'text', title: 'الاسم الثلاثي واللقب', required: true, points: 0 },
                 { id: window.generateId(), type: 'phone', title: 'رقم الهاتف (واتساب)', required: true, points: 0 },
                 { id: window.generateId(), type: 'dropdown', title: 'المحافظة', required: true, options: ['بغداد','البصرة','نينوى','أربيل','النجف','ذي قار','كركوك','الأنبار','ديالى','المثنى','القادسية','ميسان','واسط','صلاح الدين','دهوك','السليمانية','بابل','كربلاء'], points: 0 },
-                { id: window.generateId(), type: 'radio', title: 'الجنس', required: true, options: ['ذكر', 'أنثى'], points: 0 },
-                { id: window.generateId(), type: 'dropdown', title: 'المرحلة الدراسية / الصف', required: true, options: ['الأول المتوسط','الثاني المتوسط','الثالث المتوسط','الرابع الإعدادي','الخامس الإعدادي','السادس الإعدادي','جامعة/معهد'], points: 0 },
-                { id: window.generateId(), type: 'text', title: 'اسم المدرسة / الجامعة', required: true, points: 0 },
-                { id: window.generateId(), type: 'radio', title: 'نوع الدوام', required: true, options: ['صباحي', 'مسائي', 'خارجي', 'موازي'], points: 0 }
+                { id: window.generateId(), type: 'dropdown', title: 'المرحلة الدراسية', required: true, options: ['الأول المتوسط','الثاني المتوسط','الثالث المتوسط','الرابع الإعدادي','الخامس الإعدادي','السادس الإعدادي','جامعة/معهد'], points: 0 }
             ];
             window.State.currentBuilderForm.questions.push(...presets);
             document.getElementById('app-content').innerHTML = viewBuilder();
@@ -1053,11 +1125,10 @@
 
                 form.questions.forEach((q, idx) => {
                     const isConditional = q.condition ? `data-conditional="true" data-parent="q_${q.condition.dependsOnId}" data-reqval="${q.condition.requiredValue}" class="card question-container hidden"` : `class="card question-container animate-fade" style="animation-delay: ${idx*0.05}s"`;
-                    const reqStar = q.required ? '<span style="color:var(--danger)">*</span>' : '';
+                    const reqStar = q.required && q.type !== 'divider' ? '<span style="color:var(--danger)">*</span>' : '';
                     const pointsBadge = (form.settings?.isQuiz && q.points > 0 && q.type !== 'divider') ? `<span class="badge" style="background: rgba(168,85,247,0.15); color: #c084fc; float:left; border:none;"><i class="fas fa-star"></i> ${q.points} نقطة</span>` : '';
                     const oldVal = previousAnswers[`q_${q.id}`] || '';
 
-                    // عرض الفاصل أو الأسئلة العادية بشكل مخصص
                     if (q.type === 'divider') {
                         if (layout === 'step') {
                             html += `<div id="wrap_${q.id}" ${isConditional} style="text-align: center; padding: 3rem 1.5rem; border: none; background: transparent; box-shadow: none;">
@@ -1072,7 +1143,7 @@
                                 </h2>
                                 ${q.description ? `<p class="text-muted" style="margin-top: 0.5rem; font-size: 1.05rem; line-height: 1.5;">${q.description}</p>` : ''}
                             </div>`;
-                        } else { // الكلاسيكي الافتراضي
+                        } else { 
                             html += `<div id="wrap_${q.id}" ${isConditional} style="border-right: 4px solid var(--accent); padding: 1.2rem; background: var(--surface)">
                                 <h2 style="color: var(--accent); padding-bottom: 0.5rem; font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; gap: 0.6rem; border-bottom: 1px solid var(--border);">
                                     <i class="fas fa-bookmark"></i> ${q.title}
@@ -1081,7 +1152,6 @@
                             </div>`;
                         }
                     } else {
-                        // الأسئلة الطبيعية التفاعلية
                         html += `<div id="wrap_${q.id}" ${isConditional}>
                             ${pointsBadge}
                             <p style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem;">${q.title} ${reqStar}</p>
@@ -1089,6 +1159,8 @@
                         
                         if (q.type === 'text') {
                             html += `<input type="text" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} placeholder="إجابتك هنا..." oninput="window.evaluateConditions()">`;
+                        } else if (q.type === 'number') {
+                            html += `<input type="number" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} placeholder="أدخل رقماً..." oninput="window.evaluateConditions()">`;
                         } else if (q.type === 'email') {
                             html += `<input type="email" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} placeholder="example@email.com" oninput="window.evaluateConditions()" style="text-align: left; direction: ltr;">`;
                         } else if (q.type === 'textarea') {
@@ -1115,7 +1187,7 @@
                                     <span onclick="window.setRating('${q.id}', 5)"><i class="${oldVal >= 5 ? 'fas' : 'far'} fa-star"></i></span>
                                 </div>
                                 <input type="hidden" name="q_${q.id}" id="input_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''}>
-                        `;
+                            `;
                         } else if (q.type === 'radio') {
                             html += `<div class="flex-col" style="gap:0.6rem">`;
                             q.options.forEach(opt => {
@@ -1203,12 +1275,9 @@
                 }
             });
 
-            if (form.classList.contains('layout-step')) {
-                window.updateSteps();
-            }
+            if (form.classList.contains('layout-step')) window.updateSteps();
         };
 
-        // --- Step-by-Step Layout Logic ---
         window.updateSteps = () => {
             const form = document.getElementById('public-form');
             if (!form || !form.classList.contains('layout-step')) return;
@@ -1217,7 +1286,6 @@
             const allQuestions = Array.from(form.querySelectorAll('.question-container'));
             const visibleQuestions = allQuestions.filter(q => !q.classList.contains('hidden'));
 
-            // إدراج الهيدر للخطوة الترحيبية الأولى
             const steps = [headerCard, ...visibleQuestions];
 
             if (window.currentStep >= steps.length) window.currentStep = steps.length - 1;
@@ -1226,11 +1294,8 @@
             headerCard.style.display = 'none';
             allQuestions.forEach(q => q.classList.remove('step-active'));
 
-            if (window.currentStep === 0) {
-                headerCard.style.display = 'block';
-            } else if(steps[window.currentStep]) {
-                steps[window.currentStep].classList.add('step-active');
-            }
+            if (window.currentStep === 0) headerCard.style.display = 'block';
+            else if(steps[window.currentStep]) steps[window.currentStep].classList.add('step-active');
 
             const progressFill = document.getElementById('step-progress-fill');
             if(progressFill) {
@@ -1265,10 +1330,7 @@
                 const requiredInputs = currentEl.querySelectorAll('[required]');
                 let isValid = true;
                 requiredInputs.forEach(inp => {
-                    if(!inp.checkValidity()) {
-                        inp.reportValidity();
-                        isValid = false;
-                    }
+                    if(!inp.checkValidity()) { inp.reportValidity(); isValid = false; }
                 });
                 if(!isValid) return;
             }
@@ -1412,7 +1474,6 @@
                             if(r.answers[qId] === '') continue; 
                             const qRawId = qId.replace('q_', '');
                             const question = form.questions.find(q => q.id === qRawId);
-                            // تجاهل الفواصل في العرض الفردي للردود
                             if (question && question.type === 'divider') continue;
                             const qText = question ? question.title : 'سؤال محذوف';
                             
@@ -1526,7 +1587,6 @@
             let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
             const headers = ['التاريخ', 'العلامة المستحقة'];
             data.questions.forEach(q => {
-                // استثناء الفواصل من العناوين في الإكسل
                 if (q.type === 'divider') return;
                 headers.push(q.title);
             });
