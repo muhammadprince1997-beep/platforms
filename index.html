@@ -204,7 +204,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, query, orderBy, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         let firebaseConfig = {
             apiKey: "AIzaSyC4AnFr-41S5QU1GUirhNWO-pIQmV4lODY",
@@ -262,7 +262,7 @@
                 window.State.user = null; window.State.isAdmin = false;
                 document.getElementById('main-nav').classList.add('hidden');
                 try { await signInAnonymously(auth); } catch(e) { }
-                if(window.location.hash.startsWith('#form/') || window.location.hash === '#success') renderView();
+                if(window.location.hash.startsWith('#form/') || window.location.hash.startsWith('#success')) renderView();
                 else navigate('#login');
             }
         });
@@ -272,14 +272,15 @@
 
         async function renderView() {
             const hash = window.location.hash || '#login';
-            const [view, id] = hash.substring(1).split('/');
+            const [view, id, subId] = hash.substring(1).split('/');
             const container = document.getElementById('app-content');
 
             if (view === 'form') { 
                 container.innerHTML = `<div class="text-center" style="margin-top: 5rem;"><i class="fas fa-circle-notch fa-spin fa-3x" style="color: var(--accent)"></i></div>`;
-                container.innerHTML = await viewForm(id); setupConditionalLogic(); return; 
+                // تمرير subId في حال كان رابط تعديل رد (form/formId/responseId)
+                container.innerHTML = await viewForm(id, subId); setupConditionalLogic(); return; 
             }
-            if (view === 'success') { container.innerHTML = viewSuccess(); return; }
+            if (view === 'success') { container.innerHTML = viewSuccess(id); return; }
             if (!window.State.user && view !== 'login') { navigate('#login'); return; }
 
             switch(view) {
@@ -333,6 +334,7 @@
 
             const formData = new FormData(e.target);
             const answers = {};
+            const editingResponseId = e.target.getAttribute('data-edit-response-id');
 
             for (let [key, value] of formData.entries()) {
                 if (key.endsWith('[]')) {
@@ -359,9 +361,47 @@
                     btn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال النموذج'; btn.disabled = false; return;
                 }
 
-                if(form.settings?.limitOneResponse) {
-                    if(localStorage.getItem(`responded_${formId}`)) {
-                        window.showToast('لقد قمت بالرد على هذا النموذج مسبقاً.', true);
+                // الحقول التي سنستخدمها للتحقق من التكرار (رقم الهاتف، الاسم، الإيميل)
+                let identifyingValues = [];
+                form.questions.forEach(q => {
+                    if (['phone', 'email', 'text'].includes(q.type) && answers[`q_${q.id}`]) {
+                        identifyingValues.push({
+                            qid: `q_${q.id}`,
+                            title: q.title,
+                            val: String(answers[`q_${q.id}`]).trim().toLowerCase()
+                        });
+                    }
+                });
+
+                // التحقق من التكرار في قاعدة البيانات (فقط في حال لم نكن في وضع تعديل رد سابق)
+                if (form.settings?.limitOneResponse && !editingResponseId) {
+                    // جلب جميع الردود السابقة لهذا النموذج للتحقق الفعلي في السيرفر
+                    const resRef = collection(db, 'artifacts', appId, 'public', 'data', 'responses');
+                    const snap = await getDocs(resRef);
+                    const allRes = snap.docs.map(d => d.data());
+                    const formRes = allRes.filter(r => r.formId === formId);
+
+                    let alreadyResponded = false;
+                    let matchedField = "";
+
+                    // فحص تطابق أي قيمة مدخلة مع رد سابق (مثال: نفس رقم الموبايل أو الاسم)
+                    for (let r of formRes) {
+                        for (let ident of identifyingValues) {
+                            if (r.answers && r.answers[ident.qid] && String(r.answers[ident.qid]).trim().toLowerCase() === ident.val) {
+                                // نتأكد أن الحقل ليس فارغاً تماماً
+                                if (ident.val.length > 2) {
+                                    alreadyResponded = true;
+                                    matchedField = ident.title;
+                                    break;
+                                }
+                            }
+                        }
+                        if (alreadyResponded) break;
+                    }
+
+                    // التحقق الاحتياطي بالمتصفح أيضاً
+                    if (alreadyResponded || localStorage.getItem(`responded_${formId}`)) {
+                        window.showToast(`عذراً، تم الرد مسبقاً من خلال (${matchedField || 'هذا الجهاز'}).`, true);
                         btn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال النموذج'; btn.disabled = false; return;
                     }
                 }
@@ -381,16 +421,24 @@
                     });
                 }
 
-                const resRef = collection(db, 'artifacts', appId, 'public', 'data', 'responses');
-                await addDoc(resRef, {
-                    formId: formId, date: new Date().toISOString(), answers: answers,
-                    score: isQuiz ? score : null, totalPoints: isQuiz ? totalPoints : null
+                let responseIdToSave = editingResponseId || window.generateId();
+                const targetDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'responses', responseIdToSave);
+
+                // حفظ الرد أو تحديثه
+                await setDoc(targetDocRef, {
+                    id: responseIdToSave,
+                    formId: formId, 
+                    date: new Date().toISOString(), 
+                    answers: answers,
+                    score: isQuiz ? score : null, 
+                    totalPoints: isQuiz ? totalPoints : null
                 });
 
                 if(form.settings?.limitOneResponse) localStorage.setItem(`responded_${formId}`, 'true');
                 if (isQuiz) sessionStorage.setItem(`last_score_${formId}`, JSON.stringify({ score, totalPoints }));
                 
-                // حفظ رسالة النجاح المخصصة
+                // حفظ رقم الاستجابة لتمكين التعديل
+                sessionStorage.setItem(`last_response_id_${formId}`, responseIdToSave);
                 sessionStorage.setItem(`last_success_msg_${formId}`, form.settings?.successMsg || 'تم إرسال ردك بنجاح!\nشكراً لك لتسجيل بياناتك.');
 
                 navigate(`#success/${formId}`);
@@ -522,7 +570,7 @@
             }
             window.State.currentBuilderForm = { 
                 id: window.generateId(), title: 'نموذج جديد', description: '', 
-                settings: { limitOneResponse: false, isQuiz: false, closed: false, themeColor: 'green', successMsg: '' },
+                settings: { limitOneResponse: false, isQuiz: false, closed: false, themeColor: 'green', successMsg: '', allowEditResponse: false },
                 questions: [] 
             };
         }
@@ -561,7 +609,12 @@
                             
                             <label class="custom-radio" style="font-size:0.9rem">
                                 <input type="checkbox" ${f.settings?.limitOneResponse ? 'checked' : ''} onchange="window.updateFormMeta('limitOneResponse', this.checked)">
-                                <span>تقييد برد واحد (لكل متصفح)</span>
+                                <span>تقييد برد واحد (قاعدة البيانات)</span>
+                            </label>
+
+                            <label class="custom-radio" style="font-size:0.9rem">
+                                <input type="checkbox" ${f.settings?.allowEditResponse ? 'checked' : ''} onchange="window.updateFormMeta('allowEditResponse', this.checked)">
+                                <span style="color:var(--primary); font-weight:bold;"><i class="fas fa-edit"></i> السماح للطالب بتعديل رده</span>
                             </label>
                             
                             <label class="custom-radio" style="font-size:0.9rem">
@@ -744,7 +797,7 @@
         };
 
         window.updateFormMeta = (key, val) => {
-            if(['limitOneResponse', 'isQuiz', 'closed', 'successMsg'].includes(key)) {
+            if(['limitOneResponse', 'isQuiz', 'closed', 'successMsg', 'allowEditResponse'].includes(key)) {
                 if(!window.State.currentBuilderForm.settings) window.State.currentBuilderForm.settings = {};
                 window.State.currentBuilderForm.settings[key] = val;
             } else {
@@ -821,7 +874,7 @@
         window.removeCondition = (qIdx) => { delete window.State.currentBuilderForm.questions[qIdx].condition; document.getElementById('app-content').innerHTML = viewBuilder(); }
 
         // --- PUBLIC FORM VIEWER ---
-        async function viewForm(id) {
+        async function viewForm(id, existingResponseId) {
             try {
                 const formRef = doc(db, 'artifacts', appId, 'public', 'data', 'forms', id);
                 const formSnap = await getDoc(formRef);
@@ -844,12 +897,22 @@
                     `;
                 }
 
+                // جلب بيانات الرد القديم في حال كنا نقوم بتعديل الرد
+                let previousAnswers = {};
+                if (existingResponseId) {
+                    const oldDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'responses', existingResponseId));
+                    if (oldDoc.exists()) {
+                        previousAnswers = oldDoc.data().answers || {};
+                    }
+                }
+
                 let html = `
                     <div class="card text-center animate-fade theme-${theme}" style="border-top: 6px solid var(--accent); padding: 3rem 1.5rem;">
+                        ${existingResponseId ? `<span class="badge" style="background: rgba(59,130,246,0.2); color: var(--primary); margin-bottom: 1rem;"><i class="fas fa-edit"></i> أنت الآن في وضع تعديل ردك السابق</span>` : ''}
                         <h1 style="font-size: 2rem; color: var(--accent);">${form.title}</h1>
                         ${form.description ? `<p class="text-muted mt-1" style="font-size: 1.1rem">${form.description}</p>` : ''}
                     </div>
-                    <form id="public-form" class="theme-${theme}" onsubmit="window.submitPublicForm(event, '${id}')">
+                    <form id="public-form" class="theme-${theme}" data-edit-response-id="${existingResponseId || ''}" onsubmit="window.submitPublicForm(event, '${id}')">
                 `;
 
                 form.questions.forEach((q, idx) => {
@@ -857,56 +920,61 @@
                     const reqStar = q.required ? '<span style="color:var(--danger)">*</span>' : '';
                     const pointsBadge = (form.settings?.isQuiz && q.points > 0) ? `<span class="badge" style="background: rgba(168,85,247,0.15); color: #c084fc; float:left; border:none;"><i class="fas fa-star"></i> ${q.points} نقطة</span>` : '';
                     
+                    const oldVal = previousAnswers[`q_${q.id}`] || '';
+
                     html += `<div id="wrap_${q.id}" ${isConditional}>
                         ${pointsBadge}
                         <p style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem;">${q.title} ${reqStar}</p>
                     `;
                     
                     if (q.type === 'text') {
-                        html += `<input type="text" name="q_${q.id}" ${q.required ? 'required' : ''} placeholder="إجابتك هنا..." oninput="window.evaluateConditions()">`;
+                        html += `<input type="text" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} placeholder="إجابتك هنا..." oninput="window.evaluateConditions()">`;
                     } else if (q.type === 'email') {
-                        html += `<input type="email" name="q_${q.id}" ${q.required ? 'required' : ''} placeholder="example@email.com" oninput="window.evaluateConditions()" style="text-align: left; direction: ltr;">`;
+                        html += `<input type="email" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} placeholder="example@email.com" oninput="window.evaluateConditions()" style="text-align: left; direction: ltr;">`;
                     } else if (q.type === 'textarea') {
-                        html += `<textarea name="q_${q.id}" rows="4" ${q.required ? 'required' : ''} placeholder="اكتب إجابتك بالتفصيل هنا..." oninput="window.evaluateConditions()"></textarea>`;
+                        html += `<textarea name="q_${q.id}" rows="4" ${q.required ? 'required' : ''} placeholder="اكتب إجابتك بالتفصيل هنا..." oninput="window.evaluateConditions()">${oldVal}</textarea>`;
                     } else if (q.type === 'phone') {
-                        html += `<input type="tel" name="q_${q.id}" ${q.required ? 'required' : ''} placeholder="07XXXXXXXX" pattern="[0-9]{10,15}" oninput="window.evaluateConditions()">`;
+                        html += `<input type="tel" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} placeholder="07XXXXXXXX" pattern="[0-9]{10,15}" oninput="window.evaluateConditions()">`;
                     } else if (q.type === 'date') {
-                        html += `<input type="date" name="q_${q.id}" ${q.required ? 'required' : ''} onchange="window.evaluateConditions()">`;
+                        html += `<input type="date" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} onchange="window.evaluateConditions()">`;
                     } else if (q.type === 'time') {
-                        html += `<input type="time" name="q_${q.id}" ${q.required ? 'required' : ''} onchange="window.evaluateConditions()">`;
+                        html += `<input type="time" name="q_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''} onchange="window.evaluateConditions()">`;
                     } else if (q.type === 'file') {
                         html += `
-                            <input type="file" onchange="window.handleFileSelect('${q.id}', this)" ${q.required ? 'required' : ''} accept=".jpg,.jpeg,.png,.pdf,.doc,.docx">
-                            <input type="hidden" name="q_${q.id}" id="input_${q.id}">
-                            <span id="file_info_${q.id}" class="text-muted" style="display:block; margin-top:5px; font-size:0.85rem">الحد الأقصى: 500KB</span>
+                            <input type="file" onchange="window.handleFileSelect('${q.id}', this)" ${q.required && !oldVal ? 'required' : ''} accept=".jpg,.jpeg,.png,.pdf,.doc,.docx">
+                            <input type="hidden" name="q_${q.id}" id="input_${q.id}" value="${oldVal}">
+                            <span id="file_info_${q.id}" class="text-muted" style="display:block; margin-top:5px; font-size:0.85rem">${oldVal ? '📂 ملف محفوظ مسبقاً' : 'الحد الأقصى: 500KB'}</span>
                         `;
                     } else if (q.type === 'rating') {
                         html += `
                             <div class="rating-stars" data-qid="${q.id}">
-                                <span onclick="window.setRating('${q.id}', 1)"><i class="far fa-star"></i></span>
-                                <span onclick="window.setRating('${q.id}', 2)"><i class="far fa-star"></i></span>
-                                <span onclick="window.setRating('${q.id}', 3)"><i class="far fa-star"></i></span>
-                                <span onclick="window.setRating('${q.id}', 4)"><i class="far fa-star"></i></span>
-                                <span onclick="window.setRating('${q.id}', 5)"><i class="far fa-star"></i></span>
+                                <span onclick="window.setRating('${q.id}', 1)"><i class="${oldVal >= 1 ? 'fas' : 'far'} fa-star"></i></span>
+                                <span onclick="window.setRating('${q.id}', 2)"><i class="${oldVal >= 2 ? 'fas' : 'far'} fa-star"></i></span>
+                                <span onclick="window.setRating('${q.id}', 3)"><i class="${oldVal >= 3 ? 'fas' : 'far'} fa-star"></i></span>
+                                <span onclick="window.setRating('${q.id}', 4)"><i class="${oldVal >= 4 ? 'fas' : 'far'} fa-star"></i></span>
+                                <span onclick="window.setRating('${q.id}', 5)"><i class="${oldVal >= 5 ? 'fas' : 'far'} fa-star"></i></span>
                             </div>
-                            <input type="hidden" name="q_${q.id}" id="input_${q.id}" ${q.required ? 'required' : ''}>
+                            <input type="hidden" name="q_${q.id}" id="input_${q.id}" value="${oldVal}" ${q.required ? 'required' : ''}>
                         `;
                     } else if (q.type === 'radio') {
                         html += `<div class="flex-col" style="gap:0.6rem">`;
                         q.options.forEach(opt => {
-                            html += `<label class="custom-radio"><input type="radio" name="q_${q.id}" value="${opt}" ${q.required ? 'required' : ''} onchange="window.evaluateConditions()"> <span style="font-size:1.1rem">${opt}</span></label>`;
+                            const checked = oldVal === opt ? 'checked' : '';
+                            html += `<label class="custom-radio"><input type="radio" name="q_${q.id}" value="${opt}" ${checked} ${q.required ? 'required' : ''} onchange="window.evaluateConditions()"> <span style="font-size:1.1rem">${opt}</span></label>`;
                         });
                         html += `</div>`;
                     } else if (q.type === 'checkbox') {
                         html += `<div class="flex-col" style="gap:0.6rem">`;
+                        const oldList = oldVal ? oldVal.split('، ') : [];
                         q.options.forEach(opt => {
-                            html += `<label class="custom-radio"><input type="checkbox" name="q_${q.id}[]" value="${opt}" onchange="window.evaluateConditions()"> <span style="font-size:1.1rem">${opt}</span></label>`;
+                            const checked = oldList.includes(opt) ? 'checked' : '';
+                            html += `<label class="custom-radio"><input type="checkbox" name="q_${q.id}[]" value="${opt}" ${checked} onchange="window.evaluateConditions()"> <span style="font-size:1.1rem">${opt}</span></label>`;
                         });
                         html += `</div>`;
                     } else if (q.type === 'dropdown') {
                         html += `<select name="q_${q.id}" ${q.required ? 'required' : ''} onchange="window.evaluateConditions()" style="font-size:1.1rem; padding: 1rem;">
-                            <option value="" disabled selected>اختر من القائمة...</option>
-                            ${q.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                            <option value="" disabled ${!oldVal ? 'selected' : ''}>اختر من القائمة...</option>
+                            ${q.options.map(opt => `<option value="${opt}" ${oldVal === opt ? 'selected' : ''}>${opt}</option>`).join('')}
                         </select>`;
                     }
                     html += `</div>`;
@@ -914,7 +982,7 @@
 
                 html += `
                         <div class="mt-1 animate-fade" style="animation-delay: 1s">
-                            <button type="submit" style="width: 100%; font-size: 1.2rem; padding: 1rem;"><i class="fas fa-paper-plane"></i> إرسال النموذج</button>
+                            <button type="submit" style="width: 100%; font-size: 1.2rem; padding: 1rem;"><i class="fas fa-paper-plane"></i> ${existingResponseId ? 'تعديل وحفظ الرد' : 'إرسال النموذج'}</button>
                         </div>
                     </form>
                 `;
@@ -957,12 +1025,11 @@
             });
         };
 
-        function viewSuccess() {
-            const formId = window.location.hash.split('/')[1];
+        function viewSuccess(formId) {
             let scoreHtml = '';
-            
-            // جلب رسالة النجاح المخصصة
+            let editButtonHtml = '';
             let customMsg = 'تم إرسال ردك بنجاح!\nشكراً لك لتسجيل بياناتك.';
+
             if (formId) {
                 const rawScore = sessionStorage.getItem(`last_score_${formId}`);
                 if (rawScore) {
@@ -974,9 +1041,23 @@
                         </div>
                     `;
                 }
+
+                // جلب رسالة النجاح
                 const savedMsg = sessionStorage.getItem(`last_success_msg_${formId}`);
                 if(savedMsg && savedMsg.trim() !== '') {
                     customMsg = savedMsg;
+                }
+
+                // إضافة زر تعديل الرد إذا كان مفتاح الإذن مفعلاً في النموذج
+                const savedResponseId = sessionStorage.getItem(`last_response_id_${formId}`);
+                
+                // سنتأكد لاحقاً عند الضغط من الإذن، ولكن سنعرض الزر لتسهيل العملية للطالب فوراً
+                if (savedResponseId) {
+                    editButtonHtml = `
+                        <button class="outline" style="margin-top: 1.5rem;" onclick="window.navigate('#form/${formId}/${savedResponseId}')">
+                            <i class="fas fa-edit"></i> تعديل ردي السابق
+                        </button>
+                    `;
                 }
             }
             
@@ -987,6 +1068,7 @@
                     <div style="font-size: 5rem; margin-bottom: 1rem; color: var(--accent);"><i class="fas fa-check-circle"></i></div>
                     <h2 style="font-size: 1.6rem; color: var(--text); line-height: 1.6">${msgHtml}</h2>
                     ${scoreHtml}
+                    ${editButtonHtml}
                 </div>
             `;
         }
