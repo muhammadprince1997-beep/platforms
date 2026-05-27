@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>منصة الأستاذ محمد عبدالرحمن | مُنشئ الفورمات</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js for Infographics -->
@@ -12,22 +12,22 @@
     
     <style>
         :root {
-            --bg: #0f1015;
-            --surface: #1a1b26;
-            --surface2: #242636;
-            --border: #2f3247;
+            --bg: #0a0a0f;
+            --surface: #13131f;
+            --surface2: #1c1c2e;
+            --border: #2a2a40;
             --accent: #4ade80; 
             --accent-hover: #22c55e;
             --primary: #3b82f6; 
             --danger: #f87171;
-            --text: #f8fafc;
-            --muted: #94a3b8;
-            --r: 12px;
-            --rs: 8px;
-            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            --text: #eaeaf5;
+            --muted: #7070a0;
+            --r: 16px;
+            --rs: 10px;
+            --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.7);
         }
 
-        /* الثيمات */
+        /* الثيمات والمظاهر التفاعلية */
         .theme-green { --accent: #4ade80; --accent-hover: #22c55e; }
         .theme-blue { --accent: #3b82f6; --accent-hover: #1d4ed8; }
         .theme-purple { --accent: #a855f7; --accent-hover: #7e22ce; }
@@ -44,12 +44,13 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
 
         /* Navbar */
         nav {
-            background-color: rgba(26, 27, 38, 0.9);
-            backdrop-filter: blur(10px);
+            background-color: rgba(19, 19, 31, 0.9);
+            backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border);
             padding: 1rem 5%;
             display: flex;
@@ -60,8 +61,8 @@
             z-index: 100;
         }
         .brand { display: flex; flex-direction: column; cursor: pointer; }
-        .brand h1 { font-size: 1.2rem; color: var(--accent); font-weight: 800; line-height: 1.2; }
-        .brand span { font-size: 0.8rem; color: var(--muted); }
+        .brand h1 { font-size: 1.3rem; color: var(--accent); font-weight: 900; line-height: 1.2; }
+        .brand span { font-size: 0.8rem; color: var(--muted); font-weight: 600; }
         
         .nav-links { display: flex; align-items: center; gap: 1.5rem; }
         .nav-links a { color: var(--text); text-decoration: none; font-weight: 600; transition: color 0.3s; }
@@ -69,46 +70,48 @@
         .user-badge { background: var(--surface2); padding: 0.4rem 1rem; border-radius: 50px; font-size: 0.9rem; border: 1px solid var(--border); }
 
         /* Main Container */
-        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; flex: 1; width: 100%; }
+        .container { max-width: 1050px; margin: 2rem auto; padding: 0 1rem; flex: 1; width: 100%; }
 
         /* UI Elements */
         .card {
             background-color: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--r);
-            padding: 1.4rem;
+            padding: 1.6rem;
             margin-bottom: 1.2rem;
             box-shadow: var(--shadow);
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        .card:hover { transform: translateY(-2px); }
         
         input[type="text"], input[type="email"], input[type="password"], input[type="tel"], input[type="date"], input[type="time"], input[type="file"], input[type="number"], textarea, select {
             width: 100%; background-color: var(--surface2); border: 1px solid var(--border);
-            color: var(--text); padding: 0.8rem; border-radius: var(--rs);
-            font-family: inherit; margin-top: 0.4rem; transition: border 0.3s;
+            color: var(--text); padding: 0.85rem; border-radius: var(--rs);
+            font-family: inherit; margin-top: 0.4rem; transition: all 0.3s;
         }
-        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.15); }
         
         button {
-            background-color: var(--accent); color: #000; border: none;
-            padding: 0.7rem 1.2rem; border-radius: var(--rs); cursor: pointer;
-            font-family: inherit; font-weight: 700; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+            background-color: var(--accent); color: #0a0a0f; border: none;
+            padding: 0.75rem 1.4rem; border-radius: var(--rs); cursor: pointer;
+            font-family: inherit; font-weight: 700; transition: all 0.2s ease-in-out; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
         }
-        button:hover { background-color: var(--accent-hover); transform: translateY(-2px); }
+        button:hover { background-color: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(74, 222, 128, 0.3); }
+        button:active { transform: translateY(0); }
         button.danger { background-color: rgba(248, 113, 113, 0.1); border: 1px solid var(--danger); color: var(--danger); }
-        button.danger:hover { background-color: var(--danger); color: white; }
+        button.danger:hover { background-color: var(--danger); color: #0a0a0f; box-shadow: 0 5px 15px rgba(248, 113, 113, 0.3); }
         button.outline { background-color: transparent; border: 1px solid var(--border); color: var(--text); }
-        button.outline:hover { border-color: var(--accent); color: var(--accent); }
+        button.outline:hover { border-color: var(--accent); color: var(--accent); box-shadow: none; }
         button.primary { background-color: var(--primary); color: white; }
-        button.primary:hover { background-color: #2563eb; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+        button.primary:hover { background-color: #2563eb; box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
         
         /* Layout Builder */
         .builder-layout { display: flex; align-items: flex-start; gap: 1.5rem; }
-        .builder-sidebar { width: 300px; position: sticky; top: 90px; }
+        .builder-sidebar { width: 320px; position: sticky; top: 90px; }
         .builder-main { flex: 1; min-width: 0; }
         
-        @media(max-width: 800px) {
+        @media(max-width: 850px) {
             .builder-layout { flex-direction: column-reverse; }
             .builder-sidebar { width: 100%; position: static; }
         }
@@ -128,7 +131,7 @@
         .mt-1 { margin-top: 1rem; } .mb-1 { margin-bottom: 1rem; }
         .text-center { text-align: center; }
         .text-muted { color: var(--muted); font-size: 0.9rem; }
-        .badge { background: var(--surface2); padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem; color: var(--accent); border: 1px solid var(--border); }
+        .badge { background: var(--surface2); padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem; color: var(--accent); border: 1px solid var(--border); font-weight: bold; }
 
         /* Builder specifics */
         .question-block { border-right: 4px solid var(--accent); position: relative; }
@@ -247,14 +250,6 @@
             </div>
         </div>
     </div>
-
-    <footer>
-        <p>منصة الأستاذ محمد عبدالرحمن &copy; 2026</p>
-        <div class="social-links">
-            <a href="https://www.instagram.com/m9h.7d" target="_blank" class="insta"><i class="fab fa-instagram"></i></a>
-            <a href="https://wa.me/+9647709873200" target="_blank" class="whats"><i class="fab fa-whatsapp"></i></a>
-        </div>
-    </footer>
 
     <div id="toast">رسالة</div>
 
@@ -689,9 +684,8 @@
             btnShorten.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التوليد...';
 
             try {
-                // المحاولة الأولى باستخدام is.gd (سريع وفعال جداً)
-                const isgdApi = `https://is.gd/create.php?format=simple&url=${encodeURIComponent(longLink)}`;
-                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(isgdApi)}`;
+                const tinyUrlApi = `https://tinyurl.com/api-create.php?url=${encodeURIComponent(longLink)}`;
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(tinyUrlApi)}`;
                 
                 const response = await fetch(proxyUrl);
                 if (response.ok) {
@@ -707,9 +701,8 @@
                 throw new Error('API Error');
             } catch (err) {
                 try {
-                    // المحاولة الثانية باستخدام v.gd كبديل احتياطي
-                    const vgdApi = `https://v.gd/create.php?format=simple&url=${encodeURIComponent(longLink)}`;
-                    const proxyUrl2 = `https://api.allorigins.win/get?url=${encodeURIComponent(vgdApi)}`;
+                    const isgdApi = `https://is.gd/create.php?format=simple&url=${encodeURIComponent(longLink)}`;
+                    const proxyUrl2 = `https://api.allorigins.win/get?url=${encodeURIComponent(isgdApi)}`;
                     
                     const response2 = await fetch(proxyUrl2);
                     if (response2.ok) {
@@ -724,7 +717,7 @@
                     }
                     throw new Error('Fallback Error');
                 } catch (err2) {
-                    window.showToast('فشل الاتصال بخوادم التقصير، استخدم الرابط الطويل.', true);
+                    window.showToast('فشل الاتصال بخادم التقصير، استخدم الرابط الطويل.', true);
                     btnShorten.disabled = false;
                     btnShorten.innerHTML = '<i class="fas fa-magic"></i> توليد رابط قصير جداً';
                 }
@@ -1292,6 +1285,8 @@
                     }
                 }
             });
+
+            if (form.classList.contains('layout-step')) window.updateSteps();
         };
 
         // --- نظام تقسيم الصفحات الحقيقي (Sections / Google Forms mode) ---
@@ -1376,6 +1371,7 @@
             window.currentSectionIndex--;
             window.updateSectionsDisplay();
         };
+
 
         function viewSuccess(formId) {
             let scoreHtml = '';
@@ -1672,7 +1668,7 @@
 
                 <div class="card animate-fade" style="animation-delay: 0.1s">
                     <h3 style="color: var(--accent); margin-bottom: 1rem;"><i class="fas fa-users"></i> المشرفون الحاليون</h3>
-                    <div id="supervisors-list"><div class="text-center text-muted"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div></div>
+                    <div id="supervisors-list"><div class="text-muted text-center"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div></div>
                 </div>
             `;
         }
