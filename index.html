@@ -16,18 +16,18 @@
             --surface: #1a1b26;
             --surface2: #242636;
             --border: #2f3247;
-            --accent: #4ade80; /* لون أخضر افتراضي */
+            --accent: #4ade80; 
             --accent-hover: #22c55e;
-            --primary: #3b82f6; /* لون أزرق للتميز */
+            --primary: #3b82f6; 
             --danger: #f87171;
             --text: #f8fafc;
             --muted: #94a3b8;
-            --r: 16px;
+            --r: 12px;
             --rs: 8px;
             --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
         }
 
-        /* لوحة ألوان الثيمات للمظاهر */
+        /* الثيمات */
         .theme-green { --accent: #4ade80; --accent-hover: #22c55e; }
         .theme-blue { --accent: #3b82f6; --accent-hover: #1d4ed8; }
         .theme-purple { --accent: #a855f7; --accent-hover: #7e22ce; }
@@ -60,7 +60,7 @@
             z-index: 100;
         }
         .brand { display: flex; flex-direction: column; cursor: pointer; }
-        .brand h1 { font-size: 1.3rem; color: var(--accent); font-weight: 800; line-height: 1.2; }
+        .brand h1 { font-size: 1.2rem; color: var(--accent); font-weight: 800; line-height: 1.2; }
         .brand span { font-size: 0.8rem; color: var(--muted); }
         
         .nav-links { display: flex; align-items: center; gap: 1.5rem; }
@@ -69,29 +69,29 @@
         .user-badge { background: var(--surface2); padding: 0.4rem 1rem; border-radius: 50px; font-size: 0.9rem; border: 1px solid var(--border); }
 
         /* Main Container */
-        .container { max-width: 850px; margin: 2rem auto; padding: 0 1rem; flex: 1; width: 100%; }
+        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; flex: 1; width: 100%; }
 
         /* UI Elements */
         .card {
             background-color: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--r);
-            padding: 1.8rem;
-            margin-bottom: 1.5rem;
+            padding: 1.4rem;
+            margin-bottom: 1.2rem;
             box-shadow: var(--shadow);
             transition: all 0.3s ease;
         }
         
         input[type="text"], input[type="email"], input[type="password"], input[type="tel"], input[type="date"], input[type="time"], input[type="file"], input[type="number"], textarea, select {
             width: 100%; background-color: var(--surface2); border: 1px solid var(--border);
-            color: var(--text); padding: 0.9rem; border-radius: var(--rs);
-            font-family: inherit; margin-top: 0.5rem; transition: border 0.3s;
+            color: var(--text); padding: 0.8rem; border-radius: var(--rs);
+            font-family: inherit; margin-top: 0.4rem; transition: border 0.3s;
         }
         input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); }
         
         button {
             background-color: var(--accent); color: #000; border: none;
-            padding: 0.8rem 1.5rem; border-radius: var(--rs); cursor: pointer;
+            padding: 0.7rem 1.2rem; border-radius: var(--rs); cursor: pointer;
             font-family: inherit; font-weight: 700; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
         }
         button:hover { background-color: var(--accent-hover); transform: translateY(-2px); }
@@ -102,6 +102,16 @@
         button.primary { background-color: var(--primary); color: white; }
         button.primary:hover { background-color: #2563eb; }
         
+        /* Layout Builder */
+        .builder-layout { display: flex; align-items: flex-start; gap: 1.5rem; }
+        .builder-sidebar { width: 300px; position: sticky; top: 90px; }
+        .builder-main { flex: 1; min-width: 0; }
+        
+        @media(max-width: 800px) {
+            .builder-layout { flex-direction: column-reverse; }
+            .builder-sidebar { width: 100%; position: static; }
+        }
+
         /* Tabs */
         .tabs-container { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; overflow-x: auto; }
         .tab-btn { background: transparent; color: var(--muted); border: none; border-bottom: 3px solid transparent; border-radius: 0; padding: 0.8rem 1.5rem; font-size: 1.1rem; }
@@ -116,61 +126,45 @@
         .align-center { align-items: center; }
         .mt-1 { margin-top: 1rem; } .mb-1 { margin-bottom: 1rem; }
         .text-center { text-align: center; }
-        .text-muted { color: var(--muted); font-size: 0.95rem; }
-        .badge { background: var(--surface2); padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem; color: var(--accent); }
+        .text-muted { color: var(--muted); font-size: 0.9rem; }
+        .badge { background: var(--surface2); padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem; color: var(--accent); border: 1px solid var(--border); }
 
         /* Builder specifics */
         .question-block { border-right: 4px solid var(--accent); position: relative; }
         .q-header { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; align-items: start; }
         .options-list { margin-top: 1rem; padding-right: 1.5rem; border-right: 2px solid var(--border); }
         .option-item { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; }
-        .conditional-box { background: rgba(59, 130, 246, 0.1); border: 1px dashed var(--primary); padding: 1rem; border-radius: var(--rs); margin-top: 1rem; }
+        .conditional-box { background: rgba(59, 130, 246, 0.05); border: 1px dashed var(--primary); padding: 1rem; border-radius: var(--rs); margin-top: 1rem; }
 
-        /* Custom Checkbox/Radio/Stars */
         .custom-radio { display: flex; align-items: center; gap: 0.8rem; cursor: pointer; padding: 0.5rem 0; }
         .custom-radio input { width: auto; transform: scale(1.2); accent-color: var(--accent); margin-top: 0;}
-
-        /* Stars Design */
         .rating-stars { display: flex; gap: 0.5rem; margin-top: 0.5rem; font-size: 1.8rem; color: #fbbf24; }
         .rating-stars span { cursor: pointer; transition: transform 0.2s; }
         .rating-stars span:hover { transform: scale(1.2); }
 
-        /* File Download Link styling */
         .btn-download-file { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--surface2); color: var(--accent); padding: 0.5rem 1rem; border-radius: var(--rs); text-decoration: none; border: 1px solid var(--border); transition: 0.3s; margin-top: 0.5rem;}
         .btn-download-file:hover { background: var(--accent); color: #000; }
 
-        /* Theme selection dots */
-        .theme-dot { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: 0.2s; }
+        .theme-dot { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
         .theme-dot:hover { transform: scale(1.15); }
         .theme-dot.selected { border-color: var(--text); }
 
         /* Footer */
-        footer {
-            text-align: center; padding: 2rem; border-top: 1px solid var(--border);
-            margin-top: auto; background-color: var(--surface);
-        }
+        footer { text-align: center; padding: 2rem; border-top: 1px solid var(--border); margin-top: auto; background-color: var(--surface); }
         .social-links { display: flex; justify-content: center; gap: 1.5rem; margin-top: 1rem; }
         .social-links a { color: var(--text); font-size: 1.5rem; transition: color 0.3s; }
         .social-links a.insta:hover { color: #e1306c; }
         .social-links a.whats:hover { color: #25D366; }
 
-        /* Animations */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade { animation: fadeIn 0.4s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade { animation: fadeIn 0.3s ease forwards; }
 
-        #toast {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: var(--accent); color: #000; padding: 12px 24px;
-            border-radius: 50px; font-weight: bold; opacity: 0;
-            transition: opacity 0.3s; pointer-events: none; z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-        }
-
+        #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #000; padding: 12px 24px; border-radius: 50px; font-weight: bold; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
         .chart-container { position: relative; height: 300px; width: 100%; display: flex; justify-content: center; margin-top: 1rem; margin-bottom: 1rem;}
 
         @media(max-width: 600px) {
             .q-header { grid-template-columns: 1fr; }
-            .nav-links { display: none; } /* Simplified mobile nav */
+            .nav-links { display: none; }
             .chart-container { height: 250px; }
         }
     </style>
@@ -179,8 +173,8 @@
 
     <nav id="main-nav" class="hidden">
         <div class="brand" onclick="navigate('#dashboard')">
-            <h1>أ. محمد عبدالرحمن</h1>
-            <span>مُنشئ الفورمات</span>
+            <h1>منصة الأستاذ محمد عبدالرحمن</h1>
+            <span>مُنشئ الفورمات التفاعلية</span>
         </div>
         <div class="nav-links">
             <a href="#dashboard"><i class="fas fa-home"></i> الرئيسية</a>
@@ -191,14 +185,13 @@
     </nav>
 
     <div class="container" id="app-content">
-        <!-- Views will be injected here -->
         <div class="text-center" style="margin-top: 5rem;">
             <i class="fas fa-circle-notch fa-spin fa-3x" style="color: var(--accent)"></i>
         </div>
     </div>
 
     <footer>
-        <p>إعداد الأستاذ محمد عبدالرحمن &copy; 2026</p>
+        <p>منصة الأستاذ محمد عبدالرحمن &copy; 2026</p>
         <div class="social-links">
             <a href="https://www.instagram.com/m9h.7d" target="_blank" class="insta"><i class="fab fa-instagram"></i></a>
             <a href="https://wa.me/+9647709873200" target="_blank" class="whats"><i class="fab fa-whatsapp"></i></a>
@@ -213,9 +206,6 @@
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        /* ====================================================================
-           إعدادات فايربيس (FIREBASE CONFIG)
-        ==================================================================== */
         let firebaseConfig = {
             apiKey: "AIzaSyC4AnFr-41S5QU1GUirhNWO-pIQmV4lODY",
             authDomain: "muhammed-forms.firebaseapp.com",
@@ -227,141 +217,56 @@
         };
 
         const appId = 'mohammed-formcraft';
-
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- Global State ---
-        window.State = {
-            user: null,
-            isAdmin: false,
-            forms: [],
-            responses: {},
-            currentBuilderForm: null
-        };
+        window.State = { user: null, isAdmin: false, forms: [], responses: {}, currentBuilderForm: null };
 
-        // إعداد افتراضي للرسوم البيانية
         Chart.defaults.font.family = 'Cairo';
         Chart.defaults.color = '#94a3b8';
-        
-        // Plugin to fill background with dark color before downloading chart image
         const customCanvasBackgroundColor = {
             id: 'customCanvasBackgroundColor',
             beforeDraw: (chart, args, options) => {
-                const {ctx} = chart;
-                ctx.save();
-                ctx.globalCompositeOperation = 'destination-over';
-                ctx.fillStyle = options.color || '#1a1b26';
-                ctx.fillRect(0, 0, chart.width, chart.height);
-                ctx.restore();
+                const {ctx} = chart; ctx.save(); ctx.globalCompositeOperation = 'destination-over';
+                ctx.fillStyle = options.color || '#1a1b26'; ctx.fillRect(0, 0, chart.width, chart.height); ctx.restore();
             }
         };
 
-        // --- Utilities ---
         window.generateId = () => Math.random().toString(36).substr(2, 9);
         window.showToast = (msg, isError = false) => {
             const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.style.background = isError ? 'var(--danger)' : 'var(--accent)';
-            t.style.color = isError ? '#fff' : '#000';
-            t.style.opacity = '1';
+            t.textContent = msg; t.style.background = isError ? 'var(--danger)' : 'var(--accent)';
+            t.style.color = isError ? '#fff' : '#000'; t.style.opacity = '1';
             setTimeout(() => t.style.opacity = '0', 3000);
         };
 
-        // --- Firebase Rules Error Component ---
-        function getRulesErrorHTML() {
-            return `
-                <div class="card animate-fade" style="max-width: 650px; margin: 4rem auto; border-color: var(--danger); text-align: right;">
-                    <h2 style="color: var(--danger); margin-bottom: 1rem;"><i class="fas fa-shield-alt"></i> تنبيه: صلاحيات قاعدة البيانات (Firestore Rules)</h2>
-                    <p class="mb-1" style="font-size: 1.1rem; line-height: 1.8;">يبدو أنك تحتاج إلى ضبط إعدادات الأمان في <b>Firebase</b>. القواعد التالية ستضمن حماية بياناتك بالكامل (الطلاب يمكنهم الإرسال فقط، وأنت فقط تقرأ الردود):</p>
-                    <ol style="margin-right: 1.5rem; margin-bottom: 1.5rem; line-height: 1.8; color: var(--muted);">
-                        <li>اذهب إلى لوحة تحكم <b>Firebase</b> الخاصة بك (muhammed-forms).</li>
-                        <li>من القائمة الجانبية، اختر <b>Firestore Database</b>.</li>
-                        <li>في الأعلى، انقر على تبويب <b>Rules</b> (القواعد).</li>
-                        <li>امسح الكود الموجود بالكامل، واستبدله بالكود الآمن التالي:</li>
-                    </ol>
-                    <pre style="background: #000; padding: 1.5rem; border-radius: var(--rs); direction: ltr; text-align: left; overflow-x: auto; color: #a6accd; border: 1px solid var(--border);">
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /artifacts/mohammed-formcraft/public/data/forms/{formId} {
-      allow read: if true;
-      allow write: if request.auth != null;
-    }
-    match /artifacts/mohammed-formcraft/public/data/responses/{responseId} {
-      allow create: if true;
-      allow read, update, delete: if request.auth != null;
-    }
-    match /artifacts/mohammed-formcraft/public/data/sys_info/{docId} {
-      allow read, write: if true;
-    }
-    match /artifacts/mohammed-formcraft/public/data/supervisors/{supId} {
-      allow read, write: if request.auth != null;
-    }
-    match /artifacts/mohammed-formcraft/users/{userId}/{document=**} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}</pre>
-                    <p class="mt-1 text-muted" style="font-size: 0.9rem;">ملاحظة: اضغط على زر <b>Publish</b> بعد وضع الكود هناك.</p>
-                    <button class="primary mt-1" style="width: 100%" onclick="location.reload()"><i class="fas fa-sync-alt"></i> أعد تحميل الصفحة بعد تعديل القواعد</button>
-                </div>
-            `;
-        }
-
-        // --- Auth Listener ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 try {
                     const userDoc = await getDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'data'));
                     if (userDoc.exists() && userDoc.data().revoked) {
-                        await signOut(auth);
-                        window.showToast('تم إيقاف هذا الحساب من قبل الإدارة.', true);
-                        return;
+                        await signOut(auth); window.showToast('تم إيقاف هذا الحساب من قبل الإدارة.', true); return;
                     }
-
                     window.State.user = user;
                     document.getElementById('main-nav').classList.remove('hidden');
                     document.getElementById('nav-user').innerHTML = `<i class="fas fa-user"></i> ${user.email}`;
-                    
-                    if (userDoc.exists() && userDoc.data().role === 'admin') {
-                        window.State.isAdmin = true;
-                        document.getElementById('admin-settings-btn').classList.remove('hidden');
-                    } else {
-                        window.State.isAdmin = false;
-                        document.getElementById('admin-settings-btn').classList.add('hidden');
-                    }
+                    window.State.isAdmin = (userDoc.exists() && userDoc.data().role === 'admin');
+                    document.getElementById('admin-settings-btn').classList.toggle('hidden', !window.State.isAdmin);
                     
                     await loadForms();
-                    if(window.location.hash === '' || window.location.hash.startsWith('#login')) {
-                        navigate('#dashboard');
-                    } else {
-                        renderView();
-                    }
-                } catch(e) {
-                    if(e.code === 'permission-denied') {
-                        document.getElementById('app-content').innerHTML = getRulesErrorHTML();
-                    }
-                }
-            } else {
-                window.State.user = null;
-                window.State.isAdmin = false;
-                document.getElementById('main-nav').classList.add('hidden');
-                
-                try {
-                    await signInAnonymously(auth);
+                    if(window.location.hash === '' || window.location.hash.startsWith('#login')) navigate('#dashboard');
+                    else renderView();
                 } catch(e) { }
-
-                if(window.location.hash.startsWith('#form/') || window.location.hash === '#success') {
-                    renderView();
-                } else {
-                    navigate('#login');
-                }
+            } else {
+                window.State.user = null; window.State.isAdmin = false;
+                document.getElementById('main-nav').classList.add('hidden');
+                try { await signInAnonymously(auth); } catch(e) { }
+                if(window.location.hash.startsWith('#form/') || window.location.hash === '#success') renderView();
+                else navigate('#login');
             }
         });
 
-        // --- Router ---
         window.navigate = (hash) => { window.location.hash = hash; };
         window.addEventListener('hashchange', () => renderView());
 
@@ -370,42 +275,29 @@ service cloud.firestore {
             const [view, id] = hash.substring(1).split('/');
             const container = document.getElementById('app-content');
 
-            // Public routes
             if (view === 'form') { 
                 container.innerHTML = `<div class="text-center" style="margin-top: 5rem;"><i class="fas fa-circle-notch fa-spin fa-3x" style="color: var(--accent)"></i></div>`;
-                container.innerHTML = await viewForm(id); 
-                setupConditionalLogic(); 
-                return; 
+                container.innerHTML = await viewForm(id); setupConditionalLogic(); return; 
             }
             if (view === 'success') { container.innerHTML = viewSuccess(); return; }
-
-            // Protected routes
             if (!window.State.user && view !== 'login') { navigate('#login'); return; }
 
             switch(view) {
                 case 'login': container.innerHTML = await viewLogin(); break;
                 case 'dashboard': container.innerHTML = viewDashboard(); break;
                 case 'builder': 
-                    await initBuilder(id); 
-                    container.innerHTML = viewBuilder(); 
-                    break;
+                    await initBuilder(id); container.innerHTML = viewBuilder(); break;
                 case 'responses': 
                     container.innerHTML = `<div class="text-center" style="margin-top: 5rem;"><i class="fas fa-circle-notch fa-spin fa-3x" style="color: var(--accent)"></i></div>`;
                     container.innerHTML = await viewResponses(id); 
-                    if(window.renderChartsFlag) {
-                        window.initChartsData();
-                        window.renderChartsFlag = false;
-                    }
+                    if(window.renderChartsFlag) { window.initChartsData(); window.renderChartsFlag = false; }
                     break;
                 case 'settings': 
-                    container.innerHTML = viewSettings(); 
-                    if(window.State.isAdmin) window.loadSupervisors();
-                    break;
+                    container.innerHTML = viewSettings(); if(window.State.isAdmin) window.loadSupervisors(); break;
                 default: container.innerHTML = viewDashboard();
             }
         }
 
-        // --- Database Operations ---
         async function loadForms() {
             if(!window.State.user) return;
             try {
@@ -413,106 +305,74 @@ service cloud.firestore {
                 const snap = await getDocs(formsRef);
                 const allForms = snap.docs.map(d => d.data());
                 
-                if (window.State.isAdmin) {
-                    window.State.forms = allForms;
-                } else {
+                if (window.State.isAdmin) { window.State.forms = allForms; } 
+                else {
                     const profileSnap = await getDoc(doc(db, 'artifacts', appId, 'users', window.State.user.uid, 'profile', 'data'));
                     const profile = profileSnap.data() || {};
-                    if (profile.canViewAllForms) {
-                        window.State.forms = allForms;
-                    } else {
-                        window.State.forms = allForms.filter(f => f.ownerId === window.State.user.uid);
-                    }
+                    if (profile.canViewAllForms) window.State.forms = allForms;
+                    else window.State.forms = allForms.filter(f => f.ownerId === window.State.user.uid);
                 }
-            } catch (e) {
-                console.error(e);
-                if (e.code === 'permission-denied') {
-                    document.getElementById('app-content').innerHTML = getRulesErrorHTML();
-                }
-            }
+            } catch (e) { }
         }
 
         window.saveFormToDB = async (formObj) => {
             try {
                 const formRef = doc(db, 'artifacts', appId, 'public', 'data', 'forms', formObj.id);
                 await setDoc(formRef, { ...formObj, ownerId: window.State.user.uid });
-                
                 const idx = window.State.forms.findIndex(f => f.id === formObj.id);
                 if(idx > -1) window.State.forms[idx] = formObj; else window.State.forms.push(formObj);
-                
                 window.showToast('تم حفظ النموذج بنجاح!');
                 navigate('#dashboard');
-            } catch (e) {
-                console.error(e);
-                if (e.code === 'permission-denied') document.getElementById('app-content').innerHTML = getRulesErrorHTML();
-                else window.showToast('حدث خطأ أثناء الحفظ', true);
-            }
+            } catch (e) { window.showToast('حدث خطأ أثناء الحفظ', true); }
         };
 
         window.submitPublicForm = async (e, formId) => {
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
-            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...'; btn.disabled = true;
 
             const formData = new FormData(e.target);
             const answers = {};
 
-            // Process form entries correctly supporting multi-select checkboxes
             for (let [key, value] of formData.entries()) {
                 if (key.endsWith('[]')) {
                     const cleanKey = key.slice(0, -2);
                     if (!answers[cleanKey]) answers[cleanKey] = [];
                     answers[cleanKey].push(value);
-                } else {
-                    answers[key] = value;
-                }
+                } else { answers[key] = value; }
             }
 
-            // Convert arrays to readable Arabic comma-separated strings
             for (let key in answers) {
-                if (Array.isArray(answers[key])) {
-                    answers[key] = answers[key].join('، ');
-                }
+                if (Array.isArray(answers[key])) answers[key] = answers[key].join('، ');
             }
 
             try {
                 const formSnap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'forms', formId));
                 if(!formSnap.exists()) {
                     window.showToast('النموذج لم يعد متوفراً', true);
-                    btn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال النموذج'; btn.disabled = false;
-                    return;
+                    btn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال النموذج'; btn.disabled = false; return;
                 }
-
                 const form = formSnap.data();
 
-                // Check active status
                 if (form.settings?.closed) {
                     window.showToast('عذراً، هذا النموذج مغلق حالياً ولا يستقبل أي ردود.', true);
-                    btn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال النموذج'; btn.disabled = false;
-                    return;
+                    btn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال النموذج'; btn.disabled = false; return;
                 }
 
-                // Check limit one response
                 if(form.settings?.limitOneResponse) {
                     if(localStorage.getItem(`responded_${formId}`)) {
                         window.showToast('لقد قمت بالرد على هذا النموذج مسبقاً.', true);
-                        btn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال النموذج'; btn.disabled = false;
-                        return;
+                        btn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال النموذج'; btn.disabled = false; return;
                     }
                 }
 
-                // Calculate Score if in Quiz Mode
-                let score = 0;
-                let totalPoints = 0;
-                let isQuiz = form.settings?.isQuiz || false;
+                let score = 0, totalPoints = 0, isQuiz = form.settings?.isQuiz || false;
 
                 if (isQuiz) {
                     form.questions.forEach(q => {
                         const studentAns = answers[`q_${q.id}`];
                         const points = parseInt(q.points) || 0;
                         totalPoints += points;
-
                         if (q.correctAnswer && studentAns) {
                             const cleanStudentAns = String(studentAns).trim().toLowerCase();
                             const cleanCorrectAns = String(q.correctAnswer).trim().toLowerCase();
@@ -523,29 +383,19 @@ service cloud.firestore {
 
                 const resRef = collection(db, 'artifacts', appId, 'public', 'data', 'responses');
                 await addDoc(resRef, {
-                    formId: formId,
-                    date: new Date().toISOString(),
-                    answers: answers,
-                    score: isQuiz ? score : null,
-                    totalPoints: isQuiz ? totalPoints : null
+                    formId: formId, date: new Date().toISOString(), answers: answers,
+                    score: isQuiz ? score : null, totalPoints: isQuiz ? totalPoints : null
                 });
 
-                if(form.settings?.limitOneResponse) {
-                    localStorage.setItem(`responded_${formId}`, 'true');
-                }
-
-                if (isQuiz) {
-                    sessionStorage.setItem(`last_score_${formId}`, JSON.stringify({ score, totalPoints }));
-                }
+                if(form.settings?.limitOneResponse) localStorage.setItem(`responded_${formId}`, 'true');
+                if (isQuiz) sessionStorage.setItem(`last_score_${formId}`, JSON.stringify({ score, totalPoints }));
+                
+                // حفظ رسالة النجاح المخصصة
+                sessionStorage.setItem(`last_success_msg_${formId}`, form.settings?.successMsg || 'تم إرسال ردك بنجاح!\nشكراً لك لتسجيل بياناتك.');
 
                 navigate(`#success/${formId}`);
             } catch (e) {
-                console.error(e);
-                if (e.code === 'permission-denied') {
-                    window.showToast('لا يمكنك الإرسال الآن، يرجى إبلاغ الإدارة لضبط صلاحيات Firebase', true);
-                } else {
-                    window.showToast('حدث خطأ. حاول مرة أخرى.', true);
-                }
+                window.showToast('حدث خطأ. حاول مرة أخرى.', true);
                 btn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال النموذج'; btn.disabled = false;
             }
         };
@@ -557,187 +407,62 @@ service cloud.firestore {
             if(!file) return;
 
             if(file.size > 500 * 1024) { 
-                window.showToast('حجم الملف كبير جداً! الحد الأقصى 500 كيلوبايت لضمان سرعة الحفظ.', true);
-                input.value = '';
-                infoSpan.innerHTML = `<span style="color:var(--danger)">حجم الملف تجاوز 500 كيلوبايت!</span>`;
-                inputHidden.value = '';
-                return;
+                window.showToast('حجم الملف كبير جداً! الحد الأقصى 500 كيلوبايت', true);
+                input.value = ''; infoSpan.innerHTML = `<span style="color:var(--danger)">مرفوض: الحجم كبير جداً</span>`; inputHidden.value = ''; return;
             }
-
             const reader = new FileReader();
             reader.onload = function(e) {
-                inputHidden.value = JSON.stringify({
-                    name: file.name,
-                    type: file.type,
-                    base64: e.target.result
-                });
-                infoSpan.innerHTML = `<i class="fas fa-check-circle" style="color:var(--accent)"></i> تم تجهيز: ${file.name} (${Math.round(file.size/1024)} KB)`;
+                inputHidden.value = JSON.stringify({ name: file.name, type: file.type, base64: e.target.result });
+                infoSpan.innerHTML = `<i class="fas fa-check-circle" style="color:var(--accent)"></i> تم تجهيز: ${file.name}`;
             };
             reader.readAsDataURL(file);
         };
 
         window.setRating = (qid, val) => {
-            const input = document.getElementById(`input_${qid}`);
-            if(!input) return;
-            input.value = val;
-            
-            const starContainer = document.querySelector(`.rating-stars[data-qid="${qid}"]`);
-            if(!starContainer) return;
-
+            const input = document.getElementById(`input_${qid}`); if(!input) return; input.value = val;
+            const starContainer = document.querySelector(`.rating-stars[data-qid="${qid}"]`); if(!starContainer) return;
             const stars = starContainer.querySelectorAll('span');
-            stars.forEach((star, idx) => {
-                const starIcon = star.querySelector('i');
-                if (idx < val) starIcon.className = 'fas fa-star';
-                else starIcon.className = 'far fa-star';
-            });
+            stars.forEach((star, idx) => { star.querySelector('i').className = idx < val ? 'fas fa-star' : 'far fa-star'; });
             window.evaluateConditions();
         };
 
-        // --- Auth Functions ---
         window.handleLogin = async (e) => {
             e.preventDefault();
-            const email = document.getElementById('l-email').value;
-            const pass = document.getElementById('l-pass').value;
-            try {
-                await signInWithEmailAndPassword(auth, email, pass);
-            } catch (error) {
-                window.showToast('فشل تسجيل الدخول. تأكد من البيانات.', true);
-            }
+            try { await signInWithEmailAndPassword(auth, document.getElementById('l-email').value, document.getElementById('l-pass').value); }
+            catch (error) { window.showToast('فشل تسجيل الدخول. تأكد من البيانات.', true); }
         };
 
         window.handleFirstAdminSetup = async (e) => {
             e.preventDefault();
-            const email = document.getElementById('a-email').value;
-            const pass = document.getElementById('a-pass').value;
-            
             try {
-                const cred = await createUserWithEmailAndPassword(auth, email, pass);
-                
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'sys_info', 'setup'), {
-                    initialized: true,
-                    adminUid: cred.user.uid
-                });
-                
-                await setDoc(doc(db, 'artifacts', appId, 'users', cred.user.uid, 'profile', 'data'), {
-                    email: email,
-                    role: 'admin',
-                    revoked: false
-                });
-
+                const cred = await createUserWithEmailAndPassword(auth, document.getElementById('a-email').value, document.getElementById('a-pass').value);
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'sys_info', 'setup'), { initialized: true, adminUid: cred.user.uid });
+                await setDoc(doc(db, 'artifacts', appId, 'users', cred.user.uid, 'profile', 'data'), { email: cred.user.email, role: 'admin', revoked: false });
                 window.showToast('تم إنشاء حساب المشرف الرئيسي بنجاح!');
-            } catch (error) {
-                if(error.code === 'permission-denied') document.getElementById('app-content').innerHTML = getRulesErrorHTML();
-                else window.showToast(error.message, true);
-            }
-        };
-
-        window.createSupervisor = async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('btn-create-sup');
-            const email = document.getElementById('new-sup-email').value;
-            const pass = document.getElementById('new-sup-pass').value;
-            const canViewAll = document.getElementById('new-sup-view-all').checked;
-
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإنشاء...';
-            btn.disabled = true;
-
-            try {
-                if(!window.secondaryApp) {
-                    window.secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
-                    window.secondaryAuth = getAuth(window.secondaryApp);
-                }
-
-                const cred = await createUserWithEmailAndPassword(window.secondaryAuth, email, pass);
-                const newUid = cred.user.uid;
-
-                await setDoc(doc(db, 'artifacts', appId, 'users', newUid, 'profile', 'data'), {
-                    email: email,
-                    role: 'editor',
-                    revoked: false,
-                    canViewAllForms: canViewAll
-                });
-
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'supervisors', newUid), {
-                    uid: newUid,
-                    email: email,
-                    createdAt: new Date().toISOString(),
-                    revoked: false,
-                    canViewAllForms: canViewAll
-                });
-
-                await signOut(window.secondaryAuth);
-
-                window.showToast('تم إنشاء حساب المشرف المساعد بنجاح!');
-                document.getElementById('new-sup-email').value = '';
-                document.getElementById('new-sup-pass').value = '';
-                document.getElementById('new-sup-view-all').checked = false;
-                
-                window.loadSupervisors();
-            } catch (error) {
-                if (error.code === 'permission-denied') document.getElementById('app-content').innerHTML = getRulesErrorHTML();
-                else window.showToast('خطأ: ' + error.message, true);
-            } finally {
-                btn.innerHTML = '<i class="fas fa-plus"></i> إضافة الحساب';
-                btn.disabled = false;
-            }
-        };
-
-        window.toggleSupervisorAccess = async (uid, currentStatus) => {
-            if(!confirm(currentStatus ? 'هل أنت متأكد من إعادة تفعيل هذا الحساب؟' : 'هل أنت متأكد من إيقاف هذا الحساب؟ لن يتمكن من الدخول نهائياً.')) return;
-            
-            try {
-                await setDoc(doc(db, 'artifacts', appId, 'users', uid, 'profile', 'data'), { revoked: !currentStatus }, { merge: true });
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'supervisors', uid), { revoked: !currentStatus }, { merge: true });
-                
-                window.showToast('تم تحديث حالة الحساب بنجاح');
-                window.loadSupervisors();
-            } catch (e) {
-                if (e.code === 'permission-denied') document.getElementById('app-content').innerHTML = getRulesErrorHTML();
-                else window.showToast('حدث خطأ أثناء التحديث', true);
-            }
-        };
-
-        window.toggleSupervisorViewAll = async (uid, currentViewAll) => {
-            try {
-                await setDoc(doc(db, 'artifacts', appId, 'users', uid, 'profile', 'data'), { canViewAllForms: !currentViewAll }, { merge: true });
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'supervisors', uid), { canViewAllForms: !currentViewAll }, { merge: true });
-                
-                window.showToast('تم تحديث صلاحية الرؤية بنجاح');
-                window.loadSupervisors();
-            } catch (e) {
-                if (e.code === 'permission-denied') document.getElementById('app-content').innerHTML = getRulesErrorHTML();
-                else window.showToast('حدث خطأ أثناء التحديث', true);
-            }
+            } catch (error) { window.showToast(error.message, true); }
         };
 
         window.logout = () => signOut(auth);
 
-        // --- VIEWS ---
-
         async function viewLogin() {
             try {
-                const setupRef = doc(db, 'artifacts', appId, 'public', 'data', 'sys_info', 'setup');
-                const setupDoc = await getDoc(setupRef);
-                
+                const setupDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'sys_info', 'setup'));
                 if (!setupDoc.exists()) {
                     return `
                         <div class="card animate-fade" style="max-width: 400px; margin: 4rem auto; text-align: center; border-color: var(--accent);">
                             <h2 style="color: var(--accent); margin-bottom: 1rem;"><i class="fas fa-crown"></i> الإعداد الأول للمنصة</h2>
                             <p class="text-muted mb-1">يبدو أن هذه هي المرة الأولى. قم بإنشاء حساب المشرف الرئيسي (الأدمن) الآن.</p>
-                            
                             <form onsubmit="handleFirstAdminSetup(event)" class="flex-col">
                                 <input type="email" id="a-email" placeholder="البريد الإلكتروني الخاص بك" required>
                                 <input type="password" id="a-pass" placeholder="كلمة المرور" required minlength="6">
-                                <button type="submit" style="width: 100%" class="primary"><i class="fas fa-check-circle"></i> إنشاء حساب الأدمن</button>
+                                <button type="submit" style="width: 100%" class="primary"><i class="fas fa-check-circle"></i> إنشاء الحساب</button>
                             </form>
                         </div>
                     `;
                 }
-
                 return `
                     <div class="card animate-fade" style="max-width: 400px; margin: 4rem auto; text-align: center;">
-                        <h2 style="color: var(--accent); margin-bottom: 1.5rem;"><i class="fas fa-lock"></i> تسجيل الدخول</h2>
-                        <p class="text-muted mb-1">هذه البوابة مخصصة لإدارة المنصة فقط.</p>
+                        <h2 style="color: var(--accent); margin-bottom: 1.5rem;"><i class="fas fa-lock"></i> تسجيل الدخول للمشرفين</h2>
                         <form onsubmit="handleLogin(event)" class="flex-col">
                             <input type="email" id="l-email" placeholder="البريد الإلكتروني" required>
                             <input type="password" id="l-pass" placeholder="كلمة المرور" required>
@@ -745,10 +470,7 @@ service cloud.firestore {
                         </form>
                     </div>
                 `;
-            } catch(e) {
-                if(e.code === 'permission-denied') return getRulesErrorHTML();
-                return `<div class="card text-center"><h2 style="color:var(--danger)">حدث خطأ: ${e.message}</h2></div>`;
-            }
+            } catch(e) { return `<div class="card text-center"><h2 style="color:var(--danger)">حدث خطأ: ${e.message}</h2></div>`; }
         }
 
         function viewDashboard() {
@@ -758,24 +480,21 @@ service cloud.firestore {
                     <button onclick="createNewForm()"><i class="fas fa-plus"></i> إنشاء نموذج جديد</button>
                 </div>
             `;
-
             if (window.State.forms.length === 0) {
-                html += `<div class="card text-center animate-fade"><i class="fas fa-file-alt fa-3x text-muted mb-1"></i><p class="text-muted">لا توجد نماذج حالياً. ابدأ بإنشاء نموذجك الأول!</p></div>`;
+                html += `<div class="card text-center animate-fade"><i class="fas fa-file-alt fa-3x text-muted mb-1"></i><p class="text-muted">لا توجد نماذج حالياً.</p></div>`;
             } else {
                 window.State.forms.forEach((f, index) => {
-                    const isClosed = f.settings?.closed || false;
-                    const isQuiz = f.settings?.isQuiz || false;
                     html += `
                         <div class="card flex justify-between align-center animate-fade" style="animation-delay: ${index * 0.1}s">
                             <div>
                                 <h3 style="margin-bottom: 0.3rem;">${f.title || 'بدون عنوان'}</h3>
                                 <div class="flex" style="gap: 0.5rem; flex-wrap:wrap;">
-                                    ${isQuiz ? '<span class="badge" style="background: rgba(168,85,247,0.15); color: #c084fc;"><i class="fas fa-graduation-cap"></i> اختبار</span>' : ''}
-                                    ${isClosed ? '<span class="badge" style="background: rgba(248,113,113,0.15); color: var(--danger);"><i class="fas fa-lock"></i> مغلق</span>' : '<span class="badge" style="background: rgba(74,222,128,0.15); color: var(--accent);"><i class="fas fa-unlock"></i> نشط</span>'}
+                                    ${f.settings?.isQuiz ? '<span class="badge" style="background: rgba(168,85,247,0.15); color: #c084fc; border:none;"><i class="fas fa-graduation-cap"></i> اختبار</span>' : ''}
+                                    ${f.settings?.closed ? '<span class="badge" style="background: rgba(248,113,113,0.15); color: var(--danger); border:none;"><i class="fas fa-lock"></i> مغلق</span>' : '<span class="badge" style="background: rgba(74,222,128,0.15); color: var(--accent); border:none;"><i class="fas fa-unlock"></i> نشط</span>'}
                                 </div>
                             </div>
                             <div class="flex" style="gap:0.5rem;">
-                                <button class="primary" onclick="navigate('#responses/${f.id}')" title="الردود"><i class="fas fa-chart-pie"></i> الردود والإحصائيات</button>
+                                <button class="primary" onclick="navigate('#responses/${f.id}')" title="الردود"><i class="fas fa-chart-pie"></i> الإحصائيات</button>
                                 <button class="outline" onclick="navigate('#builder/${f.id}')" title="تعديل"><i class="fas fa-edit"></i></button>
                                 <button class="outline" onclick="window.copyLink('${f.id}')" title="نسخ الرابط"><i class="fas fa-link"></i></button>
                             </div>
@@ -789,51 +508,32 @@ service cloud.firestore {
         window.copyLink = (id) => {
             const link = `${window.location.origin}${window.location.pathname}#form/${id}`;
             const tempTextArea = document.createElement("textarea");
-            tempTextArea.value = link;
-            tempTextArea.style.position = "fixed";
-            tempTextArea.style.top = "0";
-            tempTextArea.style.left = "0";
-            tempTextArea.style.width = "2em";
-            tempTextArea.style.height = "2em";
-            tempTextArea.style.padding = "0";
-            tempTextArea.style.border = "none";
-            tempTextArea.style.outline = "none";
-            tempTextArea.style.boxShadow = "none";
-            tempTextArea.style.background = "transparent";
-            
-            document.body.appendChild(tempTextArea);
-            tempTextArea.focus();
-            tempTextArea.select();
-            
-            try {
-                const successful = document.execCommand('copy');
-                if (successful) window.showToast('تم نسخ رابط النموذج بنجاح!');
-                else window.showToast('فشل نسخ الرابط تلقائياً، يرجى نسخه يدوياً.', true);
-            } catch (err) {
-                window.showToast('فشل نسخ الرابط تلقائياً، يرجى نسخه يدوياً.', true);
-            }
+            tempTextArea.value = link; tempTextArea.style.position = "fixed"; tempTextArea.style.opacity = "0";
+            document.body.appendChild(tempTextArea); tempTextArea.focus(); tempTextArea.select();
+            try { document.execCommand('copy') ? window.showToast('تم نسخ رابط النموذج بنجاح!') : window.showToast('فشل النسخ تلقائياً.', true); } 
+            catch (err) { window.showToast('فشل النسخ تلقائياً.', true); }
             document.body.removeChild(tempTextArea);
         };
 
-        // --- Builder Logic ---
         async function initBuilder(id) {
             if (id) {
                 const f = window.State.forms.find(x => x.id === id);
-                if(f) {
-                    window.State.currentBuilderForm = JSON.parse(JSON.stringify(f)); 
-                    return;
-                }
+                if(f) { window.State.currentBuilderForm = JSON.parse(JSON.stringify(f)); return; }
             }
             window.State.currentBuilderForm = { 
-                id: window.generateId(), 
-                title: 'نموذج جديد', 
-                description: '', 
-                settings: { limitOneResponse: false, isQuiz: false, closed: false, themeColor: 'green' },
+                id: window.generateId(), title: 'نموذج جديد', description: '', 
+                settings: { limitOneResponse: false, isQuiz: false, closed: false, themeColor: 'green', successMsg: '' },
                 questions: [] 
             };
         }
 
         window.createNewForm = () => navigate(`#builder`);
+
+        // ترجمة أنواع الأسئلة
+        const getTypeNameArabic = (type) => {
+            const map = { text: 'قصير', email: 'بريد', textarea: 'فقرة', radio: 'خيارات', checkbox: 'مربعات', dropdown: 'قائمة', rating: 'تقييم', date: 'تاريخ', time: 'وقت', file: 'ملف', phone: 'هاتف' };
+            return map[type] || type;
+        };
 
         function viewBuilder() {
             const f = window.State.currentBuilderForm;
@@ -842,54 +542,67 @@ service cloud.firestore {
                 <div class="flex justify-between align-center mb-1 animate-fade theme-${theme}">
                     <h2><i class="fas fa-tools text-muted"></i> بناء النموذج</h2>
                     <div class="flex">
-                        <button class="outline" onclick="navigate('#dashboard')">إلغاء</button>
+                        <button class="outline" onclick="navigate('#dashboard')">العودة</button>
                         <button onclick="window.saveForm()"><i class="fas fa-save"></i> حفظ ونشر</button>
                     </div>
                 </div>
 
-                <div class="card animate-fade theme-${theme}">
-                    <input type="text" id="b-title" placeholder="عنوان النموذج" value="${f.title}" style="font-size: 1.5rem; font-weight: bold; border:none; border-bottom: 2px solid var(--border); border-radius:0; background: transparent; padding-left:0; padding-right:0;" onchange="window.updateFormMeta('title', this.value)">
-                    <textarea id="b-desc" placeholder="وصف النموذج (اختياري)" rows="2" style="border:none; background: transparent; padding-left:0; padding-right:0;" onchange="window.updateFormMeta('description', this.value)">${f.description}</textarea>
-                    
-                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border)">
-                        <p class="text-muted" style="font-size: 0.9rem; margin-bottom: 0.5rem;"><i class="fas fa-palette"></i> لون مظهر النموذج:</p>
-                        <div class="flex" style="gap: 0.8rem;">
-                            <div class="theme-dot ${theme==='green'?'selected':''}" style="background: #4ade80;" onclick="window.updateFormTheme('green')"></div>
-                            <div class="theme-dot ${theme==='blue'?'selected':''}" style="background: #3b82f6;" onclick="window.updateFormTheme('blue')"></div>
-                            <div class="theme-dot ${theme==='purple'?'selected':''}" style="background: #a855f7;" onclick="window.updateFormTheme('purple')"></div>
-                            <div class="theme-dot ${theme==='amber'?'selected':''}" style="background: #f59e0b;" onclick="window.updateFormTheme('amber')"></div>
-                            <div class="theme-dot ${theme==='red'?'selected':''}" style="background: #ef4444;" onclick="window.updateFormTheme('red')"></div>
+                <div class="builder-layout theme-${theme}">
+                    <!-- الشريط الجانبي (الأدوات والإعدادات) -->
+                    <div class="builder-sidebar animate-fade">
+                        <div class="card" style="padding: 1rem;">
+                            <h3 class="mb-1" style="font-size: 1rem;"><i class="fas fa-plus-circle text-muted"></i> إضافة عناصر</h3>
+                            <button class="primary" style="width:100%; margin-bottom:0.8rem;" onclick="window.addQuestion()"><i class="fas fa-plus"></i> إضافة سؤال جديد</button>
+                            <button class="outline" style="width:100%; font-size:0.85rem;" onclick="window.addStudentPresets()"><i class="fas fa-bolt text-accent"></i> إدراج حقول طالب جاهزة</button>
+                        </div>
+
+                        <div class="card" style="padding: 1rem;">
+                            <h3 class="mb-1" style="font-size: 1rem;"><i class="fas fa-cog text-muted"></i> الإعدادات المتقدمة</h3>
+                            
+                            <label class="custom-radio" style="font-size:0.9rem">
+                                <input type="checkbox" ${f.settings?.limitOneResponse ? 'checked' : ''} onchange="window.updateFormMeta('limitOneResponse', this.checked)">
+                                <span>تقييد برد واحد (لكل متصفح)</span>
+                            </label>
+                            
+                            <label class="custom-radio" style="font-size:0.9rem">
+                                <input type="checkbox" ${f.settings?.isQuiz ? 'checked' : ''} onchange="window.updateFormMeta('isQuiz', this.checked)">
+                                <span style="color:#c084fc;"><i class="fas fa-graduation-cap"></i> وضع الاختبار (تصحيح)</span>
+                            </label>
+
+                            <label class="custom-radio" style="font-size:0.9rem">
+                                <input type="checkbox" ${f.settings?.closed ? 'checked' : ''} onchange="window.updateFormMeta('closed', this.checked)">
+                                <span style="color:var(--danger);"><i class="fas fa-lock"></i> إغلاق الاستمارة حالياً</span>
+                            </label>
+
+                            <hr style="border:0; border-top:1px solid var(--border); margin:1.2rem 0;">
+                            
+                            <p style="font-size:0.85rem; margin-bottom:0.5rem"><i class="fas fa-comment-dots"></i> رسالة النجاح (تظهر للطالب):</p>
+                            <textarea rows="3" style="font-size:0.85rem" placeholder="تم استلام ردك بنجاح... (يمكنك تعديلها)" onchange="window.updateFormMeta('successMsg', this.value)">${f.settings?.successMsg || ''}</textarea>
+
+                            <hr style="border:0; border-top:1px solid var(--border); margin:1.2rem 0;">
+
+                            <p style="font-size:0.85rem; margin-bottom:0.5rem"><i class="fas fa-palette"></i> لون مظهر النموذج:</p>
+                            <div class="flex" style="gap: 0.5rem; justify-content:space-between">
+                                <div class="theme-dot ${theme==='green'?'selected':''}" style="background: #4ade80;" onclick="window.updateFormTheme('green')"></div>
+                                <div class="theme-dot ${theme==='blue'?'selected':''}" style="background: #3b82f6;" onclick="window.updateFormTheme('blue')"></div>
+                                <div class="theme-dot ${theme==='purple'?'selected':''}" style="background: #a855f7;" onclick="window.updateFormTheme('purple')"></div>
+                                <div class="theme-dot ${theme==='amber'?'selected':''}" style="background: #f59e0b;" onclick="window.updateFormTheme('amber')"></div>
+                                <div class="theme-dot ${theme==='red'?'selected':''}" style="background: #ef4444;" onclick="window.updateFormTheme('red')"></div>
+                            </div>
                         </div>
                     </div>
 
-                    <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border);" class="flex-col">
-                        <label class="custom-radio">
-                            <input type="checkbox" id="b-limit" ${f.settings?.limitOneResponse ? 'checked' : ''} onchange="window.updateFormMeta('limitOneResponse', this.checked)">
-                            <span>تفعيل (الرد مرة واحدة فقط للطالب)</span>
-                        </label>
+                    <!-- مساحة العمل الرئيسية (اليسار) -->
+                    <div class="builder-main">
+                        <div class="card animate-fade" style="padding: 2rem 1.5rem; border-top: 4px solid var(--accent)">
+                            <input type="text" placeholder="عنوان النموذج المثير للاهتمام..." value="${f.title}" style="font-size: 1.8rem; font-weight: 800; border:none; border-bottom: 2px solid var(--border); border-radius:0; background: transparent; padding: 0.5rem 0; color: var(--accent)" onchange="window.updateFormMeta('title', this.value)">
+                            <textarea placeholder="وصف للنموذج أو تعليمات للطلاب..." rows="2" style="border:none; background: transparent; padding: 0.5rem 0; margin-top: 0.5rem; font-size: 1.1rem; color: var(--muted)" onchange="window.updateFormMeta('description', this.value)">${f.description}</textarea>
+                        </div>
                         
-                        <label class="custom-radio">
-                            <input type="checkbox" id="b-quiz" ${f.settings?.isQuiz ? 'checked' : ''} onchange="window.updateFormMeta('isQuiz', this.checked)">
-                            <span style="color:#c084fc; font-weight:bold;"><i class="fas fa-graduation-cap"></i> تحويل إلى اختبار (تصحيح تلقائي وعلامات للطلاب)</span>
-                        </label>
-
-                        <label class="custom-radio">
-                            <input type="checkbox" id="b-closed" ${f.settings?.closed ? 'checked' : ''} onchange="window.updateFormMeta('closed', this.checked)">
-                            <span style="color:var(--danger); font-weight:bold;"><i class="fas fa-lock"></i> إغلاق الاستمارة (إيقاف استقبال الردود حالياً)</span>
-                        </label>
+                        <div id="questions-container">
+                            ${f.questions.map((q, idx) => renderQuestionEditor(q, idx)).join('')}
+                        </div>
                     </div>
-                </div>
-
-                <div class="flex justify-between mb-1 animate-fade">
-                    <button class="outline" onclick="window.addStudentPresets()"><i class="fas fa-bolt" style="color:var(--accent)"></i> إدراج حقول تسجيل طالب جاهزة</button>
-                </div>
-
-                <div id="questions-container">
-                    ${f.questions.map((q, idx) => renderQuestionEditor(q, idx)).join('')}
-                </div>
-
-                <div class="card text-center animate-fade theme-${theme}" style="border-style: dashed; cursor: pointer; border-color: var(--accent); background: rgba(74, 222, 128, 0.05);" onclick="window.addQuestion()">
-                    <h3 style="color: var(--accent);"><i class="fas fa-plus-circle"></i> إضافة سؤال جديد</h3>
                 </div>
             `;
             return html;
@@ -897,57 +610,63 @@ service cloud.firestore {
 
         function renderQuestionEditor(q, index) {
             const isQuiz = window.State.currentBuilderForm.settings?.isQuiz || false;
+
+            // إذا كان السؤال مطوياً (Collapsed)
+            if (q.collapsed) {
+                return `
+                    <div class="card question-block animate-fade" style="padding: 0.8rem 1.2rem; cursor: pointer; border-color: transparent;" onclick="window.toggleQuestionCollapse(${index})">
+                        <div class="flex justify-between align-center">
+                            <div style="font-weight: bold; font-size:1.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%;">
+                                ${q.title || '<span class="text-muted">سؤال بدون عنوان</span>'}
+                            </div>
+                            <div class="flex align-center" style="gap: 1rem">
+                                <span class="badge" style="background: transparent; color: var(--muted); border-color: var(--border)">${getTypeNameArabic(q.type)}</span>
+                                <button class="outline" style="padding: 0.2rem 0.6rem; border-color: transparent"><i class="fas fa-chevron-down"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // التفاصيل الكاملة للسؤال
             let optionsHtml = '';
-            
             if (['radio', 'checkbox', 'dropdown'].includes(q.type)) {
                 optionsHtml = `<div class="options-list">`;
                 q.options.forEach((opt, oIdx) => {
                     optionsHtml += `
                         <div class="option-item">
                             <i class="${q.type==='radio'?'far fa-circle':q.type==='checkbox'?'far fa-check-square':'fas fa-list'} text-muted"></i>
-                            <input type="text" value="${opt}" onchange="window.updateOption(${index}, ${oIdx}, this.value)" placeholder="خيار ${oIdx + 1}" style="margin:0;">
-                            <button class="danger" style="padding: 0.4rem 0.8rem;" onclick="window.removeOption(${index}, ${oIdx})" title="حذف الخيار"><i class="fas fa-times"></i></button>
+                            <input type="text" value="${opt}" onchange="window.updateOption(${index}, ${oIdx}, this.value)" placeholder="خيار ${oIdx + 1}" style="margin:0; font-size: 0.95rem; padding: 0.6rem">
+                            <button class="danger outline" style="padding: 0.3rem 0.6rem; border:none" onclick="window.removeOption(${index}, ${oIdx})" title="حذف الخيار"><i class="fas fa-times"></i></button>
                         </div>
                     `;
                 });
-                optionsHtml += `<button class="outline mt-1" style="padding:0.4rem 1rem; font-size:0.9rem" onclick="window.addOption(${index})"><i class="fas fa-plus"></i> إضافة خيار</button></div>`;
+                optionsHtml += `<button class="outline mt-1" style="padding:0.4rem 1rem; font-size:0.85rem" onclick="window.addOption(${index})"><i class="fas fa-plus"></i> إضافة خيار</button></div>`;
             }
 
             let quizCorrectionHtml = '';
             if (isQuiz) {
                 let answerInputHtml = '';
                 if (['radio', 'dropdown'].includes(q.type) && q.options) {
-                    answerInputHtml = `
-                        <select onchange="window.updateQuestion(${index}, 'correctAnswer', this.value)" style="margin:0; padding:0.5rem;">
-                            <option value="">اختر الإجابة الصحيحة...</option>
-                            ${q.options.map(opt => `<option value="${opt}" ${q.correctAnswer === opt ? 'selected' : ''}>${opt}</option>`).join('')}
-                        </select>
-                    `;
+                    answerInputHtml = `<select onchange="window.updateQuestion(${index}, 'correctAnswer', this.value)" style="margin:0; padding:0.5rem; font-size:0.9rem"><option value="">اختر الإجابة الصحيحة...</option>${q.options.map(opt => `<option value="${opt}" ${q.correctAnswer === opt ? 'selected' : ''}>${opt}</option>`).join('')}</select>`;
                 } else if (q.type === 'checkbox' && q.options) {
-                    answerInputHtml = `
-                        <p class="text-muted" style="font-size:0.85rem; margin-bottom:0.3rem;">(تنبيه: لتصحيح المربعات المتعددة يرجى كتابة الخيار الصحيح الرئيسي بدقة)</p>
-                        <input type="text" value="${q.correctAnswer || ''}" onchange="window.updateQuestion(${index}, 'correctAnswer', this.value)" placeholder="الخيار الصحيح..." style="margin:0; padding:0.5rem;">
-                    `;
+                    answerInputHtml = `<input type="text" value="${q.correctAnswer || ''}" onchange="window.updateQuestion(${index}, 'correctAnswer', this.value)" placeholder="الخيار الصحيح..." style="margin:0; padding:0.5rem; font-size:0.9rem">`;
                 } else if (['text', 'phone', 'email'].includes(q.type)) {
-                    answerInputHtml = `
-                        <input type="text" value="${q.correctAnswer || ''}" onchange="window.updateQuestion(${index}, 'correctAnswer', this.value)" placeholder="أدخل النص الصحيح المتوقع..." style="margin:0; padding:0.5rem;">
-                    `;
+                    answerInputHtml = `<input type="text" value="${q.correctAnswer || ''}" onchange="window.updateQuestion(${index}, 'correctAnswer', this.value)" placeholder="أدخل النص الصحيح المتوقع..." style="margin:0; padding:0.5rem; font-size:0.9rem">`;
                 } else {
-                    answerInputHtml = `<span class="text-muted" style="font-size:0.9rem;">هذا النوع من الأسئلة لا يدعم التصحيح التلقائي.</span>`;
+                    answerInputHtml = `<span class="text-muted" style="font-size:0.85rem;">لا يدعم التصحيح.</span>`;
                 }
 
                 quizCorrectionHtml = `
-                    <div style="background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.3); padding: 1rem; border-radius: var(--rs); margin-top:1rem;" class="flex-col">
-                        <div class="flex align-center justify-between" style="flex-wrap:wrap; gap:0.5rem">
-                            <span style="font-weight:bold; color:#c084fc;"><i class="fas fa-key"></i> الإجابة النموذجية الصحيحة:</span>
-                            <div class="flex align-center" style="gap:0.5rem">
-                                <span>النقاط / العلامة:</span>
-                                <input type="number" value="${q.points || 1}" min="1" onchange="window.updateQuestion(${index}, 'points', this.value)" style="width:70px; margin:0; padding:0.3rem 0.5rem; text-align:center;">
+                    <div style="background: rgba(168,85,247,0.05); border: 1px dashed rgba(168,85,247,0.3); padding: 0.8rem; border-radius: var(--rs); margin-top:1rem;">
+                        <div class="flex align-center justify-between" style="flex-wrap:wrap; gap:0.5rem; margin-bottom: 0.5rem;">
+                            <span style="font-weight:bold; color:#c084fc; font-size:0.9rem"><i class="fas fa-key"></i> الإجابة النموذجية:</span>
+                            <div class="flex align-center" style="gap:0.5rem; font-size:0.9rem">
+                                <span>النقاط:</span>
+                                <input type="number" value="${q.points || 1}" min="1" onchange="window.updateQuestion(${index}, 'points', this.value)" style="width:60px; margin:0; padding:0.2rem; text-align:center;">
                             </div>
                         </div>
-                        <div class="mt-1">
-                            ${answerInputHtml}
-                        </div>
+                        ${answerInputHtml}
                     </div>
                 `;
             }
@@ -955,59 +674,44 @@ service cloud.firestore {
             let conditionHtml = '';
             if (q.condition) {
                 const prevQs = window.State.currentBuilderForm.questions.slice(0, index).filter(xq => ['radio', 'dropdown'].includes(xq.type) && xq.options);
-                
                 let parentOptionsHtml = '<option value="" disabled selected>اختر السؤال السابق...</option>';
-                prevQs.forEach(pq => {
-                    parentOptionsHtml += `<option value="${pq.id}" ${q.condition.dependsOnId === pq.id ? 'selected' : ''}>${pq.title}</option>`;
-                });
-
-                let valueOptionsHtml = '<option value="" disabled selected>اختر الإجابة المطلوبة...</option>';
+                prevQs.forEach(pq => { parentOptionsHtml += `<option value="${pq.id}" ${q.condition.dependsOnId === pq.id ? 'selected' : ''}>${pq.title}</option>`; });
+                let valueOptionsHtml = '<option value="" disabled selected>الإجابة المطلوبة...</option>';
                 if (q.condition.dependsOnId) {
                     const selectedParent = prevQs.find(pq => pq.id === q.condition.dependsOnId);
-                    if (selectedParent && selectedParent.options) {
-                        selectedParent.options.forEach(opt => {
-                            valueOptionsHtml += `<option value="${opt}" ${q.condition.requiredValue === opt ? 'selected' : ''}>${opt}</option>`;
-                        });
-                    }
+                    if (selectedParent && selectedParent.options) selectedParent.options.forEach(opt => { valueOptionsHtml += `<option value="${opt}" ${q.condition.requiredValue === opt ? 'selected' : ''}>${opt}</option>`; });
                 }
 
                 conditionHtml = `
-                    <div class="conditional-box flex-col mt-1">
+                    <div class="conditional-box flex-col mt-1" style="padding: 0.8rem">
                         <div class="flex justify-between align-center mb-1">
-                            <span class="badge"><i class="fas fa-code-branch"></i> إعدادات شرط الظهور</span>
-                            <button class="danger outline" style="padding:0.2rem 0.5rem" onclick="window.removeCondition(${index})"><i class="fas fa-trash"></i> إزالة الشرط</button>
+                            <span class="badge"><i class="fas fa-code-branch"></i> شرط الظهور</span>
+                            <button class="danger outline" style="padding:0.1rem 0.4rem; font-size:0.8rem" onclick="window.removeCondition(${index})"><i class="fas fa-trash"></i></button>
                         </div>
-                        <div class="flex align-center" style="gap:1rem; flex-wrap:wrap;">
-                            <span style="min-width:max-content; font-weight:bold;">يظهر عندما إجابة:</span>
-                            <select onchange="window.updateConditionParent(${index}, this.value)" style="margin:0; padding:0.5rem; flex:1;">
-                                ${parentOptionsHtml}
-                            </select>
-                        </div>
-                        <div class="flex align-center mt-1" style="gap:1rem; flex-wrap:wrap;">
-                            <span style="min-width:max-content; font-weight:bold;">تُسـاوي خيـــار:</span>
-                            <select onchange="window.updateConditionValue(${index}, this.value)" style="margin:0; padding:0.5rem; flex:1;">
-                                ${valueOptionsHtml}
-                            </select>
+                        <div class="flex align-center" style="gap:0.5rem; flex-wrap:wrap;">
+                            <select onchange="window.updateConditionParent(${index}, this.value)" style="margin:0; padding:0.4rem; flex:1; font-size:0.85rem">${parentOptionsHtml}</select>
+                            <span style="font-weight:bold; font-size:0.85rem">=</span>
+                            <select onchange="window.updateConditionValue(${index}, this.value)" style="margin:0; padding:0.4rem; flex:1; font-size:0.85rem">${valueOptionsHtml}</select>
                         </div>
                     </div>
                 `;
             }
 
             return `
-                <div class="card question-block animate-fade">
+                <div class="card question-block animate-fade" style="padding: 1.2rem;">
                     <div class="q-header">
-                        <input type="text" value="${q.title}" onchange="window.updateQuestion(${index}, 'title', this.value)" placeholder="نص السؤال (مثال: الاسم الثلاثي)" style="font-size: 1.1rem; font-weight: bold; margin:0;">
+                        <input type="text" value="${q.title}" onchange="window.updateQuestion(${index}, 'title', this.value)" placeholder="نص السؤال..." style="font-size: 1.1rem; font-weight: bold; margin:0;">
                         <select onchange="window.updateQuestion(${index}, 'type', this.value)" style="margin:0;">
                             <option value="text" ${q.type === 'text' ? 'selected' : ''}>إجابة قصيرة</option>
                             <option value="email" ${q.type === 'email' ? 'selected' : ''}>بريد إلكتروني</option>
-                            <option value="textarea" ${q.type === 'textarea' ? 'selected' : ''}>فقرة / نص طويل</option>
-                            <option value="radio" ${q.type === 'radio' ? 'selected' : ''}>خيارات متعددة (اختيار واحد)</option>
-                            <option value="checkbox" ${q.type === 'checkbox' ? 'selected' : ''}>مربعات اختيار (متعدد)</option>
+                            <option value="textarea" ${q.type === 'textarea' ? 'selected' : ''}>نص طويل</option>
+                            <option value="radio" ${q.type === 'radio' ? 'selected' : ''}>خيارات (واحد)</option>
+                            <option value="checkbox" ${q.type === 'checkbox' ? 'selected' : ''}>مربعات (متعدد)</option>
                             <option value="dropdown" ${q.type === 'dropdown' ? 'selected' : ''}>قائمة منسدلة</option>
-                            <option value="rating" ${q.type === 'rating' ? 'selected' : ''}>تقييم بالنجوم ⭐</option>
+                            <option value="rating" ${q.type === 'rating' ? 'selected' : ''}>تقييم ⭐</option>
                             <option value="date" ${q.type === 'date' ? 'selected' : ''}>تاريخ</option>
                             <option value="time" ${q.type === 'time' ? 'selected' : ''}>وقت</option>
-                            <option value="file" ${q.type === 'file' ? 'selected' : ''}>تحميل ملف (أقصى 500KB)</option>
+                            <option value="file" ${q.type === 'file' ? 'selected' : ''}>تحميل ملف (500KB)</option>
                             <option value="phone" ${q.type === 'phone' ? 'selected' : ''}>رقم هاتف</option>
                         </select>
                     </div>
@@ -1017,24 +721,30 @@ service cloud.firestore {
                     ${conditionHtml}
 
                     <div class="flex justify-between align-center mt-1 pt-1" style="border-top: 1px solid var(--border)">
-                        <div class="flex">
-                            <label class="custom-radio">
+                        <div class="flex" style="gap: 1rem">
+                            <label class="custom-radio" style="font-size: 0.9rem">
                                 <input type="checkbox" ${q.required ? 'checked' : ''} onchange="window.updateQuestion(${index}, 'required', this.checked)"> مطلوب
                             </label>
-                            ${!q.condition && index > 0 ? `<button class="outline" style="padding:0.2rem 0.5rem; font-size:0.8rem; margin-right:1rem;" onclick="window.showConditionModal(${index})"><i class="fas fa-link"></i> ربط بشرط</button>` : ''}
+                            ${!q.condition && index > 0 ? `<button class="outline" style="padding:0.2rem 0.5rem; font-size:0.8rem;" onclick="window.showConditionModal(${index})"><i class="fas fa-link"></i> ربط بشرط</button>` : ''}
                         </div>
-                        <div class="flex" style="gap:0.5rem">
-                            <button class="outline" style="padding:0.4rem 0.8rem" onclick="window.moveQuestion(${index}, -1)" ${index===0?'disabled':''}><i class="fas fa-arrow-up"></i></button>
-                            <button class="outline" style="padding:0.4rem 0.8rem" onclick="window.moveQuestion(${index}, 1)" ${index===window.State.currentBuilderForm.questions.length-1?'disabled':''}><i class="fas fa-arrow-down"></i></button>
-                            <button class="danger" style="padding:0.4rem 0.8rem" onclick="window.removeQuestion(${index})" title="حذف السؤال"><i class="fas fa-trash"></i></button>
+                        <div class="flex" style="gap:0.3rem">
+                            <button class="outline" style="padding:0.3rem 0.6rem" onclick="window.toggleQuestionCollapse(${index})" title="طي وإخفاء التفاصيل"><i class="fas fa-chevron-up"></i></button>
+                            <button class="outline" style="padding:0.3rem 0.6rem" onclick="window.moveQuestion(${index}, -1)" ${index===0?'disabled':''}><i class="fas fa-arrow-up"></i></button>
+                            <button class="outline" style="padding:0.3rem 0.6rem" onclick="window.moveQuestion(${index}, 1)" ${index===window.State.currentBuilderForm.questions.length-1?'disabled':''}><i class="fas fa-arrow-down"></i></button>
+                            <button class="danger" style="padding:0.3rem 0.6rem" onclick="window.removeQuestion(${index})"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                 </div>
             `;
         }
 
+        window.toggleQuestionCollapse = (idx) => {
+            window.State.currentBuilderForm.questions[idx].collapsed = !window.State.currentBuilderForm.questions[idx].collapsed;
+            document.getElementById('app-content').innerHTML = viewBuilder();
+        };
+
         window.updateFormMeta = (key, val) => {
-            if(key === 'limitOneResponse' || key === 'isQuiz' || key === 'closed') {
+            if(['limitOneResponse', 'isQuiz', 'closed', 'successMsg'].includes(key)) {
                 if(!window.State.currentBuilderForm.settings) window.State.currentBuilderForm.settings = {};
                 window.State.currentBuilderForm.settings[key] = val;
             } else {
@@ -1048,7 +758,7 @@ service cloud.firestore {
             document.getElementById('app-content').innerHTML = viewBuilder();
         };
         window.addQuestion = () => {
-            window.State.currentBuilderForm.questions.push({ id: window.generateId(), type: 'text', title: 'سؤال جديد', required: false, points: 1 });
+            window.State.currentBuilderForm.questions.push({ id: window.generateId(), type: 'text', title: 'سؤال جديد', required: false, points: 1, collapsed: false });
             document.getElementById('app-content').innerHTML = viewBuilder();
         };
         window.updateQuestion = (idx, field, value) => {
@@ -1065,9 +775,7 @@ service cloud.firestore {
         window.moveQuestion = (idx, dir) => {
             const arr = window.State.currentBuilderForm.questions;
             if(idx + dir < 0 || idx + dir >= arr.length) return;
-            const temp = arr[idx];
-            arr[idx] = arr[idx + dir];
-            arr[idx + dir] = temp;
+            const temp = arr[idx]; arr[idx] = arr[idx + dir]; arr[idx + dir] = temp;
             document.getElementById('app-content').innerHTML = viewBuilder();
         };
         window.addOption = (qIdx) => {
@@ -1079,9 +787,7 @@ service cloud.firestore {
             window.State.currentBuilderForm.questions[qIdx].options.splice(oIdx, 1);
             document.getElementById('app-content').innerHTML = viewBuilder();
         };
-        window.saveForm = () => {
-            window.saveFormToDB(window.State.currentBuilderForm);
-        };
+        window.saveForm = () => { window.saveFormToDB(window.State.currentBuilderForm); };
 
         window.addStudentPresets = () => {
             const presets = [
@@ -1101,12 +807,7 @@ service cloud.firestore {
         window.showConditionModal = (qIdx) => {
             const f = window.State.currentBuilderForm;
             const prevQs = f.questions.slice(0, qIdx).filter(q => ['radio', 'dropdown'].includes(q.type) && q.options && q.options.length > 0);
-            
-            if(prevQs.length === 0) {
-                window.showToast('يجب أن يسبق هذا السؤال سؤال من نوع (خيارات أو قائمة منسدلة) لربطه به.', true);
-                return;
-            }
-
+            if(prevQs.length === 0) { window.showToast('يجب أن يسبق هذا السؤال سؤال من نوع خيارات أو قائمة.', true); return; }
             f.questions[qIdx].condition = { dependsOnId: '', requiredValue: '' };
             document.getElementById('app-content').innerHTML = viewBuilder();
         };
@@ -1116,15 +817,8 @@ service cloud.firestore {
             window.State.currentBuilderForm.questions[qIdx].condition.requiredValue = '';
             document.getElementById('app-content').innerHTML = viewBuilder();
         };
-
-        window.updateConditionValue = (qIdx, val) => {
-            window.State.currentBuilderForm.questions[qIdx].condition.requiredValue = val;
-        };
-
-        window.removeCondition = (qIdx) => {
-            delete window.State.currentBuilderForm.questions[qIdx].condition;
-            document.getElementById('app-content').innerHTML = viewBuilder();
-        }
+        window.updateConditionValue = (qIdx, val) => { window.State.currentBuilderForm.questions[qIdx].condition.requiredValue = val; };
+        window.removeCondition = (qIdx) => { delete window.State.currentBuilderForm.questions[qIdx].condition; document.getElementById('app-content').innerHTML = viewBuilder(); }
 
         // --- PUBLIC FORM VIEWER ---
         async function viewForm(id) {
@@ -1159,13 +853,13 @@ service cloud.firestore {
                 `;
 
                 form.questions.forEach((q, idx) => {
-                    const isConditional = q.condition ? `data-conditional="true" data-parent="q_${q.condition.dependsOnId}" data-reqval="${q.condition.requiredValue}" class="card question-container hidden"` : `class="card question-container animate-fade" style="animation-delay: ${idx*0.1}s"`;
+                    const isConditional = q.condition ? `data-conditional="true" data-parent="q_${q.condition.dependsOnId}" data-reqval="${q.condition.requiredValue}" class="card question-container hidden"` : `class="card question-container animate-fade" style="animation-delay: ${idx*0.05}s"`;
                     const reqStar = q.required ? '<span style="color:var(--danger)">*</span>' : '';
-                    const pointsBadge = (form.settings?.isQuiz && q.points > 0) ? `<span class="badge" style="background: rgba(168,85,247,0.15); color: #c084fc; float:left;"><i class="fas fa-star"></i> ${q.points} نقطة</span>` : '';
+                    const pointsBadge = (form.settings?.isQuiz && q.points > 0) ? `<span class="badge" style="background: rgba(168,85,247,0.15); color: #c084fc; float:left; border:none;"><i class="fas fa-star"></i> ${q.points} نقطة</span>` : '';
                     
                     html += `<div id="wrap_${q.id}" ${isConditional}>
                         ${pointsBadge}
-                        <p style="font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem;">${q.title} ${reqStar}</p>
+                        <p style="font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem;">${q.title} ${reqStar}</p>
                     `;
                     
                     if (q.type === 'text') {
@@ -1184,7 +878,7 @@ service cloud.firestore {
                         html += `
                             <input type="file" onchange="window.handleFileSelect('${q.id}', this)" ${q.required ? 'required' : ''} accept=".jpg,.jpeg,.png,.pdf,.doc,.docx">
                             <input type="hidden" name="q_${q.id}" id="input_${q.id}">
-                            <span id="file_info_${q.id}" class="text-muted" style="display:block; margin-top:5px; font-size:0.85rem">الحد الأقصى للملف: 500 كيلوبايت</span>
+                            <span id="file_info_${q.id}" class="text-muted" style="display:block; margin-top:5px; font-size:0.85rem">الحد الأقصى: 500KB</span>
                         `;
                     } else if (q.type === 'rating') {
                         html += `
@@ -1198,13 +892,13 @@ service cloud.firestore {
                             <input type="hidden" name="q_${q.id}" id="input_${q.id}" ${q.required ? 'required' : ''}>
                         `;
                     } else if (q.type === 'radio') {
-                        html += `<div class="flex-col" style="gap:0.8rem">`;
+                        html += `<div class="flex-col" style="gap:0.6rem">`;
                         q.options.forEach(opt => {
                             html += `<label class="custom-radio"><input type="radio" name="q_${q.id}" value="${opt}" ${q.required ? 'required' : ''} onchange="window.evaluateConditions()"> <span style="font-size:1.1rem">${opt}</span></label>`;
                         });
                         html += `</div>`;
                     } else if (q.type === 'checkbox') {
-                        html += `<div class="flex-col" style="gap:0.8rem">`;
+                        html += `<div class="flex-col" style="gap:0.6rem">`;
                         q.options.forEach(opt => {
                             html += `<label class="custom-radio"><input type="checkbox" name="q_${q.id}[]" value="${opt}" onchange="window.evaluateConditions()"> <span style="font-size:1.1rem">${opt}</span></label>`;
                         });
@@ -1231,14 +925,11 @@ service cloud.firestore {
             }
         }
 
-        window.setupConditionalLogic = () => {
-            window.evaluateConditions();
-        }
+        window.setupConditionalLogic = () => { window.evaluateConditions(); };
 
         window.evaluateConditions = () => {
             const form = document.getElementById('public-form');
             if(!form) return;
-            
             const formData = new FormData(form);
             const conditionals = document.querySelectorAll('[data-conditional="true"]');
             
@@ -1246,28 +937,21 @@ service cloud.firestore {
                 const parentName = el.getAttribute('data-parent');
                 const reqVal = el.getAttribute('data-reqval');
                 const parentValue = formData.get(parentName);
-                
                 const inputInside = el.querySelector('input, select, textarea');
 
                 if (parentValue === reqVal) {
-                    el.classList.remove('hidden');
-                    el.classList.add('animate-fade');
+                    el.classList.remove('hidden'); el.classList.add('animate-fade');
                     if(inputInside && el.getAttribute('data-was-required') === 'true') inputInside.required = true;
                 } else {
-                    el.classList.add('hidden');
-                    el.classList.remove('animate-fade');
+                    el.classList.add('hidden'); el.classList.remove('animate-fade');
                     if(inputInside) {
                         if(inputInside.required) el.setAttribute('data-was-required', 'true');
                         inputInside.required = false;
                         if(inputInside.type === 'radio') {
-                            const radios = el.querySelectorAll('input[type="radio"]');
-                            radios.forEach(r => r.checked = false);
+                            el.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
                         } else if(inputInside.type === 'checkbox') {
-                            const checkboxes = el.querySelectorAll('input[type="checkbox"]');
-                            checkboxes.forEach(c => c.checked = false);
-                        } else {
-                            inputInside.value = '';
-                        }
+                            el.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
+                        } else { inputInside.value = ''; }
                     }
                 }
             });
@@ -1277,6 +961,8 @@ service cloud.firestore {
             const formId = window.location.hash.split('/')[1];
             let scoreHtml = '';
             
+            // جلب رسالة النجاح المخصصة
+            let customMsg = 'تم إرسال ردك بنجاح!\nشكراً لك لتسجيل بياناتك.';
             if (formId) {
                 const rawScore = sessionStorage.getItem(`last_score_${formId}`);
                 if (rawScore) {
@@ -1288,13 +974,18 @@ service cloud.firestore {
                         </div>
                     `;
                 }
+                const savedMsg = sessionStorage.getItem(`last_success_msg_${formId}`);
+                if(savedMsg && savedMsg.trim() !== '') {
+                    customMsg = savedMsg;
+                }
             }
+            
+            const msgHtml = customMsg.replace(/\n/g, '<br>');
 
             return `
                 <div class="card text-center animate-fade" style="margin-top: 4rem; padding: 4rem 2rem;">
                     <div style="font-size: 5rem; margin-bottom: 1rem; color: var(--accent);"><i class="fas fa-check-circle"></i></div>
-                    <h2 style="font-size: 2rem;">تم إرسال ردك بنجاح!</h2>
-                    <p class="text-muted mt-1">شكراً لك لتسجيل بياناتك وحل الامتحان.</p>
+                    <h2 style="font-size: 1.6rem; color: var(--text); line-height: 1.6">${msgHtml}</h2>
                     ${scoreHtml}
                 </div>
             `;
@@ -1304,7 +995,6 @@ service cloud.firestore {
         window.switchTab = (tabId) => {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-            
             document.getElementById(`btn-tab-${tabId}`).classList.add('active');
             document.getElementById(`content-${tabId}`).classList.remove('hidden');
         };
@@ -1314,38 +1004,26 @@ service cloud.firestore {
             if (!form) return `<div class="card">النموذج غير موجود</div>`;
 
             try {
-                // Fetch responses
                 const resRef = collection(db, 'artifacts', appId, 'public', 'data', 'responses');
                 const snap = await getDocs(resRef);
                 const allRes = snap.docs.map(d => d.data());
                 const formRes = allRes.filter(r => r.formId === formId).sort((a,b) => new Date(b.date) - new Date(a.date));
                 
                 window.currentExportData = { formTitle: form.title, questions: form.questions, responses: formRes };
-                window.renderChartsFlag = true; // Signal to initialize charts after rendering DOM
+                window.renderChartsFlag = true;
 
                 let avgHtml = '';
                 const isQuiz = form.settings?.isQuiz || false;
                 if (isQuiz && formRes.length > 0) {
-                    let totalScores = 0;
-                    let possiblePoints = 0;
-                    let quizSubmissionsCount = 0;
-
+                    let totalScores = 0, possiblePoints = 0, quizSubmissionsCount = 0;
                     formRes.forEach(r => {
                         if (r.score !== null && r.score !== undefined) {
-                            totalScores += r.score;
-                            possiblePoints = r.totalPoints || 0;
-                            quizSubmissionsCount++;
+                            totalScores += r.score; possiblePoints = r.totalPoints || 0; quizSubmissionsCount++;
                         }
                     });
-
                     if (quizSubmissionsCount > 0) {
                         const avg = (totalScores / quizSubmissionsCount).toFixed(1);
-                        avgHtml = `
-                            <div class="card text-center animate-fade" style="background: rgba(168,85,247,0.08); border-color: rgba(168,85,247,0.3)">
-                                <h2 style="color: #c084fc;">${avg} / ${possiblePoints}</h2>
-                                <p class="text-muted">متوسط درجات الطلاب</p>
-                            </div>
-                        `;
+                        avgHtml = `<div class="card text-center animate-fade" style="background: rgba(168,85,247,0.08); border-color: rgba(168,85,247,0.3)"><h2 style="color: #c084fc;">${avg} / ${possiblePoints}</h2><p class="text-muted">متوسط درجات الطلاب</p></div>`;
                     }
                 }
 
@@ -1366,32 +1044,25 @@ service cloud.firestore {
                         ${avgHtml}
                     </div>
 
-                    <!-- نظام التبويبات -->
                     <div class="tabs-container animate-fade">
-                        <button id="btn-tab-stats" class="tab-btn active" onclick="switchTab('stats')"><i class="fas fa-chart-bar"></i> ملخص الإحصائيات</button>
+                        <button id="btn-tab-stats" class="tab-btn active" onclick="switchTab('stats')"><i class="fas fa-chart-bar"></i> الإحصائيات</button>
                         <button id="btn-tab-indiv" class="tab-btn" onclick="switchTab('indiv')"><i class="fas fa-list"></i> الردود الفردية</button>
                     </div>
 
-                    <!-- تبويب الإحصائيات والرسوم البيانية -->
                     <div id="content-stats" class="tab-content animate-fade">
-                        ${formRes.length === 0 ? `<div class="card text-center text-muted"><p>لا توجد ردود لعرض الإحصائيات.</p></div>` : `
-                            <div id="charts-container">
-                                <!-- سيتم حقن الرسوم البيانية هنا برمجياً -->
-                            </div>
-                        `}
+                        ${formRes.length === 0 ? `<div class="card text-center text-muted"><p>لا توجد ردود لعرض الإحصائيات.</p></div>` : `<div id="charts-container"></div>`}
                     </div>
 
-                    <!-- تبويب الردود الفردية الكلاسيكي -->
                     <div id="content-indiv" class="tab-content hidden animate-fade">
                 `;
 
                 if (formRes.length === 0) {
-                    html += `<div class="card text-center text-muted"><i class="fas fa-inbox fa-3x mb-1"></i><p>لا توجد ردود حتى الآن.</p></div>`;
+                    html += `<div class="card text-center text-muted"><i class="fas fa-inbox fa-3x mb-1"></i><p>لا توجد ردود.</p></div>`;
                 } else {
                     formRes.forEach((r, idx) => {
                         const dateObj = new Date(r.date);
                         const formattedDate = dateObj.toLocaleDateString('ar-EG') + ' ' + dateObj.toLocaleTimeString('ar-EG');
-                        const scoreBadge = (isQuiz && r.score !== null) ? `<span class="badge" style="background:rgba(168,85,247,0.2); color:#c084fc; font-weight:bold; font-size:1rem;"><i class="fas fa-graduation-cap"></i> الدرجة: ${r.score} / ${r.totalPoints}</span>` : '';
+                        const scoreBadge = (isQuiz && r.score !== null) ? `<span class="badge" style="background:rgba(168,85,247,0.2); color:#c084fc; font-weight:bold; font-size:1rem; border:none"><i class="fas fa-graduation-cap"></i> الدرجة: ${r.score} / ${r.totalPoints}</span>` : '';
                         
                         html += `<div class="card" style="margin-bottom: 1rem;">
                             <div class="flex justify-between align-center mb-1 pb-1" style="border-bottom: 1px solid var(--border)">
@@ -1410,29 +1081,15 @@ service cloud.firestore {
                             const qText = question ? question.title : 'سؤال محذوف';
                             
                             let answerValue = r.answers[qId];
-                            
                             if (typeof answerValue === 'string' && answerValue.startsWith('{"name":')) {
                                 try {
                                     const fileData = JSON.parse(answerValue);
                                     if(fileData.type && fileData.type.startsWith('image/')) {
-                                        answerValue = `
-                                            <div style="margin-top:0.5rem">
-                                                <p style="font-size:0.9rem; margin-bottom:0.3rem;"><i class="fas fa-image"></i> ${fileData.name}</p>
-                                                <img src="${fileData.base64}" style="max-width:100%; max-height:220px; border-radius:var(--rs); border:1px solid var(--border)">
-                                                <br>
-                                                <a href="${fileData.base64}" download="${fileData.name}" class="btn-download-file"><i class="fas fa-download"></i> تحميل الصورة</a>
-                                            </div>
-                                        `;
+                                        answerValue = `<div style="margin-top:0.5rem"><img src="${fileData.base64}" style="max-width:100%; max-height:220px; border-radius:var(--rs); border:1px solid var(--border)"><br><a href="${fileData.base64}" download="${fileData.name}" class="btn-download-file"><i class="fas fa-download"></i> تحميل الصورة</a></div>`;
                                     } else {
-                                        answerValue = `
-                                            <div style="margin-top:0.5rem">
-                                                <a href="${fileData.base64}" download="${fileData.name}" class="btn-download-file">
-                                                    <i class="fas fa-file-download"></i> تحميل المستند (${fileData.name})
-                                                </a>
-                                            </div>
-                                        `;
+                                        answerValue = `<div style="margin-top:0.5rem"><a href="${fileData.base64}" download="${fileData.name}" class="btn-download-file"><i class="fas fa-file-download"></i> تحميل المستند (${fileData.name})</a></div>`;
                                     }
-                                } catch (err) { /* standard output fallback */ }
+                                } catch (err) { }
                             }
 
                             html += `
@@ -1445,7 +1102,7 @@ service cloud.firestore {
                         html += `</div></div>`;
                     });
                 }
-                html += `</div>`; // إغلاق تبويب الردود
+                html += `</div>`; 
                 return html;
             } catch(e) {
                 if(e.code === 'permission-denied') return getRulesErrorHTML();
@@ -1453,66 +1110,42 @@ service cloud.firestore {
             }
         }
 
-        // دالة إنشاء الرسوم البيانية
         window.initChartsData = () => {
             const data = window.currentExportData;
             if(!data || data.responses.length === 0) return;
-
             const container = document.getElementById('charts-container');
             const colors = ['#4ade80', '#3b82f6', '#a855f7', '#f59e0b', '#ef4444', '#14b8a6', '#f43f5e', '#6366f1', '#ec4899', '#8b5cf6'];
             
-            data.questions.forEach((q, qIndex) => {
-                // نرسم للمسائل التي تحتمل الإحصاء فقط (خيارات، قوائم، تقييم)
+            data.questions.forEach((q) => {
                 if(!['radio', 'dropdown', 'checkbox', 'rating'].includes(q.type)) return;
+                let counts = {}, totalAnswers = 0;
 
-                let counts = {};
-                let totalAnswers = 0;
-
-                // تجميع البيانات
                 data.responses.forEach(r => {
                     let ans = r.answers[`q_${q.id}`];
                     if(!ans) return;
-                    
                     totalAnswers++;
                     if(q.type === 'checkbox') {
-                        // تفكيك إجابات مربعات الاختيار
-                        const selectedOptions = ans.split('، ');
-                        selectedOptions.forEach(opt => {
-                            counts[opt] = (counts[opt] || 0) + 1;
-                        });
+                        ans.split('، ').forEach(opt => { counts[opt] = (counts[opt] || 0) + 1; });
                     } else if (q.type === 'rating') {
-                        const stars = ans + ' نجمة';
-                        counts[stars] = (counts[stars] || 0) + 1;
-                    } else {
-                        counts[ans] = (counts[ans] || 0) + 1;
-                    }
+                        const stars = ans + ' نجمة'; counts[stars] = (counts[stars] || 0) + 1;
+                    } else { counts[ans] = (counts[ans] || 0) + 1; }
                 });
 
                 if(totalAnswers === 0) return;
-
-                const labels = Object.keys(counts);
-                const dataValues = Object.values(counts);
-                
+                const labels = Object.keys(counts); const dataValues = Object.values(counts);
                 const canvasId = `chart_${q.id}`;
-                const chartCardHtml = `
+                container.insertAdjacentHTML('beforeend', `
                     <div class="card">
                         <div class="flex justify-between align-center mb-1">
                             <h3 style="font-size:1.1rem">${q.title}</h3>
-                            <button class="outline" style="padding: 0.4rem 0.8rem; font-size:0.85rem;" onclick="window.downloadChart('${canvasId}', '${q.title.replace(/'/g, "\\'")}')">
-                                <i class="fas fa-download"></i> تنزيل كصورة
-                            </button>
+                            <button class="outline" style="padding: 0.3rem 0.6rem; font-size:0.85rem;" onclick="window.downloadChart('${canvasId}', '${q.title.replace(/'/g, "\\'")}')"><i class="fas fa-download"></i> صورة</button>
                         </div>
                         <p class="text-muted" style="font-size:0.85rem; margin-bottom:1rem">${totalAnswers} إجابة</p>
-                        <div class="chart-container">
-                            <canvas id="${canvasId}"></canvas>
-                        </div>
+                        <div class="chart-container"><canvas id="${canvasId}"></canvas></div>
                     </div>
-                `;
-                container.insertAdjacentHTML('beforeend', chartCardHtml);
+                `);
 
                 const ctx = document.getElementById(canvasId).getContext('2d');
-                
-                // تحديد نوع الرسم حسب السؤال
                 const chartType = (q.type === 'radio' || q.type === 'dropdown') ? 'doughnut' : 'bar';
                 
                 new Chart(ctx, {
@@ -1520,26 +1153,17 @@ service cloud.firestore {
                     data: {
                         labels: labels,
                         datasets: [{
-                            label: 'عدد الإجابات',
-                            data: dataValues,
+                            label: 'عدد الإجابات', data: dataValues,
                             backgroundColor: chartType === 'doughnut' ? colors : colors[0] + '80',
                             borderColor: chartType === 'bar' ? colors[0] : '#1a1b26',
-                            borderWidth: 2,
-                            borderRadius: chartType === 'bar' ? 4 : 0
+                            borderWidth: 2, borderRadius: chartType === 'bar' ? 4 : 0
                         }]
                     },
                     options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
+                        responsive: true, maintainAspectRatio: false,
                         plugins: {
-                            legend: {
-                                position: chartType === 'doughnut' ? 'right' : 'none',
-                                labels: { color: '#f8fafc', font: { family: 'Cairo' } }
-                            },
-                            tooltip: {
-                                bodyFont: { family: 'Cairo' },
-                                titleFont: { family: 'Cairo' }
-                            },
+                            legend: { position: chartType === 'doughnut' ? 'right' : 'none', labels: { color: '#f8fafc', font: { family: 'Cairo' } } },
+                            tooltip: { bodyFont: { family: 'Cairo' }, titleFont: { family: 'Cairo' } },
                             customCanvasBackgroundColor: { color: '#1a1b26' }
                         },
                         scales: chartType === 'bar' ? {
@@ -1552,23 +1176,16 @@ service cloud.firestore {
             });
         };
 
-        // دالة تنزيل الرسم البياني كصورة
         window.downloadChart = (canvasId, title) => {
-            const canvas = document.getElementById(canvasId);
-            if(!canvas) return;
-            
-            const link = document.createElement('a');
-            link.download = `إحصائيات_${title.replace(/ /g, '_')}.png`;
-            link.href = canvas.toDataURL('image/png', 1.0);
-            link.click();
+            const canvas = document.getElementById(canvasId); if(!canvas) return;
+            const link = document.createElement('a'); link.download = `إحصائيات_${title.replace(/ /g, '_')}.png`;
+            link.href = canvas.toDataURL('image/png', 1.0); link.click();
             window.showToast('بدأ تنزيل الإنفوجرافك بنجاح!');
         };
 
         window.exportToCSV = () => {
             const data = window.currentExportData;
-            if(!data || data.responses.length === 0) {
-                window.showToast('لا توجد بيانات لتصديرها', true); return;
-            }
+            if(!data || data.responses.length === 0) { window.showToast('لا توجد بيانات لتصديرها', true); return; }
 
             let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
             const headers = ['التاريخ', 'العلامة المستحقة'];
@@ -1582,10 +1199,7 @@ service cloud.firestore {
                 data.questions.forEach(q => {
                     let ans = r.answers[`q_${q.id}`] || '';
                     if(typeof ans === 'string' && ans.startsWith('{"name":')) {
-                        try {
-                            const parsed = JSON.parse(ans);
-                            ans = `ملف مرفوع: ${parsed.name}`;
-                        } catch(e) { ans = 'ملف مرفوع'; }
+                        try { ans = `ملف مرفوع: ${JSON.parse(ans).name}`; } catch(e) { ans = 'ملف مرفوع'; }
                     }
                     ans = ans.replace(/"/g, '""'); 
                     if(ans.includes(',') || ans.includes('\n')) ans = `"${ans}"`;
@@ -1596,11 +1210,8 @@ service cloud.firestore {
 
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `ردود_${data.formTitle.replace(/ /g, '_')}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            link.setAttribute("href", encodedUri); link.setAttribute("download", `ردود_${data.formTitle.replace(/ /g, '_')}.csv`);
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
         };
 
         // --- ADMIN SETTINGS ---
@@ -1608,19 +1219,19 @@ service cloud.firestore {
             if(!window.State.isAdmin) return `<div class="card">غير مصرح لك بالوصول</div>`;
             return `
                 <div class="flex justify-between align-center mb-1 animate-fade">
-                    <h2><i class="fas fa-cog text-muted"></i> إعدادات المنصة وإدارة الحسابات</h2>
-                    <button class="outline" onclick="navigate('#dashboard')">عودة للوحة</button>
+                    <h2><i class="fas fa-cog text-muted"></i> الإعدادات وإدارة الحسابات</h2>
+                    <button class="outline" onclick="navigate('#dashboard')">العودة</button>
                 </div>
                 
                 <div class="card animate-fade">
                     <h3 style="color: var(--primary)"><i class="fas fa-user-plus"></i> إنشاء حساب مشرف جديد</h3>
-                    <p class="text-muted mb-1">قم بإنشاء حساب للمشرفين المساعدين، ثم أعطهم البريد وكلمة المرور لكي يتمكنوا من الدخول.</p>
+                    <p class="text-muted mb-1">قم بإنشاء حساب للمشرفين المساعدين.</p>
                     <form onsubmit="window.createSupervisor(event)" class="flex-col" style="max-width: 500px;">
                         <input type="email" id="new-sup-email" placeholder="البريد الإلكتروني للمشرف" required>
                         <input type="password" id="new-sup-pass" placeholder="كلمة المرور (اكتبها له)" required minlength="6">
                         <label class="custom-radio mt-1" style="background: var(--surface2); padding: 1rem; border-radius: var(--rs);">
                             <input type="checkbox" id="new-sup-view-all">
-                            <span style="font-weight: bold;">السماح له برؤية جميع النماذج (بما فيها نماذجك)</span>
+                            <span style="font-weight: bold;">السماح له برؤية جميع النماذج</span>
                         </label>
                         <button type="submit" class="primary" id="btn-create-sup"><i class="fas fa-plus"></i> إضافة الحساب</button>
                     </form>
@@ -1628,55 +1239,39 @@ service cloud.firestore {
 
                 <div class="card animate-fade" style="animation-delay: 0.1s">
                     <h3 style="color: var(--accent); margin-bottom: 1rem;"><i class="fas fa-users"></i> المشرفون الحاليون</h3>
-                    <div id="supervisors-list">
-                        <div class="text-center text-muted"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>
-                    </div>
+                    <div id="supervisors-list"><div class="text-center text-muted"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div></div>
                 </div>
             `;
         }
 
         window.loadSupervisors = async () => {
-            const listDiv = document.getElementById('supervisors-list');
-            if(!listDiv) return;
-            
+            const listDiv = document.getElementById('supervisors-list'); if(!listDiv) return;
             try {
                 const snap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'supervisors'));
-                if(snap.empty) {
-                    listDiv.innerHTML = '<p class="text-muted text-center" style="padding: 1rem;">لا يوجد مشرفون مساعدون حالياً.</p>';
-                    return;
-                }
+                if(snap.empty) { listDiv.innerHTML = '<p class="text-muted text-center" style="padding: 1rem;">لا يوجد مشرفون.</p>'; return; }
                 
                 let html = '';
                 snap.docs.forEach(d => {
                     const s = d.data();
-                    const isRevoked = s.revoked;
-                    const canViewAll = s.canViewAllForms;
                     html += `
-                        <div class="card flex justify-between align-center" style="padding: 1rem; margin-bottom: 0.8rem; background: var(--surface2); border: 1px solid ${isRevoked ? 'var(--danger)' : 'var(--border)'}; flex-wrap: wrap; gap: 1rem;">
+                        <div class="card flex justify-between align-center" style="padding: 1rem; margin-bottom: 0.8rem; background: var(--surface2); border: 1px solid ${s.revoked ? 'var(--danger)' : 'var(--border)'}; flex-wrap: wrap; gap: 1rem;">
                             <div>
-                                <p style="font-weight:bold; font-size: 1.1rem; text-decoration: ${isRevoked ? 'line-through' : 'none'}; color: ${isRevoked ? 'var(--danger)' : 'var(--text)'}">${s.email}</p>
+                                <p style="font-weight:bold; font-size: 1.1rem; text-decoration: ${s.revoked ? 'line-through' : 'none'}; color: ${s.revoked ? 'var(--danger)' : 'var(--text)'}">${s.email}</p>
                                 <div class="flex mt-1" style="gap: 0.5rem">
-                                    <span class="badge" style="background: ${isRevoked ? 'rgba(248,113,113,0.1)' : 'rgba(74,222,128,0.1)'}; color: ${isRevoked ? 'var(--danger)' : 'var(--accent)'}; padding: 0.2rem 0.6rem; border-radius: 4px;">${isRevoked ? 'موقوف' : 'نشط'}</span>
-                                    <span class="badge" style="background: rgba(59,130,246,0.1); color: var(--primary); padding: 0.2rem 0.6rem; border-radius: 4px;">
-                                        ${canViewAll ? '<i class="fas fa-eye"></i> يرى جميع النماذج' : '<i class="fas fa-eye-slash"></i> يرى نماذجه فقط'}
-                                    </span>
+                                    <span class="badge" style="background: ${s.revoked ? 'rgba(248,113,113,0.1)' : 'rgba(74,222,128,0.1)'}; color: ${s.revoked ? 'var(--danger)' : 'var(--accent)'}; border:none;">${s.revoked ? 'موقوف' : 'نشط'}</span>
+                                    <span class="badge" style="background: rgba(59,130,246,0.1); color: var(--primary); border:none;">${s.canViewAllForms ? '<i class="fas fa-eye"></i> يرى الكل' : '<i class="fas fa-eye-slash"></i> يرى نماذجه'}</span>
                                 </div>
                             </div>
                             <div class="flex" style="gap: 0.5rem">
-                                <button class="outline" style="padding: 0.4rem 0.8rem; font-size: 0.9rem;" onclick="window.toggleSupervisorViewAll('${s.uid}', ${canViewAll})">
-                                    ${canViewAll ? 'تقييد الرؤية' : 'السماح برؤية الكل'}
-                                </button>
-                                <button class="${isRevoked ? 'primary' : 'danger outline'}" style="padding: 0.4rem 0.8rem; font-size: 0.9rem;" onclick="window.toggleSupervisorAccess('${s.uid}', ${isRevoked})">
-                                    ${isRevoked ? '<i class="fas fa-check"></i> تفعيل' : '<i class="fas fa-ban"></i> إيقاف'}
-                                </button>
+                                <button class="outline" style="padding: 0.4rem 0.8rem; font-size: 0.9rem;" onclick="window.toggleSupervisorViewAll('${s.uid}', ${s.canViewAllForms})">${s.canViewAllForms ? 'تقييد الرؤية' : 'السماح برؤية الكل'}</button>
+                                <button class="${s.revoked ? 'primary' : 'danger outline'}" style="padding: 0.4rem 0.8rem; font-size: 0.9rem;" onclick="window.toggleSupervisorAccess('${s.uid}', ${s.revoked})">${s.revoked ? '<i class="fas fa-check"></i> تفعيل' : '<i class="fas fa-ban"></i> إيقاف'}</button>
                             </div>
                         </div>
                     `;
                 });
                 listDiv.innerHTML = html;
             } catch(e) {
-                if (e.code === 'permission-denied') listDiv.innerHTML = getRulesErrorHTML();
-                else listDiv.innerHTML = '<p style="color:var(--danger)">فشل في تحميل المشرفين.</p>';
+                if (e.code === 'permission-denied') listDiv.innerHTML = getRulesErrorHTML(); else listDiv.innerHTML = '<p style="color:var(--danger)">فشل التحميل.</p>';
             }
         };
 
