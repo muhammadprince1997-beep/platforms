@@ -669,7 +669,7 @@
             }
         };
 
-        // تقصير الرابط الحالي المفتوح في النافذة
+        // تقصير الرابط الحالي المفتوح في النافذة مع تجاوز قيود الحماية (CORS)
         window.shortenCurrentUrl = async () => {
             const longLink = window.currentLongUrlToShorten;
             if(!longLink) return;
@@ -679,20 +679,45 @@
             btnShorten.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري توليد الرابط القصير...';
 
             try {
-                const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longLink)}`);
+                // نستخدم خدمة AllOrigins كبروكسي لتجاوز قيود CORS للمتصفح عند الاتصال بخدمات التقصير
+                const tinyUrlApi = `https://tinyurl.com/api-create.php?url=${encodeURIComponent(longLink)}`;
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(tinyUrlApi)}`;
+                
+                const response = await fetch(proxyUrl);
                 if (response.ok) {
-                    const shortLink = await response.text();
-                    document.getElementById('modal-short-url').value = shortLink;
-                    document.getElementById('short-url-section').classList.remove('hidden');
-                    window.showToast('تم توليد الرابط القصير!');
-                    btnShorten.innerHTML = '<i class="fas fa-check-circle"></i> تم التوليد بنجاح';
-                } else {
-                    throw new Error();
+                    const data = await response.json();
+                    if (data.contents && data.contents.startsWith('http')) {
+                        document.getElementById('modal-short-url').value = data.contents;
+                        document.getElementById('short-url-section').classList.remove('hidden');
+                        window.showToast('تم توليد الرابط القصير!');
+                        btnShorten.innerHTML = '<i class="fas fa-check-circle"></i> تم التوليد بنجاح';
+                        return; // نجاح
+                    }
                 }
+                throw new Error('API Error');
             } catch (err) {
-                window.showToast('فشل الاتصال بخادم التقصير، يرجى استخدام الرابط الطويل.', true);
-                btnShorten.disabled = false;
-                btnShorten.innerHTML = '<i class="fas fa-magic"></i> توليد رابط قصير جداً';
+                // خادم احتياطي (Fallback) في حال تعطل الأول
+                try {
+                    const isgdApi = `https://is.gd/create.php?format=simple&url=${encodeURIComponent(longLink)}`;
+                    const proxyUrl2 = `https://api.allorigins.win/get?url=${encodeURIComponent(isgdApi)}`;
+                    
+                    const response2 = await fetch(proxyUrl2);
+                    if (response2.ok) {
+                        const data2 = await response2.json();
+                        if (data2.contents && data2.contents.startsWith('http')) {
+                            document.getElementById('modal-short-url').value = data2.contents;
+                            document.getElementById('short-url-section').classList.remove('hidden');
+                            window.showToast('تم توليد الرابط القصير!');
+                            btnShorten.innerHTML = '<i class="fas fa-check-circle"></i> تم التوليد بنجاح';
+                            return; // نجاح
+                        }
+                    }
+                    throw new Error('Fallback Error');
+                } catch (err2) {
+                    window.showToast('فشل الاتصال بخادم التقصير، يرجى استخدام الرابط الطويل.', true);
+                    btnShorten.disabled = false;
+                    btnShorten.innerHTML = '<i class="fas fa-magic"></i> توليد رابط قصير جداً';
+                }
             }
         };
 
