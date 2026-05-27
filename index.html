@@ -61,7 +61,7 @@
             z-index: 100;
         }
         .brand { display: flex; flex-direction: column; cursor: pointer; }
-        .brand h1 { font-size: 1.3rem; color: var(--accent); font-weight: 900; line-height: 1.2; }
+        .brand h1 { font-size: 1.3rem; color: var(--accent); font-weight: 800; line-height: 1.2; }
         .brand span { font-size: 0.8rem; color: var(--muted); font-weight: 600; }
         
         .nav-links { display: flex; align-items: center; gap: 1.5rem; }
@@ -165,12 +165,12 @@
         .form-section-group { display: none; }
         .form-section-group.active { display: block !important; }
 
-        /* نافذة نسخ الروابط المنبثقة (Share Modal) */
+        /* نافذة مشاركة الرابط التفاعلية المبسطة والخالية من التقصير */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .modal-overlay.active { opacity: 1; pointer-events: all; }
         .modal-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 1.8rem; width: 90%; max-width: 500px; box-shadow: var(--shadow); transform: translateY(-20px); transition: transform 0.3s ease; text-align: right; }
         .modal-overlay.active .modal-card { transform: translateY(0); }
-        .modal-header { display: flex; justify-content: space-between; align-center; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
         .modal-header h3 { font-size: 1.2rem; color: var(--accent); }
         .modal-close { background: transparent; border: none; color: var(--text); font-size: 1.2rem; cursor: pointer; }
         .modal-close:hover { color: var(--danger); }
@@ -200,7 +200,7 @@
 <body>
 
     <nav id="main-nav" class="hidden">
-        <div class="brand" onclick="navigate('#dashboard')">
+        <div class="brand" onclick="window.navigate('#dashboard')">
             <h1>منصة الأستاذ محمد عبدالرحمن</h1>
             <span>مُنشئ الفورمات التفاعلية</span>
         </div>
@@ -208,7 +208,7 @@
             <a href="#dashboard"><i class="fas fa-home"></i> الرئيسية</a>
             <a href="#settings" id="admin-settings-btn" class="hidden"><i class="fas fa-cog"></i> الإعدادات</a>
             <span class="user-badge" id="nav-user"><i class="fas fa-user"></i> جاري التحميل...</span>
-            <button class="outline" style="padding: 0.4rem 1rem;" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+            <button class="outline" style="padding: 0.4rem 1rem;" onclick="window.logout()"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </nav>
 
@@ -218,7 +218,7 @@
         </div>
     </div>
 
-    <!-- نافذة المشاركة والتقصير المنبثقة -->
+    <!-- نافذة المشاركة والنسخ المنبثقة المبسطة والخالية من التقصير -->
     <div id="share-modal" class="modal-overlay" onclick="window.closeShareModal(event)">
         <div class="modal-card" onclick="event.stopPropagation()">
             <div class="modal-header">
@@ -226,30 +226,20 @@
                 <button class="modal-close" onclick="window.hideShareModal()"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
-                <p class="text-muted">يمكنك نسخ الرابط الكامل فوراً أو اختيار تقصيره أولاً لجعله صغيراً وأنيقاً قبل مشاركته.</p>
+                <p class="text-muted">قم بنسخ رابط الاستمارة المباشر الموضح أدناه لإرساله للطلاب:</p>
                 
                 <div class="flex-col mt-1">
-                    <label style="font-weight: bold; font-size: 0.9rem;">الرابط الكامل الأصلي:</label>
                     <div class="link-input-group">
-                        <input type="text" id="modal-long-url" readonly style="margin-top: 0; padding: 0.6rem; font-size: 0.85rem;">
-                        <button onclick="window.copyLinkDirect('modal-long-url')"><i class="fas fa-copy"></i> نسخ</button>
-                    </div>
-
-                    <div style="text-align: center; margin: 0.5rem 0;">
-                        <button class="outline" id="btn-shorten-action" onclick="window.shortenCurrentUrl()"><i class="fas fa-magic"></i> توليد رابط قصير جداً</button>
-                    </div>
-
-                    <div id="short-url-section" class="hidden animate-fade">
-                        <label style="font-weight: bold; font-size: 0.9rem; color: var(--accent);">الرابط القصير المتولد:</label>
-                        <div class="link-input-group">
-                            <input type="text" id="modal-short-url" readonly style="margin-top: 0; padding: 0.6rem; font-size: 0.95rem; color: var(--accent); font-weight: bold;">
-                            <button class="primary" onclick="window.copyLinkDirect('modal-short-url')"><i class="fas fa-copy"></i> نسخ القصير</button>
-                        </div>
+                        <input type="text" id="modal-long-url" readonly style="margin-top: 0; padding: 0.85rem; font-size: 0.95rem; font-weight: bold; color: var(--accent);">
+                        <button class="primary" onclick="window.copyLinkDirect('modal-long-url')"><i class="fas fa-copy"></i> نسخ الرابط</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- عنصر عرض الإشعارات المنبثقة (Toast) -->
+    <div id="toast">رسالة</div>
 
     <footer>
         <p>منصة الأستاذ محمد عبدالرحمن &copy; 2026</p>
@@ -265,152 +255,169 @@
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, query, orderBy, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        let firebaseConfig = {
-            apiKey: "AIzaSyC4AnFr-41S5QU1GUirhNWO-pIQmV4lODY",
-            authDomain: "muhammed-forms.firebaseapp.com",
-            projectId: "muhammed-forms",
-            storageBucket: "muhammed-forms.firebasestorage.app",
-            messagingSenderId: "1061327268881",
-            appId: "1:1061327268881:web:be2710a0ec2f573caf55b0",
-            measurementId: "G-1B3E39Q97R"
-        };
-
-        const appId = 'mohammed-formcraft';
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        // قراءة مسار URL للطلاب حتى مع روابط التقصير (Routing protection)
-        function parseQueryRoute() {
-            const urlParams = new URLSearchParams(window.location.search);
-            let fParam = urlParams.get('f');
-            let rParam = urlParams.get('r');
-
-            if (!fParam && window.location.hash.includes('?')) {
-                const hashQuery = window.location.hash.split('?')[1];
-                const hashParams = new URLSearchParams(hashQuery);
-                fParam = hashParams.get('f');
-                rParam = hashParams.get('r');
-            }
-
-            if (fParam) {
-                let targetHash = `#form/${fParam}`;
-                if (rParam) targetHash += `/${rParam}`;
-                window.location.hash = targetHash;
-                window.history.replaceState({}, document.title, window.location.pathname + targetHash);
-            }
+        // 1. تعريف كافة الدوال الأساسية (Function Declarations للرفع البرمجي الصحيح Hoisting)
+        function navigate(hash) {
+            window.location.hash = hash;
         }
-        parseQueryRoute();
 
-        window.State = { user: null, isAdmin: false, forms: [], responses: {}, currentBuilderForm: null };
-        window.currentSectionIndex = 0; 
-        window.renderChartsFlag = false;
-
-        Chart.defaults.font.family = 'Cairo';
-        Chart.defaults.color = '#94a3b8';
-        const customCanvasBackgroundColor = {
-            id: 'customCanvasBackgroundColor',
-            beforeDraw: (chart, args, options) => {
-                const {ctx} = chart; ctx.save(); ctx.globalCompositeOperation = 'destination-over';
-                ctx.fillStyle = options.color || '#1a1b26'; ctx.fillRect(0, 0, chart.width, chart.height); ctx.restore();
-            }
-        };
-
-        window.generateId = () => Math.random().toString(36).substr(2, 9);
-        window.showToast = (msg, isError = false) => {
+        function showToast(msg, isError = false) {
             const t = document.getElementById('toast');
-            t.textContent = msg; t.style.background = isError ? 'var(--danger)' : 'var(--accent)';
-            t.style.color = isError ? '#fff' : '#000'; t.style.opacity = '1';
+            if (!t) return;
+            t.textContent = msg; 
+            t.style.background = isError ? 'var(--danger)' : 'var(--accent)';
+            t.style.color = isError ? '#fff' : '#000'; 
+            t.style.opacity = '1';
             setTimeout(() => t.style.opacity = '0', 3000);
-        };
+        }
 
-        onAuthStateChanged(auth, async (user) => {
-            if (user && !user.isAnonymous) {
-                try {
-                    const userDoc = await getDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'data'));
-                    if (userDoc.exists() && userDoc.data().revoked) {
-                        await signOut(auth); window.showToast('تم إيقاف هذا الحساب من قبل الإدارة.', true); return;
-                    }
-                    window.State.user = user;
-                    document.getElementById('main-nav').classList.remove('hidden');
-                    document.getElementById('nav-user').innerHTML = `<i class="fas fa-user"></i> ${user.email}`;
-                    window.State.isAdmin = (userDoc.exists() && userDoc.data().role === 'admin');
-                    document.getElementById('admin-settings-btn').classList.toggle('hidden', !window.State.isAdmin);
-                    
-                    await loadForms();
-                    if(window.location.hash === '' || window.location.hash.startsWith('#login')) navigate('#dashboard');
-                    else renderView();
-                } catch(e) { }
+        function showShareModal(formId) {
+            const longLink = `${window.location.origin}${window.location.pathname}?f=${formId}`;
+            document.getElementById('modal-long-url').value = longLink;
+            document.getElementById('share-modal').classList.add('active');
+        }
+
+        function hideShareModal() {
+            document.getElementById('share-modal').classList.remove('active');
+        }
+
+        function closeShareModal(e) {
+            if(e.target.id === 'share-modal') window.hideShareModal();
+        }
+
+        function copyLinkDirect(inputId) {
+            const inputEl = document.getElementById(inputId);
+            if(!inputEl || !inputEl.value) return;
+
+            const tempTextArea = document.createElement("textarea");
+            tempTextArea.value = inputEl.value; 
+            tempTextArea.style.position = "fixed"; 
+            tempTextArea.style.opacity = "0";
+            document.body.appendChild(tempTextArea); 
+            tempTextArea.focus(); 
+            tempTextArea.select();
+            
+            try { 
+                if (document.execCommand('copy')) window.showToast('تم النسخ بنجاح!');
+                else window.showToast('فشل النسخ تلقائياً.', true);
+            } catch (err) { window.showToast('فشل النسخ تلقائياً.', true); }
+            document.body.removeChild(tempTextArea);
+        }
+
+        function createNewForm() {
+            window.navigate('#builder');
+        }
+
+        function toggleQuestionCollapse(idx) {
+            window.State.currentBuilderForm.questions[idx].collapsed = !window.State.currentBuilderForm.questions[idx].collapsed;
+            document.getElementById('app-content').innerHTML = viewBuilder();
+        }
+
+        function updateFormMeta(key, val) {
+            if(['limitOneResponse', 'isQuiz', 'closed', 'successMsg', 'allowEditResponse', 'layout'].includes(key)) {
+                if(!window.State.currentBuilderForm.settings) window.State.currentBuilderForm.settings = {};
+                window.State.currentBuilderForm.settings[key] = val;
             } else {
-                // تصفير بيانات الجلسة للمجهولين أو الطلاب
-                window.State.user = null; window.State.isAdmin = false;
-                document.getElementById('main-nav').classList.add('hidden');
-                try { await signInAnonymously(auth); } catch(e) { }
-                if(window.location.hash.startsWith('#form/') || window.location.hash.startsWith('#success')) renderView();
-                else navigate('#login');
+                window.State.currentBuilderForm[key] = val;
             }
-        });
-
-        window.navigate = (hash) => { window.location.hash = hash; };
-        window.addEventListener('hashchange', () => renderView());
-
-        async function renderView() {
-            const hash = window.location.hash || '#login';
-            const [view, id, subId] = hash.substring(1).split('/');
-            const container = document.getElementById('app-content');
-
-            if (view === 'form') { 
-                container.innerHTML = `<div class="text-center" style="margin-top: 5rem;"><i class="fas fa-circle-notch fa-spin fa-3x" style="color: var(--accent)"></i></div>`;
-                container.innerHTML = await viewForm(id, subId); setupConditionalLogic(); return; 
-            }
-            if (view === 'success') { container.innerHTML = viewSuccess(id); return; }
-            if (!window.State.user && view !== 'login') { navigate('#login'); return; }
-
-            switch(view) {
-                case 'login': container.innerHTML = await viewLogin(); break;
-                case 'dashboard': container.innerHTML = viewDashboard(); break;
-                case 'builder': 
-                    await initBuilder(id); container.innerHTML = viewBuilder(); break;
-                case 'responses': 
-                    container.innerHTML = `<div class="text-center" style="margin-top: 5rem;"><i class="fas fa-circle-notch fa-spin fa-3x" style="color: var(--accent)"></i></div>`;
-                    container.innerHTML = await viewResponses(id); 
-                    if(window.renderChartsFlag) { window.initChartsData(); window.renderChartsFlag = false; }
-                    break;
-                case 'settings': 
-                    container.innerHTML = viewSettings(); if(window.State.isAdmin) window.loadSupervisors(); break;
-                default: container.innerHTML = viewDashboard();
-            }
+            if(key === 'isQuiz') document.getElementById('app-content').innerHTML = viewBuilder();
         }
 
-        async function loadForms() {
-            if(!window.State.user) return;
-            try {
-                const formsRef = collection(db, 'artifacts', appId, 'public', 'data', 'forms');
-                const snap = await getDocs(formsRef);
-                const allForms = snap.docs.map(d => d.data());
-                
-                if (window.State.isAdmin) { window.State.forms = allForms; } 
-                else {
-                    const profileSnap = await getDoc(doc(db, 'artifacts', appId, 'users', window.State.user.uid, 'profile', 'data'));
-                    const profile = profileSnap.data() || {};
-                    if (profile.canViewAllForms) window.State.forms = allForms;
-                    else window.State.forms = allForms.filter(f => f.ownerId === window.State.user.uid);
-                }
-            } catch (e) { }
+        function updateFormTheme(colorName) {
+            if(!window.State.currentBuilderForm.settings) window.State.currentBuilderForm.settings = {};
+            window.State.currentBuilderForm.settings.themeColor = colorName;
+            document.getElementById('app-content').innerHTML = viewBuilder();
         }
 
-        window.saveFormToDB = async (formObj) => {
+        function addQuestion() {
+            window.State.currentBuilderForm.questions.push({ id: window.generateId(), type: 'text', title: 'سؤال جديد', required: false, points: 1, collapsed: false });
+            document.getElementById('app-content').innerHTML = viewBuilder();
+        }
+
+        function updateQuestion(idx, field, value) {
+            window.State.currentBuilderForm.questions[idx][field] = value;
+            if(['radio', 'checkbox', 'dropdown'].includes(value) && !window.State.currentBuilderForm.questions[idx].options) {
+                window.State.currentBuilderForm.questions[idx].options = ['خيار 1'];
+            }
+            document.getElementById('app-content').innerHTML = viewBuilder();
+        }
+
+        function removeQuestion(idx) {
+            window.State.currentBuilderForm.questions.splice(idx, 1);
+            document.getElementById('app-content').innerHTML = viewBuilder();
+        }
+
+        function moveQuestion(idx, dir) {
+            const arr = window.State.currentBuilderForm.questions;
+            if(idx + dir < 0 || idx + dir >= arr.length) return;
+            const temp = arr[idx]; arr[idx] = arr[idx + dir]; arr[idx + dir] = temp;
+            document.getElementById('app-content').innerHTML = viewBuilder();
+        }
+
+        function addOption(qIdx) {
+            window.State.currentBuilderForm.questions[qIdx].options.push(`خيار جديد`);
+            document.getElementById('app-content').innerHTML = viewBuilder();
+        }
+
+        function updateOption(qIdx, oIdx, val) { 
+            window.State.currentBuilderForm.questions[qIdx].options[oIdx] = val; 
+        }
+
+        function removeOption(qIdx, oIdx) {
+            window.State.currentBuilderForm.questions[qIdx].options.splice(oIdx, 1);
+            document.getElementById('app-content').innerHTML = viewBuilder();
+        }
+
+        function addStudentPresets() {
+            const presets = [
+                { id: window.generateId(), type: 'text', title: 'الاسم الثلاثي واللقب', required: true, points: 0 },
+                { id: window.generateId(), type: 'phone', title: 'رقم الهاتف (واتساب)', required: true, points: 0 },
+                { id: window.generateId(), type: 'dropdown', title: 'المحافظة', required: true, options: ['بغداد','البصرة','نينوى','أربيل','النجف','ذي قار','كركوك','الأنبار','ديالى','المثنى','القادسية','ميسان','واسط','صلاح الدين','دهوك','السليمانية','بابل','كربلاء'], points: 0 },
+                { id: window.generateId(), type: 'dropdown', title: 'المرحلة الدراسية', required: true, options: ['الأول المتوسط','الثاني المتوسط','الثالث المتوسط','الرابع الإعدادي','الخامس الإعدادي','السادس الإعدادي','جامعة/معهد'], points: 0 }
+            ];
+            window.State.currentBuilderForm.questions.push(...presets);
+            document.getElementById('app-content').innerHTML = viewBuilder();
+            window.showToast('تم إدراج الحقول بنجاح!');
+        }
+
+        function showConditionModal(qIdx) {
+            const f = window.State.currentBuilderForm;
+            const prevQs = f.questions.slice(0, qIdx).filter(q => ['radio', 'dropdown'].includes(q.type) && q.options && q.options.length > 0);
+            if(prevQs.length === 0) { window.showToast('يجب أن يسبق هذا السؤال سؤال من نوع خيارات أو قائمة.', true); return; }
+            f.questions[qIdx].condition = { dependsOnId: '', requiredValue: '' };
+            document.getElementById('app-content').innerHTML = viewBuilder();
+        }
+
+        function updateConditionParent(qIdx, parentId) {
+            window.State.currentBuilderForm.questions[qIdx].condition.dependsOnId = parentId;
+            window.State.currentBuilderForm.questions[qIdx].condition.requiredValue = '';
+            document.getElementById('app-content').innerHTML = viewBuilder();
+        }
+
+        function updateConditionValue(qIdx, val) { 
+            window.State.currentBuilderForm.questions[qIdx].condition.requiredValue = val; 
+        }
+
+        function removeCondition(qIdx) { 
+            delete window.State.currentBuilderForm.questions[qIdx].condition; 
+            document.getElementById('app-content').innerHTML = viewBuilder(); 
+        }
+
+        function saveForm() { 
+            window.saveFormToDB(window.State.currentBuilderForm); 
+        }
+
+        async function saveFormToDB(formObj) {
             try {
                 const formRef = doc(db, 'artifacts', appId, 'public', 'data', 'forms', formObj.id);
                 await setDoc(formRef, { ...formObj, ownerId: window.State.user.uid });
                 const idx = window.State.forms.findIndex(f => f.id === formObj.id);
                 if(idx > -1) window.State.forms[idx] = formObj; else window.State.forms.push(formObj);
                 window.showToast('تم حفظ النموذج بنجاح!');
-                navigate('#dashboard');
+                window.navigate('#dashboard');
             } catch (e) { window.showToast('حدث خطأ أثناء الحفظ', true); }
-        };
+        }
 
-        window.deleteForm = async (formId) => {
+        async function deleteForm(formId) {
             if (!confirm('هل أنت متأكد من حذف هذا النموذج نهائياً؟\nسيؤدي هذا إلى حذفه من المنصة ولن تتمكن من التراجع عن هذا الإجراء.')) return;
             try {
                 await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'forms', formId));
@@ -421,9 +428,65 @@
                 console.error(e);
                 window.showToast('حدث خطأ أثناء الحذف', true);
             }
-        };
+        }
 
-        window.submitPublicForm = async (e, formId) => {
+        function evaluateConditions() {
+            const form = document.getElementById('public-form');
+            if(!form) return;
+            const formData = new FormData(form);
+            const conditionals = document.querySelectorAll('[data-conditional="true"]');
+            
+            conditionals.forEach(el => {
+                const parentName = el.getAttribute('data-parent');
+                const reqVal = el.getAttribute('data-reqval');
+                const parentValue = formData.get(parentName);
+                const inputInside = el.querySelector('input, select, textarea');
+
+                if (parentValue === reqVal) {
+                    el.classList.remove('hidden'); el.classList.add('animate-fade');
+                    if(inputInside && el.getAttribute('data-was-required') === 'true') inputInside.required = true;
+                } else {
+                    el.classList.add('hidden'); el.classList.remove('animate-fade');
+                    if(inputInside) {
+                        if(inputInside.required) el.setAttribute('data-was-required', 'true');
+                        inputInside.required = false;
+                        if(inputInside.type === 'radio') {
+                            el.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+                        } else if(inputInside.type === 'checkbox') {
+                            el.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
+                        } else { inputInside.value = ''; }
+                    }
+                }
+            });
+        }
+
+        function handleFileSelect(qid, input) {
+            const file = input.files[0];
+            const infoSpan = document.getElementById(`file_info_${qid}`);
+            const inputHidden = document.getElementById(`input_${qid}`);
+            if(!file) return;
+
+            if(file.size > 500 * 1024) { 
+                window.showToast('حجم الملف كبير جداً! الحد الأقصى 500 كيلوبايت', true);
+                input.value = ''; infoSpan.innerHTML = `<span style="color:var(--danger)">مرفوض: الحجم كبير جداً</span>`; inputHidden.value = ''; return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                inputHidden.value = JSON.stringify({ name: file.name, type: file.type, base64: e.target.result });
+                infoSpan.innerHTML = `<i class="fas fa-check-circle" style="color:var(--accent)"></i> تم تجهيز: ${file.name}`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function setRating(qid, val) {
+            const input = document.getElementById('input_' + qid); if(!input) return; input.value = val;
+            const starContainer = document.querySelector(`.rating-stars[data-qid="${qid}"]`); if(!starContainer) return;
+            const stars = starContainer.querySelectorAll('span');
+            stars.forEach((star, idx) => { star.querySelector('i').className = idx < val ? 'fas fa-star' : 'far fa-star'; });
+            window.evaluateConditions();
+        }
+
+        async function submitPublicForm(e, formId) {
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]');
             const originalBtnHtml = btn.innerHTML;
@@ -530,106 +593,232 @@
                 sessionStorage.setItem(`last_response_id_${formId}`, responseIdToSave);
                 sessionStorage.setItem(`last_success_msg_${formId}`, form.settings?.successMsg || 'تم إرسال ردك بنجاح!\nشكراً لك لتسجيل بياناتك.');
 
-                navigate(`#success/${formId}`);
+                window.navigate(`#success/${formId}`);
             } catch (e) {
                 window.showToast('حدث خطأ. حاول مرة أخرى.', true);
                 btn.innerHTML = originalBtnHtml; btn.disabled = false;
             }
-        };
+        }
 
-        window.handleFileSelect = (qid, input) => {
-            const file = input.files[0];
-            const infoSpan = document.getElementById(`file_info_${qid}`);
-            const inputHidden = document.getElementById(`input_${qid}`);
-            if(!file) return;
+        function nextSection() {
+            const form = document.getElementById('public-form');
+            const sections = Array.from(form.querySelectorAll('.form-section-group'));
+            const currentSec = sections[window.currentSectionIndex];
 
-            if(file.size > 500 * 1024) { 
-                window.showToast('حجم الملف كبير جداً! الحد الأقصى 500 كيلوبايت', true);
-                input.value = ''; infoSpan.innerHTML = `<span style="color:var(--danger)">مرفوض: الحجم كبير جداً</span>`; inputHidden.value = ''; return;
+            if(currentSec) {
+                const requiredInputs = currentSec.querySelectorAll('[required]');
+                let isValid = true;
+                requiredInputs.forEach(inp => {
+                    const parentWrap = inp.closest('.question-container');
+                    if (parentWrap && parentWrap.classList.contains('hidden')) return;
+
+                    if(!inp.checkValidity()) {
+                        inp.reportValidity();
+                        isValid = false;
+                    }
+                });
+                if(!isValid) return;
             }
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                inputHidden.value = JSON.stringify({ name: file.name, type: file.type, base64: e.target.result });
-                infoSpan.innerHTML = `<i class="fas fa-check-circle" style="color:var(--accent)"></i> تم تجهيز: ${file.name}`;
-            };
-            reader.readAsDataURL(file);
-        };
 
-        window.setRating = (qid, val) => {
-            const input = document.getElementById(`input_${qid}`); if(!input) return; input.value = val;
-            const starContainer = document.querySelector(`.rating-stars[data-qid="${qid}"]`); if(!starContainer) return;
-            const stars = starContainer.querySelectorAll('span');
-            stars.forEach((star, idx) => { star.querySelector('i').className = idx < val ? 'fas fa-star' : 'far fa-star'; });
-            window.evaluateConditions();
-        };
+            window.currentSectionIndex++;
+            window.updateSectionsDisplay();
+        }
 
-        window.handleLogin = async (e) => {
-            e.preventDefault();
-            try { await signInWithEmailAndPassword(auth, document.getElementById('l-email').value, document.getElementById('l-pass').value); }
-            catch (error) { window.showToast('فشل تسجيل الدخول. تأكد من البيانات.', true); }
-        };
+        function prevSection() {
+            window.currentSectionIndex--;
+            window.updateSectionsDisplay();
+        }
 
-        window.handleFirstAdminSetup = async (e) => {
-            e.preventDefault();
+        function updateSectionsDisplay() {
+            const form = document.getElementById('public-form');
+            if (!form) return;
+
+            const sections = Array.from(form.querySelectorAll('.form-section-group'));
+            const headerCard = document.getElementById('form-header-card');
+            
+            if (window.currentSectionIndex >= sections.length) window.currentSectionIndex = sections.length - 1;
+            if (window.currentSectionIndex < 0) window.currentSectionIndex = 0;
+
+            sections.forEach(s => s.classList.remove('active'));
+            
+            if(sections[window.currentSectionIndex]) {
+                sections[window.currentSectionIndex].classList.add('active');
+            }
+
+            if (window.currentSectionIndex === 0) {
+                headerCard.style.display = 'block';
+            } else {
+                headerCard.style.display = 'none';
+            }
+
+            const progressFill = document.getElementById('step-progress-fill');
+            if(progressFill) {
+                const percent = sections.length > 1 ? (window.currentSectionIndex / (sections.length - 1)) * 100 : 100;
+                progressFill.style.width = percent + '%';
+            }
+
+            const btnPrev = document.getElementById('btn-prev-sec');
+            const btnNext = document.getElementById('btn-next-sec');
+            const btnSubmit = document.getElementById('btn-submit-sec');
+
+            btnPrev.style.display = window.currentSectionIndex === 0 ? 'none' : 'inline-flex';
+
+            if(window.currentSectionIndex === sections.length - 1) {
+                btnNext.style.display = 'none';
+                btnSubmit.style.display = 'inline-flex';
+            } else {
+                btnNext.style.display = 'inline-flex';
+                btnSubmit.style.display = 'none';
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function logout() { 
+            signOut(auth); 
+        }
+
+        async function loadSupervisors() {
+            const listDiv = document.getElementById('supervisors-list'); if(!listDiv) return;
             try {
-                const cred = await createUserWithEmailAndPassword(auth, document.getElementById('a-email').value, document.getElementById('a-pass').value);
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'sys_info', 'setup'), { initialized: true, adminUid: cred.user.uid });
-                await setDoc(doc(db, 'artifacts', appId, 'users', cred.user.uid, 'profile', 'data'), { email: cred.user.email, role: 'admin', revoked: false });
-                window.showToast('تم إنشاء حساب المشرف الرئيسي بنجاح!');
-            } catch (error) { window.showToast(error.message, true); }
-        };
-
-        window.logout = () => signOut(auth);
-
-        async function viewLogin() {
-            try {
-                const setupDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'sys_info', 'setup'));
-                if (!setupDoc.exists()) {
-                    return `
-                        <div class="card animate-fade" style="max-width: 400px; margin: 4rem auto; text-align: center; border-color: var(--accent);">
-                            <h2 style="color: var(--accent); margin-bottom: 1rem;"><i class="fas fa-crown"></i> الإعداد الأول للمنصة</h2>
-                            <p class="text-muted mb-1">يبدو أن هذه هي المرة الأولى. قم بإنشاء حساب المشرف الرئيسي (الأدمن) الآن.</p>
-                            <form onsubmit="handleFirstAdminSetup(event)" class="flex-col">
-                                <input type="email" id="a-email" placeholder="البريد الإلكتروني الخاص بك" required>
-                                <input type="password" id="a-pass" placeholder="كلمة المرور" required minlength="6">
-                                <button type="submit" style="width: 100%" class="primary"><i class="fas fa-check-circle"></i> إنشاء الحساب</button>
-                            </form>
+                const snap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'supervisors'));
+                if(snap.empty) { listDiv.innerHTML = '<p class="text-muted text-center" style="padding: 1rem;">لا يوجد مشرفون.</p>'; return; }
+                
+                let html = '';
+                snap.docs.forEach(d => {
+                    const s = d.data();
+                    html += `
+                        <div class="card flex justify-between align-center" style="padding: 1rem; margin-bottom: 0.8rem; background: var(--surface2); border: 1px solid ${s.revoked ? 'var(--danger)' : 'var(--border)'}; flex-wrap: wrap; gap: 1rem;">
+                            <div>
+                                <p style="font-weight:bold; font-size: 1.1rem; text-decoration: ${s.revoked ? 'line-through' : 'none'}; color: ${s.revoked ? 'var(--danger)' : 'var(--text)'}">${s.email}</p>
+                                <div class="flex mt-1" style="gap: 0.5rem">
+                                    <span class="badge" style="background: ${s.revoked ? 'rgba(248,113,113,0.1)' : 'rgba(74,222,128,0.1)'}; color: ${s.revoked ? 'var(--danger)' : 'var(--accent)'}; border:none;">${s.revoked ? 'موقوف' : 'نشط'}</span>
+                                    <span class="badge" style="background: rgba(59,130,246,0.1); color: var(--primary); border:none;">${s.canViewAllForms ? '<i class="fas fa-eye"></i> يرى الكل' : '<i class="fas fa-eye-slash"></i> يرى نماذجه'}</span>
+                                </div>
+                            </div>
+                            <div class="flex" style="gap: 0.5rem">
+                                <button class="outline" style="padding: 0.4rem 0.8rem; font-size: 0.9rem;" onclick="window.toggleSupervisorViewAll('${s.uid}', ${s.canViewAllForms})">${s.canViewAllForms ? 'تقييد الرؤية' : 'السماح برؤية الكل'}</button>
+                                <button class="${s.revoked ? 'primary' : 'danger outline'}" style="padding: 0.4rem 0.8rem; font-size: 0.9rem;" onclick="window.toggleSupervisorAccess('${s.uid}', ${s.revoked})">${s.revoked ? '<i class="fas fa-check"></i> تفعيل' : '<i class="fas fa-ban"></i> إيقاف'}</button>
+                            </div>
                         </div>
                     `;
+                });
+                listDiv.innerHTML = html;
+            } catch(e) {
+                if (e.code === 'permission-denied') listDiv.innerHTML = getRulesErrorHTML(); else listDiv.innerHTML = '<p style="color:var(--danger)">فشل التحميل.</p>';
+            }
+        }
+
+        async function toggleSupervisorAccess(uid, currentStatus) {
+            if(!confirm(currentStatus ? 'هل أنت متأكد من إعادة تفعيل هذا الحساب؟' : 'هل أنت متأكد من إيقاف هذا الحساب؟ لن يتمكن من الدخول نهائياً.')) return;
+            try {
+                await setDoc(doc(db, 'artifacts', appId, 'users', uid, 'profile', 'data'), { revoked: !currentStatus }, { merge: true });
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'supervisors', uid), { revoked: !currentStatus }, { merge: true });
+                window.showToast('تم تحديث حالة الحساب بنجاح');
+                window.loadSupervisors();
+            } catch (e) {
+                if (e.code === 'permission-denied') document.getElementById('app-content').innerHTML = getRulesErrorHTML();
+                else window.showToast('حدث خطأ أثناء التحديث', true);
+            }
+        }
+
+        async function toggleSupervisorViewAll(uid, currentViewAll) {
+            try {
+                await setDoc(doc(db, 'artifacts', appId, 'users', uid, 'profile', 'data'), { canViewAllForms: !currentViewAll }, { merge: true });
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'supervisors', uid), { canViewAllForms: !currentViewAll }, { merge: true });
+                window.showToast('تم تحديث صلاحية الرؤية بنجاح');
+                window.loadSupervisors();
+            } catch (e) {
+                if (e.code === 'permission-denied') document.getElementById('app-content').innerHTML = getRulesErrorHTML();
+                else window.showToast('حدث خطأ أثناء التحديث', true);
+            }
+        }
+
+        async function createSupervisor(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-create-sup');
+            const email = document.getElementById('new-sup-email').value;
+            const pass = document.getElementById('new-sup-pass').value;
+            const canViewAll = document.getElementById('new-sup-view-all').checked;
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإنشاء...';
+            btn.disabled = true;
+
+            try {
+                if(!window.secondaryApp) {
+                    window.secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
+                    window.secondaryAuth = getAuth(window.secondaryApp);
                 }
-                return `
-                    <div class="card animate-fade" style="max-width: 400px; margin: 4rem auto; text-align: center;">
-                        <h2 style="color: var(--accent); margin-bottom: 1.5rem;"><i class="fas fa-lock"></i> تسجيل الدخول</h2>
-                        <p class="text-muted mb-1">هذه البوابة مخصصة لإدارة المنصة فقط.</p>
-                        <form onsubmit="handleLogin(event)" class="flex-col">
-                            <input type="email" id="l-email" placeholder="البريد الإلكتروني" required>
-                            <input type="password" id="l-pass" placeholder="كلمة المرور" required>
-                            <button type="submit" style="width: 100%"><i class="fas fa-sign-in-alt"></i> دخول</button>
-                        </form>
-                        <hr style="border:0; border-top:1px solid var(--border); margin:1.5rem 0;">
-                        <p class="text-muted" style="font-size:0.9rem; margin-bottom:0.8rem;"><i class="fas fa-user-plus"></i> ليس لديك حساب؟ لطلب حساب مشرف، تواصل معنا عبر:</p>
-                        <div class="flex" style="justify-content: center; gap: 0.8rem;">
-                            <a href="https://wa.me/+9647709873200" target="_blank" style="text-decoration:none; flex:1;">
-                                <button type="button" class="outline" style="width:100%; color:#25D366; border-color:rgba(37,211,102,0.3); font-size:0.9rem; padding:0.5rem 1rem;">
-                                    <i class="fab fa-whatsapp"></i> واتساب
-                                </button>
-                            </a>
-                            <a href="https://www.instagram.com/m9h.7d" target="_blank" style="text-decoration:none; flex:1;">
-                                <button type="button" class="outline" style="width:100%; color:#e1306c; border-color:rgba(225,48,108,0.3); font-size:0.9rem; padding:0.5rem 1rem;">
-                                    <i class="fab fa-instagram"></i> إنستغرام
-                                </button>
-                            </a>
-                        </div>
-                    </div>
-                `;
-            } catch(e) { return `<div class="card text-center"><h2 style="color:var(--danger)">حدث خطأ: ${e.message}</h2></div>`; }
+
+                const cred = await createUserWithEmailAndPassword(window.secondaryAuth, email, pass);
+                const newUid = cred.user.uid;
+
+                await setDoc(doc(db, 'artifacts', appId, 'users', newUid, 'profile', 'data'), {
+                    email: email,
+                    role: 'editor',
+                    revoked: false,
+                    canViewAllForms: canViewAll
+                });
+
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'supervisors', newUid), {
+                    uid: newUid,
+                    email: email,
+                    createdAt: new Date().toISOString(),
+                    revoked: false,
+                    canViewAllForms: canViewAll
+                });
+
+                await signOut(window.secondaryAuth);
+
+                window.showToast('تم إنشاء حساب المشرف المساعد بنجاح!');
+                document.getElementById('new-sup-email').value = '';
+                document.getElementById('new-sup-pass').value = '';
+                document.getElementById('new-sup-view-all').checked = false;
+                
+                window.loadSupervisors();
+            } catch (error) {
+                if (error.code === 'permission-denied') document.getElementById('app-content').innerHTML = getRulesErrorHTML();
+                else window.showToast('خطأ: ' + error.message, true);
+            } finally {
+                btn.innerHTML = '<i class="fas fa-plus"></i> إضافة الحساب';
+                btn.disabled = false;
+            }
+        }
+
+        function viewSettings() {
+            if(!window.State.isAdmin) return `<div class="card">غير مصرح لك بالوصول</div>`;
+            return `
+                <div class="flex justify-between align-center mb-1 animate-fade">
+                    <h2><i class="fas fa-cog text-muted"></i> الإعدادات وإدارة الحسابات</h2>
+                    <button class="outline" onclick="window.navigate('#dashboard')">العودة</button>
+                </div>
+                
+                <div class="card animate-fade">
+                    <h3 style="color: var(--primary)"><i class="fas fa-user-plus"></i> إنشاء حساب مشرف جديد</h3>
+                    <p class="text-muted mb-1">قم بإنشاء حساب للمشرفين المساعدين.</p>
+                    <form onsubmit="window.createSupervisor(event)" class="flex-col" style="max-width: 500px;">
+                        <input type="email" id="new-sup-email" placeholder="البريد الإلكتروني للمشرف" required>
+                        <input type="password" id="new-sup-pass" placeholder="كلمة المرور (اكتبها له)" required minlength="6">
+                        <label class="custom-radio mt-1" style="background: var(--surface2); padding: 1rem; border-radius: var(--rs);">
+                            <input type="checkbox" id="new-sup-view-all">
+                            <span style="font-weight: bold;">السماح له برؤية جميع النماذج</span>
+                        </label>
+                        <button type="submit" class="primary" id="btn-create-sup"><i class="fas fa-plus"></i> إضافة الحساب</button>
+                    </form>
+                </div>
+
+                <div class="card animate-fade" style="animation-delay: 0.1s">
+                    <h3 style="color: var(--accent); margin-bottom: 1rem;"><i class="fas fa-users"></i> المشرفون الحاليون</h3>
+                    <div id="supervisors-list"><div class="text-muted text-center"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div></div>
+                </div>
+            `;
         }
 
         function viewDashboard() {
             let html = `
                 <div class="flex justify-between align-center mb-1 animate-fade">
                     <h2><i class="fas fa-folder-open text-muted"></i> نماذجي</h2>
-                    <button onclick="createNewForm()"><i class="fas fa-plus"></i> إنشاء نموذج جديد</button>
+                    <button onclick="window.createNewForm()"><i class="fas fa-plus"></i> إنشاء نموذج جديد</button>
                 </div>
             `;
             if (window.State.forms.length === 0) {
@@ -646,8 +835,8 @@
                                 </div>
                             </div>
                             <div class="flex" style="gap:0.5rem;">
-                                <button class="primary" onclick="navigate('#responses/${f.id}')" title="الردود"><i class="fas fa-chart-pie"></i> الإحصائيات</button>
-                                <button class="outline" onclick="navigate('#builder/${f.id}')" title="تعديل"><i class="fas fa-edit"></i></button>
+                                <button class="primary" onclick="window.navigate('#responses/${f.id}')" title="الردود"><i class="fas fa-chart-pie"></i> الإحصائيات</button>
+                                <button class="outline" onclick="window.navigate('#builder/${f.id}')" title="تعديل"><i class="fas fa-edit"></i></button>
                                 <button class="outline" onclick="window.showShareModal('${f.id}')" title="مشاركة ونسخ الرابط"><i class="fas fa-share-alt"></i> مشاركة</button>
                                 <button class="danger outline" onclick="window.deleteForm('${f.id}')" title="حذف النموذج"><i class="fas fa-trash"></i></button>
                             </div>
@@ -656,6 +845,240 @@
                 });
             }
             return html;
+        }
+
+        async function viewResponses(formId) {
+            const form = window.State.forms.find(f => f.id === formId);
+            if (!form) return `<div class="card">النموذج غير موجود</div>`;
+
+            try {
+                const resRef = collection(db, 'artifacts', appId, 'public', 'data', 'responses');
+                const snap = await getDocs(resRef);
+                const allRes = snap.docs.map(d => d.data());
+                const formRes = allRes.filter(r => r.formId === formId).sort((a,b) => new Date(b.date) - new Date(a.date));
+                
+                window.currentExportData = { formTitle: form.title, questions: form.questions, responses: formRes };
+                window.renderChartsFlag = true;
+
+                let avgHtml = '';
+                const isQuiz = form.settings?.isQuiz || false;
+                if (isQuiz && formRes.length > 0) {
+                    let totalScores = 0, possiblePoints = 0, quizSubmissionsCount = 0;
+                    formRes.forEach(r => {
+                        if (r.score !== null && r.score !== undefined) {
+                            totalScores += r.score; possiblePoints = r.totalPoints || 0; quizSubmissionsCount++;
+                        }
+                    });
+                    if (quizSubmissionsCount > 0) {
+                        const avg = (totalScores / quizSubmissionsCount).toFixed(1);
+                        avgHtml = `<div class="card text-center animate-fade" style="background: rgba(168,85,247,0.08); border-color: rgba(168,85,247,0.3)"><h2 style="color: #c084fc;">${avg} / ${possiblePoints}</h2><p class="text-muted">متوسط درجات الطلاب</p></div>`;
+                    }
+                }
+
+                let html = `
+                    <div class="flex justify-between align-center mb-1 animate-fade">
+                        <h2><i class="fas fa-chart-pie text-muted"></i> إحصائيات: ${form.title}</h2>
+                        <div class="flex">
+                            <button class="outline" onclick="window.navigate('#dashboard')"><i class="fas fa-arrow-right"></i> عودة</button>
+                            <button class="primary" onclick="window.exportToCSV()"><i class="fas fa-file-excel"></i> إكسل</button>
+                        </div>
+                    </div>
+                    
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-bottom: 1.5rem;" class="animate-fade">
+                        <div class="card text-center" style="margin:0;">
+                            <h1 style="font-size: 3rem; color: var(--accent); line-height: 1;">${formRes.length}</h1>
+                            <p class="text-muted">إجمالي الردود المستلمة</p>
+                        </div>
+                        ${avgHtml}
+                    </div>
+
+                    <div class="tabs-container animate-fade">
+                        <button id="btn-tab-stats" class="tab-btn active" onclick="window.switchTab('stats')"><i class="fas fa-chart-bar"></i> الإحصائيات</button>
+                        <button id="btn-tab-indiv" class="tab-btn" onclick="window.switchTab('indiv')"><i class="fas fa-list"></i> الردود الفردية</button>
+                    </div>
+
+                    <div id="content-stats" class="tab-content animate-fade">
+                        ${formRes.length === 0 ? `<div class="card text-center text-muted"><p>لا توجد ردود لعرض الإحصائيات.</p></div>` : `<div id="charts-container"></div>`}
+                    </div>
+
+                    <div id="content-indiv" class="tab-content hidden animate-fade">
+                `;
+
+                if (formRes.length === 0) {
+                    html += `<div class="card text-center text-muted"><i class="fas fa-inbox fa-3x mb-1"></i><p>لا توجد ردود.</p></div>`;
+                } else {
+                    formRes.forEach((r, idx) => {
+                        const dateObj = new Date(r.date);
+                        const formattedDate = dateObj.toLocaleDateString('ar-EG') + ' ' + dateObj.toLocaleTimeString('ar-EG');
+                        const scoreBadge = (isQuiz && r.score !== null) ? `<span class="badge" style="background:rgba(168,85,247,0.2); color:#c084fc; font-weight:bold; font-size:1rem; border:none"><i class="fas fa-graduation-cap"></i> الدرجة: ${r.score} / ${r.totalPoints}</span>` : '';
+                        
+                        html += `<div class="card" style="margin-bottom: 1rem;">
+                            <div class="flex justify-between align-center mb-1 pb-1" style="border-bottom: 1px solid var(--border)">
+                                <div class="flex align-center" style="gap:0.5rem">
+                                    <span class="badge">رد #${formRes.length - idx}</span>
+                                    ${scoreBadge}
+                                </div>
+                                <span class="text-muted" dir="ltr"><i class="far fa-clock"></i> ${formattedDate}</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr; gap: 0.8rem;">
+                        `;
+                        for (let qId in r.answers) {
+                            if(r.answers[qId] === '') continue; 
+                            const qRawId = qId.replace('q_', '');
+                            const question = form.questions.find(q => q.id === qRawId);
+                            if (question && ['divider', 'note'].includes(question.type)) continue;
+                            const qText = question ? question.title : 'سؤال محذوف';
+                            
+                            let answerValue = r.answers[qId];
+                            if (typeof answerValue === 'string' && answerValue.startsWith('{"name":')) {
+                                try {
+                                    const fileData = JSON.parse(answerValue);
+                                    if(fileData.type && fileData.type.startsWith('image/')) {
+                                        answerValue = `<div style="margin-top:0.5rem"><img src="${fileData.base64}" style="max-width:100%; max-height:220px; border-radius:var(--rs); border:1px solid var(--border)"><br><a href="${fileData.base64}" download="${fileData.name}" class="btn-download-file"><i class="fas fa-download"></i> تحميل الصورة</a></div>`;
+                                    } else {
+                                        answerValue = `<div style="margin-top:0.5rem"><a href="${fileData.base64}" download="${fileData.name}" class="btn-download-file"><i class="fas fa-file-download"></i> تحميل المستند (${fileData.name})</a></div>`;
+                                    }
+                                } catch (err) { }
+                            }
+
+                            html += `
+                                <div style="background: var(--surface2); padding: 0.8rem; border-radius: var(--rs);">
+                                    <div style="font-size: 0.85rem; color: var(--muted); margin-bottom: 0.3rem;">${qText}</div>
+                                    <div style="font-weight: bold; color: var(--text);">${answerValue}</div>
+                                </div>
+                            `;
+                        }
+                        html += `</div></div>`;
+                    });
+                }
+                html += `</div>`; 
+                return html;
+            } catch(e) {
+                if(e.code === 'permission-denied') return getRulesErrorHTML();
+                return `<div class="card text-center"><h2 style="color:var(--danger)">حدث خطأ: ${e.message}</h2></div>`;
+            }
+        }
+
+        function initChartsData() {
+            const data = window.currentExportData;
+            if(!data || data.responses.length === 0) return;
+            const container = document.getElementById('charts-container');
+            const colors = ['#4ade80', '#3b82f6', '#a855f7', '#f59e0b', '#ef4444', '#14b8a6', '#f43f5e', '#6366f1', '#ec4899', '#8b5cf6'];
+            
+            data.questions.forEach((q) => {
+                if(!['radio', 'dropdown', 'checkbox', 'rating'].includes(q.type)) return;
+                let counts = {}, totalAnswers = 0;
+
+                data.responses.forEach(r => {
+                    let ans = r.answers[`q_${q.id}`];
+                    if(!ans) return;
+                    totalAnswers++;
+                    if(q.type === 'checkbox') {
+                        ans.split('، ').forEach(opt => { counts[opt] = (counts[opt] || 0) + 1; });
+                    } else if (q.type === 'rating') {
+                        const stars = ans + ' نجمة'; counts[stars] = (counts[stars] || 0) + 1;
+                    } else { counts[ans] = (counts[ans] || 0) + 1; }
+                });
+
+                if(totalAnswers === 0) return;
+                const labels = Object.keys(counts); const dataValues = Object.values(counts);
+                const canvasId = `chart_${q.id}`;
+                container.insertAdjacentHTML('beforeend', `
+                    <div class="card">
+                        <div class="flex justify-between align-center mb-1">
+                            <h3 style="font-size:1.1rem">${q.title}</h3>
+                            <button class="outline" style="padding: 0.3rem 0.6rem; font-size:0.85rem;" onclick="window.downloadChart('${canvasId}', '${q.title.replace(/'/g, "\\'")}')"><i class="fas fa-download"></i> صورة</button>
+                        </div>
+                        <p class="text-muted" style="font-size:0.85rem; margin-bottom:1rem">${totalAnswers} إجابة</p>
+                        <div class="chart-container"><canvas id="${canvasId}"></canvas></div>
+                    </div>
+                `);
+
+                const ctx = document.getElementById(canvasId).getContext('2d');
+                const chartType = (q.type === 'radio' || q.type === 'dropdown') ? 'doughnut' : 'bar';
+                
+                new Chart(ctx, {
+                    type: chartType,
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'عدد الإجابات', data: dataValues,
+                            backgroundColor: chartType === 'doughnut' ? colors : colors[0] + '80',
+                            borderColor: chartType === 'bar' ? colors[0] : '#1a1b26',
+                            borderWidth: 2, borderRadius: chartType === 'bar' ? 4 : 0
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: chartType === 'doughnut' ? 'right' : 'none', labels: { color: '#f8fafc', font: { family: 'Cairo' } } },
+                            tooltip: { bodyFont: { family: 'Cairo' }, titleFont: { family: 'Cairo' } },
+                            customCanvasBackgroundColor: { color: '#1a1b26' }
+                        },
+                        scales: chartType === 'bar' ? {
+                            y: { beginAtZero: true, ticks: { stepSize: 1, color: '#94a3b8' }, grid: { color: '#2f3247' } },
+                            x: { ticks: { color: '#94a3b8' }, grid: { display: false } }
+                        } : undefined
+                    },
+                    plugins: [customCanvasBackgroundColor]
+                });
+            });
+        }
+
+        function downloadChart(canvasId, title) {
+            const canvas = document.getElementById(canvasId); if(!canvas) return;
+            const link = document.createElement('a'); link.download = `إحصائيات_${title.replace(/ /g, '_')}.png`;
+            link.href = canvas.toDataURL('image/png', 1.0); link.click();
+            window.showToast('بدأ تنزيل الإنفوجرافك بنجاح!');
+        }
+
+        function exportToCSV() {
+            const data = window.currentExportData;
+            if(!data || data.responses.length === 0) { window.showToast('لا توجد بيانات لتصديرها', true); return; }
+
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
+            const headers = ['التاريخ', 'العلامة المستحقة'];
+            data.questions.forEach(q => {
+                if (['divider', 'note'].includes(q.type)) return;
+                headers.push(q.title);
+            });
+            csvContent += headers.join(",") + "\n";
+
+            data.responses.forEach(r => {
+                const scoreStr = r.score !== null ? `${r.score} / ${r.totalPoints}` : 'غير متوفر';
+                const row = [new Date(r.date).toLocaleString('ar-EG').replace(/,/g, ''), scoreStr];
+                
+                data.questions.forEach(q => {
+                    if (['divider', 'note'].includes(q.type)) return;
+                    let ans = r.answers[`q_${q.id}`] || '';
+                    if(typeof ans === 'string' && ans.startsWith('{"name":')) {
+                        try { ans = `ملف مرفوع: ${JSON.parse(ans).name}`; } catch(e) { ans = 'ملف مرفوع'; }
+                    }
+                    ans = ans.replace(/"/g, '""'); 
+                    if(ans.includes(',') || ans.includes('\n')) ans = `"${ans}"`;
+                    row.push(ans);
+                });
+                csvContent += row.join(",") + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri); link.setAttribute("download", `ردود_${data.formTitle.replace(/ /g, '_')}.csv`);
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+            
+            const btnMap = { stats: 'btn-tab-stats', indiv: 'btn-tab-indiv' };
+            const contentMap = { stats: 'content-stats', indiv: 'content-indiv' };
+
+            const targetBtn = document.getElementById(btnMap[tabId]);
+            const targetContent = document.getElementById(contentMap[tabId]);
+
+            if(targetBtn) targetBtn.classList.add('active');
+            if(targetContent) targetContent.classList.remove('hidden');
         }
 
         async function viewForm(id, existingResponseId) {
@@ -699,7 +1122,7 @@
                     <div class="card text-center animate-fade theme-${theme} layout-${layout}" style="border-top: 6px solid var(--accent); padding: 3rem 1.5rem;" id="form-header-card">
                         ${existingResponseId ? `<span class="badge" style="background: rgba(59,130,246,0.2); color: var(--primary); margin-bottom: 1rem;"><i class="fas fa-edit"></i> أنت الآن في وضع تعديل ردك السابق</span>` : ''}
                         <h1 style="font-size: 2rem; color: var(--accent);">${form.title}</h1>
-                        ${form.description ? `<p class="text-muted mt-1" style="font-size: 1.1rem">${form.description}</p>` : ''}
+                        ${form.description ? `<p class="text-muted" style="font-size: 1.1rem">${form.description}</p>` : ''}
                     </div>
                     <form id="public-form" class="theme-${theme} layout-${layout}" data-edit-response-id="${existingResponseId || ''}" onsubmit="window.submitPublicForm(event, '${id}')">
                 `;
@@ -841,328 +1264,42 @@
             }
         }
 
-        window.setupConditionalLogic = () => { 
-            window.evaluateConditions(); 
-            const form = document.getElementById('public-form');
-            if (form) {
-                window.currentSectionIndex = 0;
-                window.updateSectionsDisplay();
-            }
-        };
+        // دالة عرض إرشادات تحديث قواعد الأمان وقاعدة البيانات
+        function getRulesErrorHTML() {
+            return `
+                <div class="card animate-fade" style="max-width: 650px; margin: 4rem auto; border-color: var(--danger); text-align: right;">
+                    <h2 style="color: var(--danger); margin-bottom: 1rem;"><i class="fas fa-shield-alt"></i> تنبيه: صلاحيات قاعدة البيانات (Firestore Rules)</h2>
+                    <p class="mb-1" style="font-size: 1.1rem; line-height: 1.8;">يجب تحديث قواعد الأمان في Firebase لتعمل لوحة التحكم بشكل صحيح وبلا قيود.</p>
+                </div>
+            `;
+        }
 
-        window.evaluateConditions = () => {
-            const form = document.getElementById('public-form');
-            if(!form) return;
-            const formData = new FormData(form);
-            const conditionals = document.querySelectorAll('[data-conditional="true"]');
-            
-            conditionals.forEach(el => {
-                const parentName = el.getAttribute('data-parent');
-                const reqVal = el.getAttribute('data-reqval');
-                const parentValue = formData.get(parentName);
-                const inputInside = el.querySelector('input, select, textarea');
-
-                if (parentValue === reqVal) {
-                    el.classList.remove('hidden'); el.classList.add('animate-fade');
-                    if(inputInside && el.getAttribute('data-was-required') === 'true') inputInside.required = true;
-                } else {
-                    el.classList.add('hidden'); el.classList.remove('animate-fade');
-                    if(inputInside) {
-                        if(inputInside.required) el.setAttribute('data-was-required', 'true');
-                        inputInside.required = false;
-                        if(inputInside.type === 'radio') {
-                            el.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
-                        } else if(inputInside.type === 'checkbox') {
-                            el.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
-                        } else { inputInside.value = ''; }
-                    }
-                }
-            });
-
-            if (form.classList.contains('layout-step')) window.updateSteps();
-        };
-
-        window.updateSectionsDisplay = () => {
-            const form = document.getElementById('public-form');
-            if (!form) return;
-
-            const sections = Array.from(form.querySelectorAll('.form-section-group'));
-            const headerCard = document.getElementById('form-header-card');
-            
-            if (window.currentSectionIndex >= sections.length) window.currentSectionIndex = sections.length - 1;
-            if (window.currentSectionIndex < 0) window.currentSectionIndex = 0;
-
-            // إخفاء كافة الأقسام
-            sections.forEach(s => s.classList.remove('active'));
-            
-            // إظهار القسم النشط فقط
-            if(sections[window.currentSectionIndex]) {
-                sections[window.currentSectionIndex].classList.add('active');
-            }
-
-            // إظهار الهيدر الرئيسي (عنوان الاستمارة) فقط في الصفحة الأولى (القسم الأول)
-            if (window.currentSectionIndex === 0) {
-                headerCard.style.display = 'block';
-            } else {
-                headerCard.style.display = 'none';
-            }
-
-            // تحديث شريط التقدم العلوي بشكل دقيق
-            const progressFill = document.getElementById('step-progress-fill');
-            if(progressFill) {
-                const percent = sections.length > 1 ? (window.currentSectionIndex / (sections.length - 1)) * 100 : 100;
-                progressFill.style.width = percent + '%';
-            }
-
-            const btnPrev = document.getElementById('btn-prev-sec');
-            const btnNext = document.getElementById('btn-next-sec');
-            const btnSubmit = document.getElementById('btn-submit-sec');
-
-            // التحكم في ظهور أزرار التنقل
-            btnPrev.style.display = window.currentSectionIndex === 0 ? 'none' : 'inline-flex';
-
-            if(window.currentSectionIndex === sections.length - 1) {
-                btnNext.style.display = 'none';
-                btnSubmit.style.display = 'inline-flex';
-            } else {
-                btnNext.style.display = 'inline-flex';
-                btnSubmit.style.display = 'none';
-            }
-
-            // رفع الشاشة لأعلى الصفحة عند الانتقال
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
-
-        window.nextSection = () => {
-            const form = document.getElementById('public-form');
-            const sections = Array.from(form.querySelectorAll('.form-section-group'));
-            const currentSec = sections[window.currentSectionIndex];
-
-            // التحقق من صحة كافة الأسئلة الإجبارية داخل القسم الحالي قبل الانتقال
-            if(currentSec) {
-                const requiredInputs = currentSec.querySelectorAll('[required]');
-                let isValid = true;
-                requiredInputs.forEach(inp => {
-                    // نتأكد أولاً أن السؤال ليس مخفياً بسبب منطق شرطي
-                    const parentWrap = inp.closest('.question-container');
-                    if (parentWrap && parentWrap.classList.contains('hidden')) return;
-
-                    if(!inp.checkValidity()) {
-                        inp.reportValidity();
-                        isValid = false;
-                    }
-                });
-                if(!isValid) return;
-            }
-
-            window.currentSectionIndex++;
-            window.updateSectionsDisplay();
-        };
-
-        window.prevSection = () => {
-            window.currentSectionIndex--;
-            window.updateSectionsDisplay();
-        };
-
-        window.showShareModal = (formId) => {
-            const longLink = `${window.location.origin}${window.location.pathname}?f=${formId}`;
-            
-            document.getElementById('modal-long-url').value = longLink;
-            document.getElementById('modal-short-url').value = '';
-            document.getElementById('short-url-section').classList.add('hidden');
-            
-            const btnShorten = document.getElementById('btn-shorten-action');
-            btnShorten.disabled = false;
-            btnShorten.innerHTML = '<i class="fas fa-magic"></i> توليد رابط قصير جداً';
-            
-            window.currentLongUrlToShorten = longLink;
-            document.getElementById('share-modal').classList.add('active');
-        };
-
-        window.hideShareModal = () => {
-            document.getElementById('share-modal').classList.remove('active');
-        };
-
-        window.closeShareModal = (e) => {
-            if(e.target.id === 'share-modal') window.hideShareModal();
-        };
-
-        window.shortenCurrentUrl = async () => {
-            const longLink = window.currentLongUrlToShorten;
-            if(!longLink) return;
-
-            const btnShorten = document.getElementById('btn-shorten-action');
-            btnShorten.disabled = true;
-            btnShorten.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التوليد...';
-
-            try {
-                // التقصير عبر الخدمة المفضلة لديك 2u.pw باستخدام AllOrigins Proxy لتفادي مشاكل الحماية
-                const u2pwApi = `https://2u.pw/api.php?url=${encodeURIComponent(longLink)}`;
-                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(u2pwApi)}`;
-                
-                const response = await fetch(proxyUrl);
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.contents && data.contents.startsWith('http')) {
-                        document.getElementById('modal-short-url').value = data.contents;
-                        document.getElementById('short-url-section').classList.remove('hidden');
-                        window.showToast('تمت عملية تقصير الرابط عبر 2u.pw بنجاح!');
-                        btnShorten.innerHTML = '<i class="fas fa-check-circle"></i> تم بنجاح';
-                        return;
-                    }
-                }
-                throw new Error('API Error');
-            } catch (err) {
-                try {
-                    // نظام الاحتياط (Fallback) في حال واجهت خدمة 2u.pw مشاكل اتصال مؤقتة
-                    const isgdApi = `https://is.gd/create.php?format=simple&url=${encodeURIComponent(longLink)}`;
-                    const proxyUrl2 = `https://api.allorigins.win/get?url=${encodeURIComponent(isgdApi)}`;
-                    
-                    const response2 = await fetch(proxyUrl2);
-                    if (response2.ok) {
-                        const data2 = await response2.json();
-                        if (data2.contents && data2.contents.startsWith('http')) {
-                            document.getElementById('modal-short-url').value = data2.contents;
-                            document.getElementById('short-url-section').classList.remove('hidden');
-                            window.showToast('تم التقصير احتياطياً عبر is.gd');
-                            btnShorten.innerHTML = '<i class="fas fa-check-circle"></i> تم بنجاح';
-                            return;
-                        }
-                    }
-                    throw new Error('Fallback Error');
-                } catch (err2) {
-                    window.showToast('فشل الاتصال بخدمات التقصير، يرجى مشاركة الرابط الطويل.', true);
-                    btnShorten.disabled = false;
-                    btnShorten.innerHTML = '<i class="fas fa-magic"></i> توليد رابط قصير جداً';
-                }
-            }
-        };
-
-        window.copyLinkDirect = (inputId) => {
-            const inputEl = document.getElementById(inputId);
-            if(!inputEl || !inputEl.value) return;
-
-            const tempTextArea = document.createElement("textarea");
-            tempTextArea.value = inputEl.value; 
-            tempTextArea.style.position = "fixed"; 
-            tempTextArea.style.opacity = "0";
-            document.body.appendChild(tempTextArea); 
-            tempTextArea.focus(); 
-            tempTextArea.select();
-            
-            try { 
-                if (document.execCommand('copy')) window.showToast('تم النسخ بنجاح!');
-                else window.showToast('فشل النسخ تلقائياً.', true);
-            } catch (err) { window.showToast('فشل النسخ تلقائياً.', true); }
-            document.body.removeChild(tempTextArea);
-        };
-
-        window.loadSupervisors = async () => {
-            const listDiv = document.getElementById('supervisors-list'); if(!listDiv) return;
-            try {
-                const snap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'supervisors'));
-                if(snap.empty) { listDiv.innerHTML = '<p class="text-muted text-center" style="padding: 1rem;">لا يوجد مشرفون.</p>'; return; }
-                
-                let html = '';
-                snap.docs.forEach(d => {
-                    const s = d.data();
-                    html += `
-                        <div class="card flex justify-between align-center" style="padding: 1rem; margin-bottom: 0.8rem; background: var(--surface2); border: 1px solid ${s.revoked ? 'var(--danger)' : 'var(--border)'}; flex-wrap: wrap; gap: 1rem;">
-                            <div>
-                                <p style="font-weight:bold; font-size: 1.1rem; text-decoration: ${s.revoked ? 'line-through' : 'none'}; color: ${s.revoked ? 'var(--danger)' : 'var(--text)'}">${s.email}</p>
-                                <div class="flex mt-1" style="gap: 0.5rem">
-                                    <span class="badge" style="background: ${s.revoked ? 'rgba(248,113,113,0.1)' : 'rgba(74,222,128,0.1)'}; color: ${s.revoked ? 'var(--danger)' : 'var(--accent)'}; border:none;">${s.revoked ? 'موقوف' : 'نشط'}</span>
-                                    <span class="badge" style="background: rgba(59,130,246,0.1); color: var(--primary); border:none;">${s.canViewAllForms ? '<i class="fas fa-eye"></i> يرى الكل' : '<i class="fas fa-eye-slash"></i> يرى نماذجه'}</span>
-                                </div>
-                            </div>
-                            <div class="flex" style="gap: 0.5rem">
-                                <button class="outline" style="padding: 0.4rem 0.8rem; font-size: 0.9rem;" onclick="window.toggleSupervisorViewAll('${s.uid}', ${s.canViewAllForms})">${s.canViewAllForms ? 'تقييد الرؤية' : 'السماح برؤية الكل'}</button>
-                                <button class="${s.revoked ? 'primary' : 'danger outline'}" style="padding: 0.4rem 0.8rem; font-size: 0.9rem;" onclick="window.toggleSupervisorAccess('${s.uid}', ${s.revoked})">${s.revoked ? '<i class="fas fa-check"></i> تفعيل' : '<i class="fas fa-ban"></i> إيقاف'}</button>
-                            </div>
-                        </div>
-                    `;
-                });
-                listDiv.innerHTML = html;
-            } catch(e) {
-                if (e.code === 'permission-denied') listDiv.innerHTML = getRulesErrorHTML(); else listDiv.innerHTML = '<p style="color:var(--danger)">فشل التحميل.</p>';
-            }
-        };
-
-        window.toggleSupervisorAccess = async (uid, currentStatus) => {
-            if(!confirm(currentStatus ? 'هل أنت متأكد من إعادة تفعيل هذا الحساب؟' : 'هل أنت متأكد من إيقاف هذا الحساب؟ لن يتمكن من الدخول نهائياً.')) return;
-            try {
-                await setDoc(doc(db, 'artifacts', appId, 'users', uid, 'profile', 'data'), { revoked: !currentStatus }, { merge: true });
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'supervisors', uid), { revoked: !currentStatus }, { merge: true });
-                window.showToast('تم تحديث حالة الحساب بنجاح');
-                window.loadSupervisors();
-            } catch (e) {
-                if (e.code === 'permission-denied') document.getElementById('app-content').innerHTML = getRulesErrorHTML();
-                else window.showToast('حدث خطأ أثناء التحديث', true);
-            }
-        };
-
-        window.toggleSupervisorViewAll = async (uid, currentViewAll) => {
-            try {
-                await setDoc(doc(db, 'artifacts', appId, 'users', uid, 'profile', 'data'), { canViewAllForms: !currentViewAll }, { merge: true });
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'supervisors', uid), { canViewAllForms: !currentViewAll }, { merge: true });
-                window.showToast('تم تحديث صلاحية الرؤية بنجاح');
-                window.loadSupervisors();
-            } catch (e) {
-                if (e.code === 'permission-denied') document.getElementById('app-content').innerHTML = getRulesErrorHTML();
-                else window.showToast('حدث خطأ أثناء التحديث', true);
-            }
-        };
-
-        window.createSupervisor = async (e) => {
+        // 4. تعريف دالتي تسجيل الدخول وبدء الإدارة الأول (تم سحبهما للأعلى لمنع أخطاء النطاق)
+        function handleLogin(e) {
             e.preventDefault();
-            const btn = document.getElementById('btn-create-sup');
-            const email = document.getElementById('new-sup-email').value;
-            const pass = document.getElementById('new-sup-pass').value;
-            const canViewAll = document.getElementById('new-sup-view-all').checked;
+            const email = document.getElementById('l-email').value;
+            const pass = document.getElementById('l-pass').value;
+            signInWithEmailAndPassword(auth, email, pass)
+                .catch((error) => { window.showToast('فشل تسجيل الدخول. تأكد من البيانات.', true); });
+        }
 
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإنشاء...';
-            btn.disabled = true;
+        function handleFirstAdminSetup(e) {
+            e.preventDefault();
+            const email = document.getElementById('a-email').value;
+            const pass = document.getElementById('a-pass').value;
+            createUserWithEmailAndPassword(auth, email, pass)
+                .then((cred) => {
+                    setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'sys_info', 'setup'), { initialized: true, adminUid: cred.user.uid });
+                    setDoc(doc(db, 'artifacts', appId, 'users', cred.user.uid, 'profile', 'data'), { email: cred.user.email, role: 'admin', revoked: false });
+                    window.showToast('تم إنشاء حساب المشرف الرئيسي بنجاح!');
+                })
+                .catch((error) => { window.showToast(error.message, true); });
+        }
 
-            try {
-                if(!window.secondaryApp) {
-                    window.secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
-                    window.secondaryAuth = getAuth(window.secondaryApp);
-                }
-
-                const cred = await createUserWithEmailAndPassword(window.secondaryAuth, email, pass);
-                const newUid = cred.user.uid;
-
-                await setDoc(doc(db, 'artifacts', appId, 'users', newUid, 'profile', 'data'), {
-                    email: email,
-                    role: 'editor',
-                    revoked: false,
-                    canViewAllForms: canViewAll
-                });
-
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'supervisors', newUid), {
-                    uid: newUid,
-                    email: email,
-                    createdAt: new Date().toISOString(),
-                    revoked: false,
-                    canViewAllForms: canViewAll
-                });
-
-                await signOut(window.secondaryAuth);
-
-                window.showToast('تم إنشاء حساب المشرف المساعد بنجاح!');
-                document.getElementById('new-sup-email').value = '';
-                document.getElementById('new-sup-pass').value = '';
-                document.getElementById('new-sup-view-all').checked = false;
-                
-                window.loadSupervisors();
-            } catch (error) {
-                if (error.code === 'permission-denied') document.getElementById('app-content').innerHTML = getRulesErrorHTML();
-                else window.showToast('خطأ: ' + error.message, true);
-            } finally {
-                btn.innerHTML = '<i class="fas fa-plus"></i> إضافة الحساب';
-                btn.disabled = false;
-            }
-        };
+        // إسناد الدوال لـ window بشكل محصّن وصحيح لمنع مشاكل النطاق (Module Scope)
+        window.viewDashboard = viewDashboard;
+        window.viewForm = viewForm;
+        window.viewSettings = viewSettings;
 
     </script>
 </body>
