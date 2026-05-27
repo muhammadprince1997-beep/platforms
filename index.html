@@ -689,8 +689,9 @@
             btnShorten.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التوليد...';
 
             try {
-                const tinyUrlApi = `https://tinyurl.com/api-create.php?url=${encodeURIComponent(longLink)}`;
-                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(tinyUrlApi)}`;
+                // المحاولة الأولى باستخدام is.gd (سريع وفعال جداً)
+                const isgdApi = `https://is.gd/create.php?format=simple&url=${encodeURIComponent(longLink)}`;
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(isgdApi)}`;
                 
                 const response = await fetch(proxyUrl);
                 if (response.ok) {
@@ -706,8 +707,9 @@
                 throw new Error('API Error');
             } catch (err) {
                 try {
-                    const isgdApi = `https://is.gd/create.php?format=simple&url=${encodeURIComponent(longLink)}`;
-                    const proxyUrl2 = `https://api.allorigins.win/get?url=${encodeURIComponent(isgdApi)}`;
+                    // المحاولة الثانية باستخدام v.gd كبديل احتياطي
+                    const vgdApi = `https://v.gd/create.php?format=simple&url=${encodeURIComponent(longLink)}`;
+                    const proxyUrl2 = `https://api.allorigins.win/get?url=${encodeURIComponent(vgdApi)}`;
                     
                     const response2 = await fetch(proxyUrl2);
                     if (response2.ok) {
@@ -722,7 +724,7 @@
                     }
                     throw new Error('Fallback Error');
                 } catch (err2) {
-                    window.showToast('فشل الاتصال بخادم التقصير، استخدم الرابط الطويل.', true);
+                    window.showToast('فشل الاتصال بخوادم التقصير، استخدم الرابط الطويل.', true);
                     btnShorten.disabled = false;
                     btnShorten.innerHTML = '<i class="fas fa-magic"></i> توليد رابط قصير جداً';
                 }
