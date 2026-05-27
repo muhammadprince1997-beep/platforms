@@ -301,6 +301,18 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // معالجة روابط التقصير المستلمة عبر Query Parameters تحسباً لقضية قص قيود الهاش (#) من قبل خوادم التقصير
+        const urlParams = new URLSearchParams(window.location.search);
+        const fParam = urlParams.get('f');
+        const rParam = urlParams.get('r');
+        if (fParam) {
+            let targetHash = `#form/${fParam}`;
+            if (rParam) targetHash += `/${rParam}`;
+            window.location.hash = targetHash;
+            // تنظيف شريط العنوان ليبقى المظهر احترافي بالهاش فقط لمنع حدوث مشاكل تكرار تحميل
+            window.history.replaceState({}, document.title, window.location.pathname + targetHash);
+        }
+
         window.State = { user: null, isAdmin: false, forms: [], responses: {}, currentBuilderForm: null };
         window.currentStep = 0; // for Step-by-Step layout
 
@@ -640,7 +652,8 @@
 
         // إظهار نافذة المشاركة والتقصير
         window.showShareModal = (formId) => {
-            const longLink = `${window.location.origin}${window.location.pathname}#form/${formId}`;
+            // نستخدم علامة الاستفهام لإنشاء رابط آمن تماماً لا يمكن تقصيره أو التلاعب به من خوادم التقصير
+            const longLink = `${window.location.origin}${window.location.pathname}?f=${formId}`;
             
             // تهيئة الحقول في النافذة المنبثقة
             document.getElementById('modal-long-url').value = longLink;
