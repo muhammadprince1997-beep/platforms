@@ -7,6 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for Infographics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
         :root {
@@ -14,7 +16,7 @@
             --surface: #1a1b26;
             --surface2: #242636;
             --border: #2f3247;
-            --accent: #4ade80; /* لون أخضر عصري */
+            --accent: #4ade80; /* لون أخضر افتراضي */
             --accent-hover: #22c55e;
             --primary: #3b82f6; /* لون أزرق للتميز */
             --danger: #f87171;
@@ -24,6 +26,13 @@
             --rs: 8px;
             --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
         }
+
+        /* لوحة ألوان الثيمات للمظاهر */
+        .theme-green { --accent: #4ade80; --accent-hover: #22c55e; }
+        .theme-blue { --accent: #3b82f6; --accent-hover: #1d4ed8; }
+        .theme-purple { --accent: #a855f7; --accent-hover: #7e22ce; }
+        .theme-amber { --accent: #f59e0b; --accent-hover: #b45309; }
+        .theme-red { --accent: #ef4444; --accent-hover: #b91c1c; }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -73,7 +82,7 @@
             transition: all 0.3s ease;
         }
         
-        input[type="text"], input[type="email"], input[type="password"], input[type="tel"], input[type="date"], input[type="time"], input[type="file"], textarea, select {
+        input[type="text"], input[type="email"], input[type="password"], input[type="tel"], input[type="date"], input[type="time"], input[type="file"], input[type="number"], textarea, select {
             width: 100%; background-color: var(--surface2); border: 1px solid var(--border);
             color: var(--text); padding: 0.9rem; border-radius: var(--rs);
             font-family: inherit; margin-top: 0.5rem; transition: border 0.3s;
@@ -92,6 +101,12 @@
         button.outline:hover { border-color: var(--accent); color: var(--accent); }
         button.primary { background-color: var(--primary); color: white; }
         button.primary:hover { background-color: #2563eb; }
+        
+        /* Tabs */
+        .tabs-container { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; overflow-x: auto; }
+        .tab-btn { background: transparent; color: var(--muted); border: none; border-bottom: 3px solid transparent; border-radius: 0; padding: 0.8rem 1.5rem; font-size: 1.1rem; }
+        .tab-btn:hover { background: rgba(255,255,255,0.05); transform: none; }
+        .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 800; }
 
         /* Utilities */
         .hidden { display: none !important; }
@@ -124,6 +139,11 @@
         .btn-download-file { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--surface2); color: var(--accent); padding: 0.5rem 1rem; border-radius: var(--rs); text-decoration: none; border: 1px solid var(--border); transition: 0.3s; margin-top: 0.5rem;}
         .btn-download-file:hover { background: var(--accent); color: #000; }
 
+        /* Theme selection dots */
+        .theme-dot { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: 0.2s; }
+        .theme-dot:hover { transform: scale(1.15); }
+        .theme-dot.selected { border-color: var(--text); }
+
         /* Footer */
         footer {
             text-align: center; padding: 2rem; border-top: 1px solid var(--border);
@@ -146,9 +166,12 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.5);
         }
 
+        .chart-container { position: relative; height: 300px; width: 100%; display: flex; justify-content: center; margin-top: 1rem; margin-bottom: 1rem;}
+
         @media(max-width: 600px) {
             .q-header { grid-template-columns: 1fr; }
             .nav-links { display: none; } /* Simplified mobile nav */
+            .chart-container { height: 250px; }
         }
     </style>
 </head>
@@ -218,6 +241,23 @@
             currentBuilderForm: null
         };
 
+        // إعداد افتراضي للرسوم البيانية
+        Chart.defaults.font.family = 'Cairo';
+        Chart.defaults.color = '#94a3b8';
+        
+        // Plugin to fill background with dark color before downloading chart image
+        const customCanvasBackgroundColor = {
+            id: 'customCanvasBackgroundColor',
+            beforeDraw: (chart, args, options) => {
+                const {ctx} = chart;
+                ctx.save();
+                ctx.globalCompositeOperation = 'destination-over';
+                ctx.fillStyle = options.color || '#1a1b26';
+                ctx.fillRect(0, 0, chart.width, chart.height);
+                ctx.restore();
+            }
+        };
+
         // --- Utilities ---
         window.generateId = () => Math.random().toString(36).substr(2, 9);
         window.showToast = (msg, isError = false) => {
@@ -274,7 +314,6 @@ service cloud.firestore {
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 try {
-                    // التحقق مما إذا كان الحساب موقوفاً من قبل الإدارة
                     const userDoc = await getDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'data'));
                     if (userDoc.exists() && userDoc.data().revoked) {
                         await signOut(auth);
@@ -286,7 +325,6 @@ service cloud.firestore {
                     document.getElementById('main-nav').classList.remove('hidden');
                     document.getElementById('nav-user').innerHTML = `<i class="fas fa-user"></i> ${user.email}`;
                     
-                    // Check if admin
                     if (userDoc.exists() && userDoc.data().role === 'admin') {
                         window.State.isAdmin = true;
                         document.getElementById('admin-settings-btn').classList.remove('hidden');
@@ -311,12 +349,10 @@ service cloud.firestore {
                 window.State.isAdmin = false;
                 document.getElementById('main-nav').classList.add('hidden');
                 
-                // Try anonymous login for public users (Optional, but helps with some configurations)
                 try {
                     await signInAnonymously(auth);
-                } catch(e) { /* Ignore if anonymous is disabled */ }
+                } catch(e) { }
 
-                // If trying to access public form, allow it
                 if(window.location.hash.startsWith('#form/') || window.location.hash === '#success') {
                     renderView();
                 } else {
@@ -356,6 +392,10 @@ service cloud.firestore {
                 case 'responses': 
                     container.innerHTML = `<div class="text-center" style="margin-top: 5rem;"><i class="fas fa-circle-notch fa-spin fa-3x" style="color: var(--accent)"></i></div>`;
                     container.innerHTML = await viewResponses(id); 
+                    if(window.renderChartsFlag) {
+                        window.initChartsData();
+                        window.renderChartsFlag = false;
+                    }
                     break;
                 case 'settings': 
                     container.innerHTML = viewSettings(); 
@@ -374,16 +414,13 @@ service cloud.firestore {
                 const allForms = snap.docs.map(d => d.data());
                 
                 if (window.State.isAdmin) {
-                    // الأدمن يرى كل النماذج
                     window.State.forms = allForms;
                 } else {
-                    // المشرف العادي نتحقق من صلاحياته
                     const profileSnap = await getDoc(doc(db, 'artifacts', appId, 'users', window.State.user.uid, 'profile', 'data'));
                     const profile = profileSnap.data() || {};
                     if (profile.canViewAllForms) {
-                        window.State.forms = allForms; // يرى الكل إذا تم السماح له
+                        window.State.forms = allForms;
                     } else {
-                        // يرى نماذجه فقط
                         window.State.forms = allForms.filter(f => f.ownerId === window.State.user.uid);
                     }
                 }
@@ -440,9 +477,24 @@ service cloud.firestore {
             }
 
             try {
-                // Check if limit one response
-                const form = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'forms', formId));
-                if(form.exists() && form.data().settings?.limitOneResponse) {
+                const formSnap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'forms', formId));
+                if(!formSnap.exists()) {
+                    window.showToast('النموذج لم يعد متوفراً', true);
+                    btn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال النموذج'; btn.disabled = false;
+                    return;
+                }
+
+                const form = formSnap.data();
+
+                // Check active status
+                if (form.settings?.closed) {
+                    window.showToast('عذراً، هذا النموذج مغلق حالياً ولا يستقبل أي ردود.', true);
+                    btn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال النموذج'; btn.disabled = false;
+                    return;
+                }
+
+                // Check limit one response
+                if(form.settings?.limitOneResponse) {
                     if(localStorage.getItem(`responded_${formId}`)) {
                         window.showToast('لقد قمت بالرد على هذا النموذج مسبقاً.', true);
                         btn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال النموذج'; btn.disabled = false;
@@ -450,18 +502,43 @@ service cloud.firestore {
                     }
                 }
 
+                // Calculate Score if in Quiz Mode
+                let score = 0;
+                let totalPoints = 0;
+                let isQuiz = form.settings?.isQuiz || false;
+
+                if (isQuiz) {
+                    form.questions.forEach(q => {
+                        const studentAns = answers[`q_${q.id}`];
+                        const points = parseInt(q.points) || 0;
+                        totalPoints += points;
+
+                        if (q.correctAnswer && studentAns) {
+                            const cleanStudentAns = String(studentAns).trim().toLowerCase();
+                            const cleanCorrectAns = String(q.correctAnswer).trim().toLowerCase();
+                            if (cleanStudentAns === cleanCorrectAns) score += points;
+                        }
+                    });
+                }
+
                 const resRef = collection(db, 'artifacts', appId, 'public', 'data', 'responses');
                 await addDoc(resRef, {
                     formId: formId,
                     date: new Date().toISOString(),
-                    answers: answers
+                    answers: answers,
+                    score: isQuiz ? score : null,
+                    totalPoints: isQuiz ? totalPoints : null
                 });
 
-                if(form.exists() && form.data().settings?.limitOneResponse) {
+                if(form.settings?.limitOneResponse) {
                     localStorage.setItem(`responded_${formId}`, 'true');
                 }
 
-                navigate('#success');
+                if (isQuiz) {
+                    sessionStorage.setItem(`last_score_${formId}`, JSON.stringify({ score, totalPoints }));
+                }
+
+                navigate(`#success/${formId}`);
             } catch (e) {
                 console.error(e);
                 if (e.code === 'permission-denied') {
@@ -473,14 +550,13 @@ service cloud.firestore {
             }
         };
 
-        // Helper for file reading (Simulated Direct Base64 upload to Firestore)
         window.handleFileSelect = (qid, input) => {
             const file = input.files[0];
             const infoSpan = document.getElementById(`file_info_${qid}`);
             const inputHidden = document.getElementById(`input_${qid}`);
             if(!file) return;
 
-            if(file.size > 500 * 1024) { // 500KB limit
+            if(file.size > 500 * 1024) { 
                 window.showToast('حجم الملف كبير جداً! الحد الأقصى 500 كيلوبايت لضمان سرعة الحفظ.', true);
                 input.value = '';
                 infoSpan.innerHTML = `<span style="color:var(--danger)">حجم الملف تجاوز 500 كيلوبايت!</span>`;
@@ -500,7 +576,6 @@ service cloud.firestore {
             reader.readAsDataURL(file);
         };
 
-        // Interactive Star Rating Setter
         window.setRating = (qid, val) => {
             const input = document.getElementById(`input_${qid}`);
             if(!input) return;
@@ -512,11 +587,8 @@ service cloud.firestore {
             const stars = starContainer.querySelectorAll('span');
             stars.forEach((star, idx) => {
                 const starIcon = star.querySelector('i');
-                if (idx < val) {
-                    starIcon.className = 'fas fa-star';
-                } else {
-                    starIcon.className = 'far fa-star';
-                }
+                if (idx < val) starIcon.className = 'fas fa-star';
+                else starIcon.className = 'far fa-star';
             });
             window.evaluateConditions();
         };
@@ -539,16 +611,13 @@ service cloud.firestore {
             const pass = document.getElementById('a-pass').value;
             
             try {
-                // إنشاء حساب المسؤول
                 const cred = await createUserWithEmailAndPassword(auth, email, pass);
                 
-                // تسجيل أن المنصة تم إعدادها
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'sys_info', 'setup'), {
                     initialized: true,
                     adminUid: cred.user.uid
                 });
                 
-                // تعيين صلاحية الأدمن
                 await setDoc(doc(db, 'artifacts', appId, 'users', cred.user.uid, 'profile', 'data'), {
                     email: email,
                     role: 'admin',
@@ -557,12 +626,8 @@ service cloud.firestore {
 
                 window.showToast('تم إنشاء حساب المشرف الرئيسي بنجاح!');
             } catch (error) {
-                console.error(error);
-                if(error.code === 'permission-denied') {
-                    document.getElementById('app-content').innerHTML = getRulesErrorHTML();
-                } else {
-                    window.showToast(error.message, true);
-                }
+                if(error.code === 'permission-denied') document.getElementById('app-content').innerHTML = getRulesErrorHTML();
+                else window.showToast(error.message, true);
             }
         };
 
@@ -609,7 +674,6 @@ service cloud.firestore {
                 
                 window.loadSupervisors();
             } catch (error) {
-                console.error(error);
                 if (error.code === 'permission-denied') document.getElementById('app-content').innerHTML = getRulesErrorHTML();
                 else window.showToast('خطأ: ' + error.message, true);
             } finally {
@@ -682,9 +746,7 @@ service cloud.firestore {
                     </div>
                 `;
             } catch(e) {
-                if(e.code === 'permission-denied') {
-                    return getRulesErrorHTML();
-                }
+                if(e.code === 'permission-denied') return getRulesErrorHTML();
                 return `<div class="card text-center"><h2 style="color:var(--danger)">حدث خطأ: ${e.message}</h2></div>`;
             }
         }
@@ -701,14 +763,19 @@ service cloud.firestore {
                 html += `<div class="card text-center animate-fade"><i class="fas fa-file-alt fa-3x text-muted mb-1"></i><p class="text-muted">لا توجد نماذج حالياً. ابدأ بإنشاء نموذجك الأول!</p></div>`;
             } else {
                 window.State.forms.forEach((f, index) => {
+                    const isClosed = f.settings?.closed || false;
+                    const isQuiz = f.settings?.isQuiz || false;
                     html += `
                         <div class="card flex justify-between align-center animate-fade" style="animation-delay: ${index * 0.1}s">
                             <div>
                                 <h3 style="margin-bottom: 0.3rem;">${f.title || 'بدون عنوان'}</h3>
-                                <p class="text-muted"><i class="fas fa-calendar-alt"></i> تم الإنشاء مؤخراً</p>
+                                <div class="flex" style="gap: 0.5rem; flex-wrap:wrap;">
+                                    ${isQuiz ? '<span class="badge" style="background: rgba(168,85,247,0.15); color: #c084fc;"><i class="fas fa-graduation-cap"></i> اختبار</span>' : ''}
+                                    ${isClosed ? '<span class="badge" style="background: rgba(248,113,113,0.15); color: var(--danger);"><i class="fas fa-lock"></i> مغلق</span>' : '<span class="badge" style="background: rgba(74,222,128,0.15); color: var(--accent);"><i class="fas fa-unlock"></i> نشط</span>'}
+                                </div>
                             </div>
-                            <div class="flex">
-                                <button class="primary" onclick="navigate('#responses/${f.id}')" title="الردود"><i class="fas fa-chart-pie"></i> الردود</button>
+                            <div class="flex" style="gap:0.5rem;">
+                                <button class="primary" onclick="navigate('#responses/${f.id}')" title="الردود"><i class="fas fa-chart-pie"></i> الردود والإحصائيات</button>
                                 <button class="outline" onclick="navigate('#builder/${f.id}')" title="تعديل"><i class="fas fa-edit"></i></button>
                                 <button class="outline" onclick="window.copyLink('${f.id}')" title="نسخ الرابط"><i class="fas fa-link"></i></button>
                             </div>
@@ -719,15 +786,10 @@ service cloud.firestore {
             return html;
         }
 
-        // Robust cross-browser text copy fallback to prevent iframe permissions issues
         window.copyLink = (id) => {
             const link = `${window.location.origin}${window.location.pathname}#form/${id}`;
-            
-            // Create a temporary textarea element
             const tempTextArea = document.createElement("textarea");
             tempTextArea.value = link;
-            
-            // Prevent scrolling to the bottom of the page when appending
             tempTextArea.style.position = "fixed";
             tempTextArea.style.top = "0";
             tempTextArea.style.left = "0";
@@ -745,16 +807,11 @@ service cloud.firestore {
             
             try {
                 const successful = document.execCommand('copy');
-                if (successful) {
-                    window.showToast('تم نسخ رابط النموذج بنجاح!');
-                } else {
-                    window.showToast('فشل نسخ الرابط تلقائياً، يرجى نسخه يدوياً.', true);
-                }
+                if (successful) window.showToast('تم نسخ رابط النموذج بنجاح!');
+                else window.showToast('فشل نسخ الرابط تلقائياً، يرجى نسخه يدوياً.', true);
             } catch (err) {
-                console.error('Fallback copy failed', err);
                 window.showToast('فشل نسخ الرابط تلقائياً، يرجى نسخه يدوياً.', true);
             }
-            
             document.body.removeChild(tempTextArea);
         };
 
@@ -763,7 +820,7 @@ service cloud.firestore {
             if (id) {
                 const f = window.State.forms.find(x => x.id === id);
                 if(f) {
-                    window.State.currentBuilderForm = JSON.parse(JSON.stringify(f)); // Deep copy
+                    window.State.currentBuilderForm = JSON.parse(JSON.stringify(f)); 
                     return;
                 }
             }
@@ -771,7 +828,7 @@ service cloud.firestore {
                 id: window.generateId(), 
                 title: 'نموذج جديد', 
                 description: '', 
-                settings: { limitOneResponse: false },
+                settings: { limitOneResponse: false, isQuiz: false, closed: false, themeColor: 'green' },
                 questions: [] 
             };
         }
@@ -780,8 +837,9 @@ service cloud.firestore {
 
         function viewBuilder() {
             const f = window.State.currentBuilderForm;
+            const theme = f.settings?.themeColor || 'green';
             let html = `
-                <div class="flex justify-between align-center mb-1 animate-fade">
+                <div class="flex justify-between align-center mb-1 animate-fade theme-${theme}">
                     <h2><i class="fas fa-tools text-muted"></i> بناء النموذج</h2>
                     <div class="flex">
                         <button class="outline" onclick="navigate('#dashboard')">إلغاء</button>
@@ -789,14 +847,35 @@ service cloud.firestore {
                     </div>
                 </div>
 
-                <div class="card animate-fade">
+                <div class="card animate-fade theme-${theme}">
                     <input type="text" id="b-title" placeholder="عنوان النموذج" value="${f.title}" style="font-size: 1.5rem; font-weight: bold; border:none; border-bottom: 2px solid var(--border); border-radius:0; background: transparent; padding-left:0; padding-right:0;" onchange="window.updateFormMeta('title', this.value)">
                     <textarea id="b-desc" placeholder="وصف النموذج (اختياري)" rows="2" style="border:none; background: transparent; padding-left:0; padding-right:0;" onchange="window.updateFormMeta('description', this.value)">${f.description}</textarea>
                     
-                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);" class="flex align-center">
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border)">
+                        <p class="text-muted" style="font-size: 0.9rem; margin-bottom: 0.5rem;"><i class="fas fa-palette"></i> لون مظهر النموذج:</p>
+                        <div class="flex" style="gap: 0.8rem;">
+                            <div class="theme-dot ${theme==='green'?'selected':''}" style="background: #4ade80;" onclick="window.updateFormTheme('green')"></div>
+                            <div class="theme-dot ${theme==='blue'?'selected':''}" style="background: #3b82f6;" onclick="window.updateFormTheme('blue')"></div>
+                            <div class="theme-dot ${theme==='purple'?'selected':''}" style="background: #a855f7;" onclick="window.updateFormTheme('purple')"></div>
+                            <div class="theme-dot ${theme==='amber'?'selected':''}" style="background: #f59e0b;" onclick="window.updateFormTheme('amber')"></div>
+                            <div class="theme-dot ${theme==='red'?'selected':''}" style="background: #ef4444;" onclick="window.updateFormTheme('red')"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border);" class="flex-col">
                         <label class="custom-radio">
                             <input type="checkbox" id="b-limit" ${f.settings?.limitOneResponse ? 'checked' : ''} onchange="window.updateFormMeta('limitOneResponse', this.checked)">
                             <span>تفعيل (الرد مرة واحدة فقط للطالب)</span>
+                        </label>
+                        
+                        <label class="custom-radio">
+                            <input type="checkbox" id="b-quiz" ${f.settings?.isQuiz ? 'checked' : ''} onchange="window.updateFormMeta('isQuiz', this.checked)">
+                            <span style="color:#c084fc; font-weight:bold;"><i class="fas fa-graduation-cap"></i> تحويل إلى اختبار (تصحيح تلقائي وعلامات للطلاب)</span>
+                        </label>
+
+                        <label class="custom-radio">
+                            <input type="checkbox" id="b-closed" ${f.settings?.closed ? 'checked' : ''} onchange="window.updateFormMeta('closed', this.checked)">
+                            <span style="color:var(--danger); font-weight:bold;"><i class="fas fa-lock"></i> إغلاق الاستمارة (إيقاف استقبال الردود حالياً)</span>
                         </label>
                     </div>
                 </div>
@@ -809,7 +888,7 @@ service cloud.firestore {
                     ${f.questions.map((q, idx) => renderQuestionEditor(q, idx)).join('')}
                 </div>
 
-                <div class="card text-center animate-fade" style="border-style: dashed; cursor: pointer; border-color: var(--accent); background: rgba(74, 222, 128, 0.05);" onclick="window.addQuestion()">
+                <div class="card text-center animate-fade theme-${theme}" style="border-style: dashed; cursor: pointer; border-color: var(--accent); background: rgba(74, 222, 128, 0.05);" onclick="window.addQuestion()">
                     <h3 style="color: var(--accent);"><i class="fas fa-plus-circle"></i> إضافة سؤال جديد</h3>
                 </div>
             `;
@@ -817,8 +896,9 @@ service cloud.firestore {
         }
 
         function renderQuestionEditor(q, index) {
+            const isQuiz = window.State.currentBuilderForm.settings?.isQuiz || false;
             let optionsHtml = '';
-            // If question type requires options list (radio, checkbox, dropdown)
+            
             if (['radio', 'checkbox', 'dropdown'].includes(q.type)) {
                 optionsHtml = `<div class="options-list">`;
                 q.options.forEach((opt, oIdx) => {
@@ -833,7 +913,45 @@ service cloud.firestore {
                 optionsHtml += `<button class="outline mt-1" style="padding:0.4rem 1rem; font-size:0.9rem" onclick="window.addOption(${index})"><i class="fas fa-plus"></i> إضافة خيار</button></div>`;
             }
 
-            // Conditional Logic UI
+            let quizCorrectionHtml = '';
+            if (isQuiz) {
+                let answerInputHtml = '';
+                if (['radio', 'dropdown'].includes(q.type) && q.options) {
+                    answerInputHtml = `
+                        <select onchange="window.updateQuestion(${index}, 'correctAnswer', this.value)" style="margin:0; padding:0.5rem;">
+                            <option value="">اختر الإجابة الصحيحة...</option>
+                            ${q.options.map(opt => `<option value="${opt}" ${q.correctAnswer === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+                        </select>
+                    `;
+                } else if (q.type === 'checkbox' && q.options) {
+                    answerInputHtml = `
+                        <p class="text-muted" style="font-size:0.85rem; margin-bottom:0.3rem;">(تنبيه: لتصحيح المربعات المتعددة يرجى كتابة الخيار الصحيح الرئيسي بدقة)</p>
+                        <input type="text" value="${q.correctAnswer || ''}" onchange="window.updateQuestion(${index}, 'correctAnswer', this.value)" placeholder="الخيار الصحيح..." style="margin:0; padding:0.5rem;">
+                    `;
+                } else if (['text', 'phone', 'email'].includes(q.type)) {
+                    answerInputHtml = `
+                        <input type="text" value="${q.correctAnswer || ''}" onchange="window.updateQuestion(${index}, 'correctAnswer', this.value)" placeholder="أدخل النص الصحيح المتوقع..." style="margin:0; padding:0.5rem;">
+                    `;
+                } else {
+                    answerInputHtml = `<span class="text-muted" style="font-size:0.9rem;">هذا النوع من الأسئلة لا يدعم التصحيح التلقائي.</span>`;
+                }
+
+                quizCorrectionHtml = `
+                    <div style="background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.3); padding: 1rem; border-radius: var(--rs); margin-top:1rem;" class="flex-col">
+                        <div class="flex align-center justify-between" style="flex-wrap:wrap; gap:0.5rem">
+                            <span style="font-weight:bold; color:#c084fc;"><i class="fas fa-key"></i> الإجابة النموذجية الصحيحة:</span>
+                            <div class="flex align-center" style="gap:0.5rem">
+                                <span>النقاط / العلامة:</span>
+                                <input type="number" value="${q.points || 1}" min="1" onchange="window.updateQuestion(${index}, 'points', this.value)" style="width:70px; margin:0; padding:0.3rem 0.5rem; text-align:center;">
+                            </div>
+                        </div>
+                        <div class="mt-1">
+                            ${answerInputHtml}
+                        </div>
+                    </div>
+                `;
+            }
+
             let conditionHtml = '';
             if (q.condition) {
                 const prevQs = window.State.currentBuilderForm.questions.slice(0, index).filter(xq => ['radio', 'dropdown'].includes(xq.type) && xq.options);
@@ -895,6 +1013,7 @@ service cloud.firestore {
                     </div>
                     
                     ${optionsHtml}
+                    ${quizCorrectionHtml}
                     ${conditionHtml}
 
                     <div class="flex justify-between align-center mt-1 pt-1" style="border-top: 1px solid var(--border)">
@@ -914,17 +1033,22 @@ service cloud.firestore {
             `;
         }
 
-        // Builder Actions
         window.updateFormMeta = (key, val) => {
-            if(key === 'limitOneResponse') {
+            if(key === 'limitOneResponse' || key === 'isQuiz' || key === 'closed') {
                 if(!window.State.currentBuilderForm.settings) window.State.currentBuilderForm.settings = {};
-                window.State.currentBuilderForm.settings.limitOneResponse = val;
+                window.State.currentBuilderForm.settings[key] = val;
             } else {
                 window.State.currentBuilderForm[key] = val;
             }
+            if(key === 'isQuiz') document.getElementById('app-content').innerHTML = viewBuilder();
+        };
+        window.updateFormTheme = (colorName) => {
+            if(!window.State.currentBuilderForm.settings) window.State.currentBuilderForm.settings = {};
+            window.State.currentBuilderForm.settings.themeColor = colorName;
+            document.getElementById('app-content').innerHTML = viewBuilder();
         };
         window.addQuestion = () => {
-            window.State.currentBuilderForm.questions.push({ id: window.generateId(), type: 'text', title: 'سؤال جديد', required: false });
+            window.State.currentBuilderForm.questions.push({ id: window.generateId(), type: 'text', title: 'سؤال جديد', required: false, points: 1 });
             document.getElementById('app-content').innerHTML = viewBuilder();
         };
         window.updateQuestion = (idx, field, value) => {
@@ -959,23 +1083,21 @@ service cloud.firestore {
             window.saveFormToDB(window.State.currentBuilderForm);
         };
 
-        // Student Presets Magic
         window.addStudentPresets = () => {
             const presets = [
-                { id: window.generateId(), type: 'text', title: 'الاسم الثلاثي واللقب', required: true },
-                { id: window.generateId(), type: 'phone', title: 'رقم الهاتف (واتساب)', required: true },
-                { id: window.generateId(), type: 'dropdown', title: 'المحافظة', required: true, options: ['بغداد','البصرة','نينوى','أربيل','النجف','ذي قار','كركوك','الأنبار','ديالى','المثنى','القادسية','ميسان','واسط','صلاح الدين','دهوك','السليمانية','بابل','كربلاء'] },
-                { id: window.generateId(), type: 'radio', title: 'الجنس', required: true, options: ['ذكر', 'أنثى'] },
-                { id: window.generateId(), type: 'dropdown', title: 'المرحلة الدراسية / الصف', required: true, options: ['الأول المتوسط','الثاني المتوسط','الثالث المتوسط','الرابع الإعدادي','الخامس الإعدادي','السادس الإعدادي','جامعة/معهد'] },
-                { id: window.generateId(), type: 'text', title: 'اسم المدرسة / الجامعة', required: true },
-                { id: window.generateId(), type: 'radio', title: 'نوع الدوام', required: true, options: ['صباحي', 'مسائي', 'خارجي', 'موازي'] }
+                { id: window.generateId(), type: 'text', title: 'الاسم الثلاثي واللقب', required: true, points: 0 },
+                { id: window.generateId(), type: 'phone', title: 'رقم الهاتف (واتساب)', required: true, points: 0 },
+                { id: window.generateId(), type: 'dropdown', title: 'المحافظة', required: true, options: ['بغداد','البصرة','نينوى','أربيل','النجف','ذي قار','كركوك','الأنبار','ديالى','المثنى','القادسية','ميسان','واسط','صلاح الدين','دهوك','السليمانية','بابل','كربلاء'], points: 0 },
+                { id: window.generateId(), type: 'radio', title: 'الجنس', required: true, options: ['ذكر', 'أنثى'], points: 0 },
+                { id: window.generateId(), type: 'dropdown', title: 'المرحلة الدراسية / الصف', required: true, options: ['الأول المتوسط','الثاني المتوسط','الثالث المتوسط','الرابع الإعدادي','الخامس الإعدادي','السادس الإعدادي','جامعة/معهد'], points: 0 },
+                { id: window.generateId(), type: 'text', title: 'اسم المدرسة / الجامعة', required: true, points: 0 },
+                { id: window.generateId(), type: 'radio', title: 'نوع الدوام', required: true, options: ['صباحي', 'مسائي', 'خارجي', 'موازي'], points: 0 }
             ];
             window.State.currentBuilderForm.questions.push(...presets);
             document.getElementById('app-content').innerHTML = viewBuilder();
             window.showToast('تم إدراج الحقول بنجاح!');
         };
 
-        // Conditional Logic implementation in Builder
         window.showConditionModal = (qIdx) => {
             const f = window.State.currentBuilderForm;
             const prevQs = f.questions.slice(0, qIdx).filter(q => ['radio', 'dropdown'].includes(q.type) && q.options && q.options.length > 0);
@@ -985,17 +1107,13 @@ service cloud.firestore {
                 return;
             }
 
-            // إنشاء شرط فارغ ليقوم المستخدم بضبطه
-            f.questions[qIdx].condition = {
-                dependsOnId: '',
-                requiredValue: ''
-            };
+            f.questions[qIdx].condition = { dependsOnId: '', requiredValue: '' };
             document.getElementById('app-content').innerHTML = viewBuilder();
         };
 
         window.updateConditionParent = (qIdx, parentId) => {
             window.State.currentBuilderForm.questions[qIdx].condition.dependsOnId = parentId;
-            window.State.currentBuilderForm.questions[qIdx].condition.requiredValue = ''; // تصفير الإجابة عند تغيير السؤال
+            window.State.currentBuilderForm.questions[qIdx].condition.requiredValue = '';
             document.getElementById('app-content').innerHTML = viewBuilder();
         };
 
@@ -1011,7 +1129,6 @@ service cloud.firestore {
         // --- PUBLIC FORM VIEWER ---
         async function viewForm(id) {
             try {
-                // Fetch form directly from DB for public viewers
                 const formRef = doc(db, 'artifacts', appId, 'public', 'data', 'forms', id);
                 const formSnap = await getDoc(formRef);
                 
@@ -1020,20 +1137,34 @@ service cloud.firestore {
                 }
 
                 const form = formSnap.data();
+                const theme = form.settings?.themeColor || 'green';
+                const isClosed = form.settings?.closed || false;
+
+                if (isClosed) {
+                    return `
+                        <div class="card text-center animate-fade theme-${theme}" style="margin-top: 4rem; padding: 4rem 2rem; border-top: 6px solid var(--danger);">
+                            <div style="font-size: 5rem; margin-bottom: 1.5rem; color: var(--danger);"><i class="fas fa-lock"></i></div>
+                            <h2 style="font-size: 2rem;">عذراً، تم إغلاق النموذج</h2>
+                            <p class="text-muted mt-1" style="font-size:1.1rem">هذا النموذج لا يستقبل استجابات حالياً بقرار من المشرف.</p>
+                        </div>
+                    `;
+                }
 
                 let html = `
-                    <div class="card text-center animate-fade" style="border-top: 6px solid var(--accent); padding: 3rem 1.5rem;">
+                    <div class="card text-center animate-fade theme-${theme}" style="border-top: 6px solid var(--accent); padding: 3rem 1.5rem;">
                         <h1 style="font-size: 2rem; color: var(--accent);">${form.title}</h1>
                         ${form.description ? `<p class="text-muted mt-1" style="font-size: 1.1rem">${form.description}</p>` : ''}
                     </div>
-                    <form id="public-form" onsubmit="window.submitPublicForm(event, '${id}')">
+                    <form id="public-form" class="theme-${theme}" onsubmit="window.submitPublicForm(event, '${id}')">
                 `;
 
                 form.questions.forEach((q, idx) => {
                     const isConditional = q.condition ? `data-conditional="true" data-parent="q_${q.condition.dependsOnId}" data-reqval="${q.condition.requiredValue}" class="card question-container hidden"` : `class="card question-container animate-fade" style="animation-delay: ${idx*0.1}s"`;
                     const reqStar = q.required ? '<span style="color:var(--danger)">*</span>' : '';
+                    const pointsBadge = (form.settings?.isQuiz && q.points > 0) ? `<span class="badge" style="background: rgba(168,85,247,0.15); color: #c084fc; float:left;"><i class="fas fa-star"></i> ${q.points} نقطة</span>` : '';
                     
                     html += `<div id="wrap_${q.id}" ${isConditional}>
+                        ${pointsBadge}
                         <p style="font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem;">${q.title} ${reqStar}</p>
                     `;
                     
@@ -1050,14 +1181,12 @@ service cloud.firestore {
                     } else if (q.type === 'time') {
                         html += `<input type="time" name="q_${q.id}" ${q.required ? 'required' : ''} onchange="window.evaluateConditions()">`;
                     } else if (q.type === 'file') {
-                        // File input with base64 serialization
                         html += `
                             <input type="file" onchange="window.handleFileSelect('${q.id}', this)" ${q.required ? 'required' : ''} accept=".jpg,.jpeg,.png,.pdf,.doc,.docx">
                             <input type="hidden" name="q_${q.id}" id="input_${q.id}">
                             <span id="file_info_${q.id}" class="text-muted" style="display:block; margin-top:5px; font-size:0.85rem">الحد الأقصى للملف: 500 كيلوبايت</span>
                         `;
                     } else if (q.type === 'rating') {
-                        // Interative Star Rating
                         html += `
                             <div class="rating-stars" data-qid="${q.id}">
                                 <span onclick="window.setRating('${q.id}', 1)"><i class="far fa-star"></i></span>
@@ -1103,7 +1232,6 @@ service cloud.firestore {
         }
 
         window.setupConditionalLogic = () => {
-            // Initial evaluation
             window.evaluateConditions();
         }
 
@@ -1146,16 +1274,41 @@ service cloud.firestore {
         };
 
         function viewSuccess() {
+            const formId = window.location.hash.split('/')[1];
+            let scoreHtml = '';
+            
+            if (formId) {
+                const rawScore = sessionStorage.getItem(`last_score_${formId}`);
+                if (rawScore) {
+                    const data = JSON.parse(rawScore);
+                    scoreHtml = `
+                        <div class="card" style="max-width:320px; margin: 1.5rem auto; background: rgba(168,85,247,0.1); border: 2px solid #a855f7;">
+                            <p class="text-muted" style="font-weight:bold; font-size:1rem;">نتيجتك في الاختبار:</p>
+                            <h1 style="font-size: 3rem; color: #c084fc; margin-top:0.5rem;">${data.score} / ${data.totalPoints}</h1>
+                        </div>
+                    `;
+                }
+            }
+
             return `
                 <div class="card text-center animate-fade" style="margin-top: 4rem; padding: 4rem 2rem;">
                     <div style="font-size: 5rem; margin-bottom: 1rem; color: var(--accent);"><i class="fas fa-check-circle"></i></div>
                     <h2 style="font-size: 2rem;">تم إرسال ردك بنجاح!</h2>
-                    <p class="text-muted mt-1">شكراً لك لتسجيل بياناتك.</p>
+                    <p class="text-muted mt-1">شكراً لك لتسجيل بياناتك وحل الامتحان.</p>
+                    ${scoreHtml}
                 </div>
             `;
         }
 
-        // --- RESPONSES VIEWER ---
+        // --- RESPONSES & CHARTS VIEWER ---
+        window.switchTab = (tabId) => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+            
+            document.getElementById(`btn-tab-${tabId}`).classList.add('active');
+            document.getElementById(`content-${tabId}`).classList.remove('hidden');
+        };
+
         async function viewResponses(formId) {
             const form = window.State.forms.find(f => f.id === formId);
             if (!form) return `<div class="card">النموذج غير موجود</div>`;
@@ -1168,32 +1321,84 @@ service cloud.firestore {
                 const formRes = allRes.filter(r => r.formId === formId).sort((a,b) => new Date(b.date) - new Date(a.date));
                 
                 window.currentExportData = { formTitle: form.title, questions: form.questions, responses: formRes };
+                window.renderChartsFlag = true; // Signal to initialize charts after rendering DOM
+
+                let avgHtml = '';
+                const isQuiz = form.settings?.isQuiz || false;
+                if (isQuiz && formRes.length > 0) {
+                    let totalScores = 0;
+                    let possiblePoints = 0;
+                    let quizSubmissionsCount = 0;
+
+                    formRes.forEach(r => {
+                        if (r.score !== null && r.score !== undefined) {
+                            totalScores += r.score;
+                            possiblePoints = r.totalPoints || 0;
+                            quizSubmissionsCount++;
+                        }
+                    });
+
+                    if (quizSubmissionsCount > 0) {
+                        const avg = (totalScores / quizSubmissionsCount).toFixed(1);
+                        avgHtml = `
+                            <div class="card text-center animate-fade" style="background: rgba(168,85,247,0.08); border-color: rgba(168,85,247,0.3)">
+                                <h2 style="color: #c084fc;">${avg} / ${possiblePoints}</h2>
+                                <p class="text-muted">متوسط درجات الطلاب</p>
+                            </div>
+                        `;
+                    }
+                }
 
                 let html = `
                     <div class="flex justify-between align-center mb-1 animate-fade">
-                        <h2><i class="fas fa-chart-pie text-muted"></i> الردود: ${form.title}</h2>
+                        <h2><i class="fas fa-chart-pie text-muted"></i> إحصائيات: ${form.title}</h2>
                         <div class="flex">
                             <button class="outline" onclick="navigate('#dashboard')"><i class="fas fa-arrow-right"></i> عودة</button>
-                            <button class="primary" onclick="window.exportToCSV()"><i class="fas fa-file-excel"></i> تصدير إكسل</button>
+                            <button class="primary" onclick="window.exportToCSV()"><i class="fas fa-file-excel"></i> إكسل</button>
                         </div>
                     </div>
                     
-                    <div class="card text-center mb-1 animate-fade">
-                        <h1 style="font-size: 4rem; color: var(--accent); line-height: 1;">${formRes.length}</h1>
-                        <p class="text-muted">إجمالي الردود المستلمة</p>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-bottom: 1.5rem;" class="animate-fade">
+                        <div class="card text-center" style="margin:0;">
+                            <h1 style="font-size: 3rem; color: var(--accent); line-height: 1;">${formRes.length}</h1>
+                            <p class="text-muted">إجمالي الردود المستلمة</p>
+                        </div>
+                        ${avgHtml}
                     </div>
+
+                    <!-- نظام التبويبات -->
+                    <div class="tabs-container animate-fade">
+                        <button id="btn-tab-stats" class="tab-btn active" onclick="switchTab('stats')"><i class="fas fa-chart-bar"></i> ملخص الإحصائيات</button>
+                        <button id="btn-tab-indiv" class="tab-btn" onclick="switchTab('indiv')"><i class="fas fa-list"></i> الردود الفردية</button>
+                    </div>
+
+                    <!-- تبويب الإحصائيات والرسوم البيانية -->
+                    <div id="content-stats" class="tab-content animate-fade">
+                        ${formRes.length === 0 ? `<div class="card text-center text-muted"><p>لا توجد ردود لعرض الإحصائيات.</p></div>` : `
+                            <div id="charts-container">
+                                <!-- سيتم حقن الرسوم البيانية هنا برمجياً -->
+                            </div>
+                        `}
+                    </div>
+
+                    <!-- تبويب الردود الفردية الكلاسيكي -->
+                    <div id="content-indiv" class="tab-content hidden animate-fade">
                 `;
 
                 if (formRes.length === 0) {
-                    html += `<div class="card text-center text-muted animate-fade"><i class="fas fa-inbox fa-3x mb-1"></i><p>لا توجد ردود حتى الآن.</p></div>`;
+                    html += `<div class="card text-center text-muted"><i class="fas fa-inbox fa-3x mb-1"></i><p>لا توجد ردود حتى الآن.</p></div>`;
                 } else {
                     formRes.forEach((r, idx) => {
                         const dateObj = new Date(r.date);
                         const formattedDate = dateObj.toLocaleDateString('ar-EG') + ' ' + dateObj.toLocaleTimeString('ar-EG');
+                        const scoreBadge = (isQuiz && r.score !== null) ? `<span class="badge" style="background:rgba(168,85,247,0.2); color:#c084fc; font-weight:bold; font-size:1rem;"><i class="fas fa-graduation-cap"></i> الدرجة: ${r.score} / ${r.totalPoints}</span>` : '';
                         
-                        html += `<div class="card animate-fade" style="animation-delay: ${idx * 0.05}s">
+                        html += `<div class="card" style="margin-bottom: 1rem;">
                             <div class="flex justify-between align-center mb-1 pb-1" style="border-bottom: 1px solid var(--border)">
-                                <span class="badge">رد #${formRes.length - idx}</span>
+                                <div class="flex align-center" style="gap:0.5rem">
+                                    <span class="badge">رد #${formRes.length - idx}</span>
+                                    ${scoreBadge}
+                                </div>
                                 <span class="text-muted" dir="ltr"><i class="far fa-clock"></i> ${formattedDate}</span>
                             </div>
                             <div style="display: grid; grid-template-columns: 1fr; gap: 0.8rem;">
@@ -1206,7 +1411,6 @@ service cloud.firestore {
                             
                             let answerValue = r.answers[qId];
                             
-                            // Check if answer is a structured file object
                             if (typeof answerValue === 'string' && answerValue.startsWith('{"name":')) {
                                 try {
                                     const fileData = JSON.parse(answerValue);
@@ -1241,6 +1445,7 @@ service cloud.firestore {
                         html += `</div></div>`;
                     });
                 }
+                html += `</div>`; // إغلاق تبويب الردود
                 return html;
             } catch(e) {
                 if(e.code === 'permission-denied') return getRulesErrorHTML();
@@ -1248,21 +1453,132 @@ service cloud.firestore {
             }
         }
 
+        // دالة إنشاء الرسوم البيانية
+        window.initChartsData = () => {
+            const data = window.currentExportData;
+            if(!data || data.responses.length === 0) return;
+
+            const container = document.getElementById('charts-container');
+            const colors = ['#4ade80', '#3b82f6', '#a855f7', '#f59e0b', '#ef4444', '#14b8a6', '#f43f5e', '#6366f1', '#ec4899', '#8b5cf6'];
+            
+            data.questions.forEach((q, qIndex) => {
+                // نرسم للمسائل التي تحتمل الإحصاء فقط (خيارات، قوائم، تقييم)
+                if(!['radio', 'dropdown', 'checkbox', 'rating'].includes(q.type)) return;
+
+                let counts = {};
+                let totalAnswers = 0;
+
+                // تجميع البيانات
+                data.responses.forEach(r => {
+                    let ans = r.answers[`q_${q.id}`];
+                    if(!ans) return;
+                    
+                    totalAnswers++;
+                    if(q.type === 'checkbox') {
+                        // تفكيك إجابات مربعات الاختيار
+                        const selectedOptions = ans.split('، ');
+                        selectedOptions.forEach(opt => {
+                            counts[opt] = (counts[opt] || 0) + 1;
+                        });
+                    } else if (q.type === 'rating') {
+                        const stars = ans + ' نجمة';
+                        counts[stars] = (counts[stars] || 0) + 1;
+                    } else {
+                        counts[ans] = (counts[ans] || 0) + 1;
+                    }
+                });
+
+                if(totalAnswers === 0) return;
+
+                const labels = Object.keys(counts);
+                const dataValues = Object.values(counts);
+                
+                const canvasId = `chart_${q.id}`;
+                const chartCardHtml = `
+                    <div class="card">
+                        <div class="flex justify-between align-center mb-1">
+                            <h3 style="font-size:1.1rem">${q.title}</h3>
+                            <button class="outline" style="padding: 0.4rem 0.8rem; font-size:0.85rem;" onclick="window.downloadChart('${canvasId}', '${q.title.replace(/'/g, "\\'")}')">
+                                <i class="fas fa-download"></i> تنزيل كصورة
+                            </button>
+                        </div>
+                        <p class="text-muted" style="font-size:0.85rem; margin-bottom:1rem">${totalAnswers} إجابة</p>
+                        <div class="chart-container">
+                            <canvas id="${canvasId}"></canvas>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', chartCardHtml);
+
+                const ctx = document.getElementById(canvasId).getContext('2d');
+                
+                // تحديد نوع الرسم حسب السؤال
+                const chartType = (q.type === 'radio' || q.type === 'dropdown') ? 'doughnut' : 'bar';
+                
+                new Chart(ctx, {
+                    type: chartType,
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'عدد الإجابات',
+                            data: dataValues,
+                            backgroundColor: chartType === 'doughnut' ? colors : colors[0] + '80',
+                            borderColor: chartType === 'bar' ? colors[0] : '#1a1b26',
+                            borderWidth: 2,
+                            borderRadius: chartType === 'bar' ? 4 : 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: chartType === 'doughnut' ? 'right' : 'none',
+                                labels: { color: '#f8fafc', font: { family: 'Cairo' } }
+                            },
+                            tooltip: {
+                                bodyFont: { family: 'Cairo' },
+                                titleFont: { family: 'Cairo' }
+                            },
+                            customCanvasBackgroundColor: { color: '#1a1b26' }
+                        },
+                        scales: chartType === 'bar' ? {
+                            y: { beginAtZero: true, ticks: { stepSize: 1, color: '#94a3b8' }, grid: { color: '#2f3247' } },
+                            x: { ticks: { color: '#94a3b8' }, grid: { display: false } }
+                        } : undefined
+                    },
+                    plugins: [customCanvasBackgroundColor]
+                });
+            });
+        };
+
+        // دالة تنزيل الرسم البياني كصورة
+        window.downloadChart = (canvasId, title) => {
+            const canvas = document.getElementById(canvasId);
+            if(!canvas) return;
+            
+            const link = document.createElement('a');
+            link.download = `إحصائيات_${title.replace(/ /g, '_')}.png`;
+            link.href = canvas.toDataURL('image/png', 1.0);
+            link.click();
+            window.showToast('بدأ تنزيل الإنفوجرافك بنجاح!');
+        };
+
         window.exportToCSV = () => {
             const data = window.currentExportData;
             if(!data || data.responses.length === 0) {
                 window.showToast('لا توجد بيانات لتصديرها', true); return;
             }
 
-            // Headers
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // BOM for Arabic Excel support
-            const headers = ['التاريخ'];
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
+            const headers = ['التاريخ', 'العلامة المستحقة'];
             data.questions.forEach(q => headers.push(q.title));
             csvContent += headers.join(",") + "\n";
 
-            // Rows
             data.responses.forEach(r => {
-                const row = [new Date(r.date).toLocaleString('ar-EG').replace(/,/g, '')];
+                const scoreStr = r.score !== null ? `${r.score} / ${r.totalPoints}` : 'غير متوفر';
+                const row = [new Date(r.date).toLocaleString('ar-EG').replace(/,/g, ''), scoreStr];
+                
                 data.questions.forEach(q => {
                     let ans = r.answers[`q_${q.id}`] || '';
                     if(typeof ans === 'string' && ans.startsWith('{"name":')) {
@@ -1271,7 +1587,7 @@ service cloud.firestore {
                             ans = `ملف مرفوع: ${parsed.name}`;
                         } catch(e) { ans = 'ملف مرفوع'; }
                     }
-                    ans = ans.replace(/"/g, '""'); // Escape quotes
+                    ans = ans.replace(/"/g, '""'); 
                     if(ans.includes(',') || ans.includes('\n')) ans = `"${ans}"`;
                     row.push(ans);
                 });
