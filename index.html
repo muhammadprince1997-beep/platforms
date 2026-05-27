@@ -364,7 +364,22 @@ service cloud.firestore {
             try {
                 const formsRef = collection(db, 'artifacts', appId, 'public', 'data', 'forms');
                 const snap = await getDocs(formsRef);
-                window.State.forms = snap.docs.map(d => d.data());
+                const allForms = snap.docs.map(d => d.data());
+                
+                if (window.State.isAdmin) {
+                    // الأدمن يرى كل النماذج
+                    window.State.forms = allForms;
+                } else {
+                    // المشرف العادي نتحقق من صلاحياته
+                    const profileSnap = await getDoc(doc(db, 'artifacts', appId, 'users', window.State.user.uid, 'profile', 'data'));
+                    const profile = profileSnap.data() || {};
+                    if (profile.canViewAllForms) {
+                        window.State.forms = allForms; // يرى الكل إذا تم السماح له
+                    } else {
+                        // يرى نماذجه فقط
+                        window.State.forms = allForms.filter(f => f.ownerId === window.State.user.uid);
+                    }
+                }
             } catch (e) {
                 console.error(e);
                 if (e.code === 'permission-denied') {
@@ -549,6 +564,7 @@ service cloud.firestore {
             const btn = document.getElementById('btn-create-sup');
             const email = document.getElementById('new-sup-email').value;
             const pass = document.getElementById('new-sup-pass').value;
+            const canViewAll = document.getElementById('new-sup-view-all').checked;
 
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإنشاء...';
             btn.disabled = true;
@@ -565,14 +581,16 @@ service cloud.firestore {
                 await setDoc(doc(db, 'artifacts', appId, 'users', newUid, 'profile', 'data'), {
                     email: email,
                     role: 'editor',
-                    revoked: false
+                    revoked: false,
+                    canViewAllForms: canViewAll
                 });
 
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'supervisors', newUid), {
                     uid: newUid,
                     email: email,
                     createdAt: new Date().toISOString(),
-                    revoked: false
+                    revoked: false,
+                    canViewAllForms: canViewAll
                 });
 
                 await signOut(window.secondaryAuth);
@@ -580,6 +598,7 @@ service cloud.firestore {
                 window.showToast('تم إنشاء حساب المشرف المساعد بنجاح!');
                 document.getElementById('new-sup-email').value = '';
                 document.getElementById('new-sup-pass').value = '';
+                document.getElementById('new-sup-view-all').checked = false;
                 
                 window.loadSupervisors();
             } catch (error) {
@@ -600,6 +619,19 @@ service cloud.firestore {
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'supervisors', uid), { revoked: !currentStatus }, { merge: true });
                 
                 window.showToast('تم تحديث حالة الحساب بنجاح');
+                window.loadSupervisors();
+            } catch (e) {
+                if (e.code === 'permission-denied') document.getElementById('app-content').innerHTML = getRulesErrorHTML();
+                else window.showToast('حدث خطأ أثناء التحديث', true);
+            }
+        };
+
+        window.toggleSupervisorViewAll = async (uid, currentViewAll) => {
+            try {
+                await setDoc(doc(db, 'artifacts', appId, 'users', uid, 'profile', 'data'), { canViewAllForms: !currentViewAll }, { merge: true });
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'supervisors', uid), { canViewAllForms: !currentViewAll }, { merge: true });
+                
+                window.showToast('تم تحديث صلاحية الرؤية بنجاح');
                 window.loadSupervisors();
             } catch (e) {
                 if (e.code === 'permission-denied') document.getElementById('app-content').innerHTML = getRulesErrorHTML();
@@ -1263,6 +1295,10 @@ service cloud.firestore {
                     <form onsubmit="window.createSupervisor(event)" class="flex-col" style="max-width: 500px;">
                         <input type="email" id="new-sup-email" placeholder="البريد الإلكتروني للمشرف" required>
                         <input type="password" id="new-sup-pass" placeholder="كلمة المرور (اكتبها له)" required minlength="6">
+                        <label class="custom-radio mt-1" style="background: var(--surface2); padding: 1rem; border-radius: var(--rs);">
+                            <input type="checkbox" id="new-sup-view-all">
+                            <span style="font-weight: bold;">السماح له برؤية جميع النماذج (بما فيها نماذجك)</span>
+                        </label>
                         <button type="submit" class="primary" id="btn-create-sup"><i class="fas fa-plus"></i> إضافة الحساب</button>
                     </form>
                 </div>
@@ -1291,15 +1327,26 @@ service cloud.firestore {
                 snap.docs.forEach(d => {
                     const s = d.data();
                     const isRevoked = s.revoked;
+                    const canViewAll = s.canViewAllForms;
                     html += `
-                        <div class="card flex justify-between align-center" style="padding: 1rem; margin-bottom: 0.8rem; background: var(--surface2); border: 1px solid ${isRevoked ? 'var(--danger)' : 'var(--border)'}">
+                        <div class="card flex justify-between align-center" style="padding: 1rem; margin-bottom: 0.8rem; background: var(--surface2); border: 1px solid ${isRevoked ? 'var(--danger)' : 'var(--border)'}; flex-wrap: wrap; gap: 1rem;">
                             <div>
                                 <p style="font-weight:bold; font-size: 1.1rem; text-decoration: ${isRevoked ? 'line-through' : 'none'}; color: ${isRevoked ? 'var(--danger)' : 'var(--text)'}">${s.email}</p>
-                                <span class="badge" style="background: ${isRevoked ? 'rgba(248,113,113,0.1)' : 'rgba(74,222,128,0.1)'}; color: ${isRevoked ? 'var(--danger)' : 'var(--accent)'}; padding: 0.2rem 0.6rem; border-radius: 4px;">${isRevoked ? 'موقوف' : 'نشط'}</span>
+                                <div class="flex mt-1" style="gap: 0.5rem">
+                                    <span class="badge" style="background: ${isRevoked ? 'rgba(248,113,113,0.1)' : 'rgba(74,222,128,0.1)'}; color: ${isRevoked ? 'var(--danger)' : 'var(--accent)'}; padding: 0.2rem 0.6rem; border-radius: 4px;">${isRevoked ? 'موقوف' : 'نشط'}</span>
+                                    <span class="badge" style="background: rgba(59,130,246,0.1); color: var(--primary); padding: 0.2rem 0.6rem; border-radius: 4px;">
+                                        ${canViewAll ? '<i class="fas fa-eye"></i> يرى جميع النماذج' : '<i class="fas fa-eye-slash"></i> يرى نماذجه فقط'}
+                                    </span>
+                                </div>
                             </div>
-                            <button class="${isRevoked ? 'primary' : 'danger outline'}" onclick="window.toggleSupervisorAccess('${s.uid}', ${isRevoked})">
-                                ${isRevoked ? '<i class="fas fa-check"></i> تفعيل الحساب' : '<i class="fas fa-ban"></i> إيقاف الحساب'}
-                            </button>
+                            <div class="flex" style="gap: 0.5rem">
+                                <button class="outline" style="padding: 0.4rem 0.8rem; font-size: 0.9rem;" onclick="window.toggleSupervisorViewAll('${s.uid}', ${canViewAll})">
+                                    ${canViewAll ? 'تقييد الرؤية' : 'السماح برؤية الكل'}
+                                </button>
+                                <button class="${isRevoked ? 'primary' : 'danger outline'}" style="padding: 0.4rem 0.8rem; font-size: 0.9rem;" onclick="window.toggleSupervisorAccess('${s.uid}', ${isRevoked})">
+                                    ${isRevoked ? '<i class="fas fa-check"></i> تفعيل' : '<i class="fas fa-ban"></i> إيقاف'}
+                                </button>
+                            </div>
                         </div>
                     `;
                 });
